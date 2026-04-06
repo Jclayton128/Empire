@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,8 @@ public class TileHandler : MonoBehaviour
 
     [SerializeField] List<TileHandler> _neighborTiles = new List<TileHandler>();
     public List<TileHandler> NeighborTiles => _neighborTiles;
+    public float Value;
+
 
 
     public void InitializeTile()
@@ -35,6 +38,50 @@ public class TileHandler : MonoBehaviour
 
         }
 
+        _neighborTiles = Shuffle(_neighborTiles);
+
+        Value = TileController.Instance.GetValueFactorAtPoint(transform.position);
+
+    }
+
+    public List<TileHandler>  Shuffle(List<TileHandler> list)
+    {
+        System.Random rnd = new System.Random();
+        List<TileHandler> output = new List<TileHandler>(list);
+        int n = output.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = rnd.Next(n + 1);
+            TileHandler value = output[k];
+            output[k] = output[n];
+            output[n] = value;
+        }
+
+        return output;
+    }
+
+
+    public float GetNeighborlyScore(int askingFaction)
+    {
+
+        //if (_factionIndex == -1)
+        //{
+        //    return noiseValue;
+        //}
+
+        float neighborValue = 0;
+
+        foreach (var neighbor in _neighborTiles)
+        {
+            if (neighbor.FactionIndex == askingFaction)
+            {
+                neighborValue += 1f;
+            }
+        }
+
+        return neighborValue + Value;
+        //return neighborValue;
     }
 
     public void AssignFaction(int factionIndex)
@@ -43,4 +90,6 @@ public class TileHandler : MonoBehaviour
 
         _tileFill.color = FactionController.Instance.GetFactionColor(factionIndex);
     }
+
+  
 }

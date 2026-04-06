@@ -25,11 +25,11 @@ public class TileController : MonoBehaviour
     System.Random _rnd;
 
     [SerializeField] float _xOffset;
-
     [SerializeField] float _yOffset;
     List<TileHandler> _tilesRaw = new List<TileHandler>();
-    List<TileHandler> _tilesUnfactioned = new List<TileHandler>();
-    List<TileHandler> _capitolTiles = new List<TileHandler>();
+    List<List<TileHandler>> _factionTiles = new List<List<TileHandler>>();
+    List<List<TileHandler>> _growingFactions = new List<List<TileHandler>>();
+
 
 
     private void Awake()
@@ -49,15 +49,15 @@ public class TileController : MonoBehaviour
         _yOffset = (float)_rnd.NextDouble() * -234f;
 
         _tilesRaw.Clear();
-        _tilesUnfactioned.Clear();
-        _capitolTiles.Clear();
+        _factionTiles.Clear();
+        _growingFactions.Clear();
 
         LayTiles();
         InitializeTiles();
 
-        SeedRandomCapitols(7);
+        SeedRandomFactions(15);
 
-        SpreadRegionsFromCapitols();
+        SpreadRegions();
     }
 
 
@@ -81,8 +81,9 @@ public class TileController : MonoBehaviour
                 }
 
                 Vector3 position = new Vector3(xPos, yPos, 0);
-                var tile = Instantiate(_tilePrefab, position, Quaternion.identity, transform);
+                var tile = Instantiate(_tilePrefab, position, Quaternion.identity, _hexMap);
                 _tilesRaw.Add(tile);
+                tile.name = $"Tile_{_tilesRaw.Count}";
 
             }
         }
@@ -96,52 +97,91 @@ public class TileController : MonoBehaviour
         }
     }
 
-    public void SeedRandomCapitols(int capitolsToSeed)
+    public void SeedRandomFactions(int factionsToSeed)
     {
-        _tilesUnfactioned = new List<TileHandler>(_tilesRaw);
+        List<TileHandler> tilesUnfactioned = new List<TileHandler>(_tilesRaw);
 
-        for (int i = 0; i < capitolsToSeed; i++)
+        for (int i = 0; i < factionsToSeed; i++)
         {
-            int rand = UnityEngine.Random.Range(0, _tilesUnfactioned.Count);
-            TileHandler newCapitol = _tilesUnfactioned[rand];
+            int rand = UnityEngine.Random.Range(0, tilesUnfactioned.Count);
+            TileHandler newCapitol = tilesUnfactioned[rand];
 
-            _tilesUnfactioned.Remove(newCapitol);
-            _capitolTiles.Add(newCapitol);
-
-            newCapitol.AssignFaction(_capitolTiles.Count);
+            tilesUnfactioned.Remove(newCapitol);
+            List<TileHandler> aFactionsTiles = new List<TileHandler>();
+            aFactionsTiles.Add(newCapitol);
+            _growingFactions.Add(aFactionsTiles);
+            newCapitol.AssignFaction(i);
         }
-
     }
 
-    private void SpreadRegionsFromCapitols()
+    private void SpreadRegions()
     {
-        List<TileHandler> newCapitols = new List<TileHandler>();
-        foreach (var capitol in _capitolTiles)
+        for (int currentFaction = 0; currentFaction < _growingFactions.Count; currentFaction++)
         {
-            List<TileHandler> nt = new List<TileHandler>();
-            foreach (var tile in capitol.NeighborTiles)
+            TileHandler tileToFaction = null;
+
+            List<TileHandler> tilesInThisFaction = _growingFactions[currentFaction];
+
+            TileHandler bestTileToGrowFrom = null;
+            float factionValueToBeat = -9f;
+            foreach (var bestTileCandidate in tilesInThisFaction)
             {
-                if (tile.FactionIndex == -1)
+                bool hasUnfactionedNeighbors = false;
+                foreach (var neighbor in bestTileCandidate.NeighborTiles)
                 {
-                    nt.Add(tile);
+                    if (neighbor.FactionIndex == -1)
+                    {
+                        hasUnfactionedNeighbors = true;
+                        break;
+                    }
+                }
+
+                if (hasUnfactionedNeighbors && bestTileCandidate.Value > factionValueToBeat)
+                {
+                    bestTileToGrowFrom = bestTileCandidate;
                 }
             }
 
-            if (nt.Count > 0)
+            if (bestTileToGrowFrom == null)
             {
-                int rand = UnityEngine.Random.Range(0, nt.Count);
-                var tile = nt[rand];
-                tile.AssignFaction(capitol.FactionIndex);
-                newCapitols.Add(tile);
+                _growingFactions.RemoveAt(currentFaction);
+                //Debug.Log($"Faction {currentFaction} has no tiles to grow from. Factions still growing: " + _growingFactions.Count);
             }
+            else
+            {
+                float unfactionedValueToBeat = -11f;
+                foreach (var tileToTest in bestTileToGrowFrom.NeighborTiles)
+                {
+                    if (tileToTest.FactionIndex != -1)
+                    {
+                        continue;
+                    }
+
+                    if (tileToTest.GetNeighborlyScore(bestTileToGrowFrom.FactionIndex) > unfactionedValueToBeat)
+                    {
+                        unfactionedValueToBeat = tileToTest.GetNeighborlyScore(bestTileToGrowFrom.FactionIndex);
+                        tileToFaction = tileToTest;
+                    }
+                }
+
+                if (tileToFaction != null)
+                {
+                    tileToFaction.AssignFaction(bestTileToGrowFrom.FactionIndex);
+                    tilesInThisFaction.Add(tileToFaction);
+                }
+                else
+                {
+                    _growingFactions.RemoveAt(currentFaction);
+                    //Debug.Log($"Faction {currentFaction} has no tiles to grow into. Factions still growing: " + _growingFactions.Count);
+                }
+            }
+
+            
         }
 
-        _capitolTiles.Clear();
-        _capitolTiles = new List<TileHandler>(newCapitols);
-
-        if (_capitolTiles.Count > 1)
+        if (_growingFactions.Count > 0)
         {
-            Invoke(nameof(SpreadRegionsFromCapitols), 0.5f);
+            Invoke(nameof(SpreadRegions), 0.25f);
         }
         else
         {
@@ -149,7 +189,7 @@ public class TileController : MonoBehaviour
         }
     }
 
-    public float GetSeabedDepthFactorAtPoint(Vector3 point)
+    public float GetValueFactorAtPoint(Vector3 point)
     {
         return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
     }
