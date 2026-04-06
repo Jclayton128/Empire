@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+
 
 public class TileController : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class TileController : MonoBehaviour
     //settings
     [SerializeField] Transform _hexMap = null;
     [SerializeField] TileHandler _tilePrefab = null;
+    [SerializeField] TextMeshPro _barycenterIndicatorPrefab = null;
     [SerializeField] int _gridWidth = 50;
     [SerializeField] int _gridHeight = 35;
 
@@ -28,9 +31,8 @@ public class TileController : MonoBehaviour
     [SerializeField] float _yOffset;
     List<TileHandler> _tilesRaw = new List<TileHandler>();
     List<List<TileHandler>> _factionTiles = new List<List<TileHandler>>();
-    List<List<TileHandler>> _growingFactions = new List<List<TileHandler>>();
-
-
+    List<bool> _isFactionGrowing = new List<bool>();
+    List<TextMeshPro> _barycenterIndicators = new List<TextMeshPro>();
 
     private void Awake()
     {
@@ -50,7 +52,7 @@ public class TileController : MonoBehaviour
 
         _tilesRaw.Clear();
         _factionTiles.Clear();
-        _growingFactions.Clear();
+        _isFactionGrowing.Clear();
 
         LayTiles();
         InitializeTiles();
@@ -109,18 +111,34 @@ public class TileController : MonoBehaviour
             tilesUnfactioned.Remove(newCapitol);
             List<TileHandler> aFactionsTiles = new List<TileHandler>();
             aFactionsTiles.Add(newCapitol);
-            _growingFactions.Add(aFactionsTiles);
+            _factionTiles.Add(aFactionsTiles);
             newCapitol.AssignFaction(i);
+            _isFactionGrowing.Add(true);
+
+            Vector3 pos = newCapitol.transform.position;
+            var barycenter = Instantiate(_barycenterIndicatorPrefab, pos, Quaternion.identity);
+            _barycenterIndicators.Add(barycenter);  
+            barycenter.text = i.ToString();
         }
     }
 
     private void SpreadRegions()
     {
-        for (int currentFaction = 0; currentFaction < _growingFactions.Count; currentFaction++)
+        int growingFactions = 0;
+        for (int currentFaction = 0; currentFaction < _factionTiles.Count; currentFaction++)
         {
+            if (_isFactionGrowing[currentFaction] == false)
+            {
+                continue;
+            }
+
+            Vector3 currentBarycenter = FindBarycenter(currentFaction);
+
+            growingFactions++;
+
             TileHandler tileToFaction = null;
 
-            List<TileHandler> tilesInThisFaction = _growingFactions[currentFaction];
+            List<TileHandler> tilesInThisFaction = _factionTiles[currentFaction];
 
             TileHandler bestTileToGrowFrom = null;
             float factionValueToBeat = -9f;
@@ -144,12 +162,13 @@ public class TileController : MonoBehaviour
 
             if (bestTileToGrowFrom == null)
             {
-                _growingFactions.RemoveAt(currentFaction);
+                _isFactionGrowing[currentFaction] = false;
+                //_growingFactions.RemoveAt(currentFaction);
                 //Debug.Log($"Faction {currentFaction} has no tiles to grow from. Factions still growing: " + _growingFactions.Count);
             }
             else
             {
-                float unfactionedValueToBeat = -11f;
+                float unfactionedValueToBeat = -15f;
                 foreach (var tileToTest in bestTileToGrowFrom.NeighborTiles)
                 {
                     if (tileToTest.FactionIndex != -1)
@@ -157,7 +176,31 @@ public class TileController : MonoBehaviour
                         continue;
                     }
 
-                    if (tileToTest.GetNeighborlyScore(bestTileToGrowFrom.FactionIndex) > unfactionedValueToBeat)
+                    //evaluate if this particular unfactioned tile is a good fit for this faction
+                    float neighborlyScore = tileToTest.GetNeighborlyScore(bestTileToGrowFrom.FactionIndex);
+                    float distanceToBarycenter = 0;
+
+                    //...by checking whether the prospective barycenter would still be within the faction
+                    Vector3 prospectiveBarycenter = FindProspectiveBarycenter(currentFaction, tileToTest.transform.position);
+                    TileHandler barycenterTest = GetTileHandlerAtPoint(prospectiveBarycenter);
+                    if (barycenterTest)
+                    {
+                        if (barycenterTest.FactionIndex != currentFaction && barycenterTest != tileToTest)
+                        {
+                            distanceToBarycenter = 99f;
+                        }
+                        else
+                        {
+                            distanceToBarycenter = (prospectiveBarycenter - tileToTest.transform.position).magnitude;
+                        }
+                    }
+                    else
+                    {
+                        distanceToBarycenter = (prospectiveBarycenter - tileToTest.transform.position).magnitude;
+                    }
+                        
+
+                    if ((neighborlyScore - (distanceToBarycenter/4f)) > unfactionedValueToBeat)
                     {
                         unfactionedValueToBeat = tileToTest.GetNeighborlyScore(bestTileToGrowFrom.FactionIndex);
                         tileToFaction = tileToTest;
@@ -171,7 +214,8 @@ public class TileController : MonoBehaviour
                 }
                 else
                 {
-                    _growingFactions.RemoveAt(currentFaction);
+                    _isFactionGrowing[currentFaction] = false;
+                    //_growingFactions.RemoveAt(currentFaction);
                     //Debug.Log($"Faction {currentFaction} has no tiles to grow into. Factions still growing: " + _growingFactions.Count);
                 }
             }
@@ -179,7 +223,7 @@ public class TileController : MonoBehaviour
             
         }
 
-        if (_growingFactions.Count > 0)
+        if (growingFactions > 0)
         {
             Invoke(nameof(SpreadRegions), 0.25f);
         }
@@ -192,5 +236,52 @@ public class TileController : MonoBehaviour
     public float GetValueFactorAtPoint(Vector3 point)
     {
         return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
+    }
+
+    private Vector3 FindBarycenter(int factionIndex)
+    {
+        Vector3 barycenter = Vector3.zero;
+
+        List<TileHandler> tilesToAverage = new List<TileHandler>(_factionTiles[factionIndex]);
+
+        foreach (var tile in tilesToAverage)
+        {
+            barycenter += tile.transform.position;
+        }
+
+        barycenter /= tilesToAverage.Count;
+
+        _barycenterIndicators[factionIndex].transform.position = barycenter;
+
+        return barycenter;
+    }
+
+    private Vector3 FindProspectiveBarycenter(int factionIndex, Vector3 newPoint)
+    {
+        Vector3 prospectiveBarycenter = Vector3.zero;
+
+        List<TileHandler> tilesToAverage = new List<TileHandler>(_factionTiles[factionIndex]);
+
+        foreach (var tile in tilesToAverage)
+        {
+            prospectiveBarycenter += tile.transform.position;
+        }
+
+        prospectiveBarycenter += newPoint;
+
+        prospectiveBarycenter /= (tilesToAverage.Count + 1);
+
+        return prospectiveBarycenter;
+    }
+
+    private TileHandler GetTileHandlerAtPoint(Vector3 point)
+    {
+        TileHandler tile;
+        var hit = Physics2D.OverlapPoint(point, 1 << 6);
+        if (hit && hit.TryGetComponent<TileHandler>(out tile))
+        {
+            return tile;
+        }
+        else return null;
     }
 }

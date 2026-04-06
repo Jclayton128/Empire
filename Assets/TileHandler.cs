@@ -70,18 +70,28 @@ public class TileHandler : MonoBehaviour
         //    return noiseValue;
         //}
 
-        float neighborValue = 0;
+        float enemyNeighbors = 0;
+        float neutralNeighbors = 0;
+        float friendlyNeighbors = 0;
 
         foreach (var neighbor in _neighborTiles)
         {
             if (neighbor.FactionIndex == askingFaction)
             {
-                neighborValue += 1f;
+                friendlyNeighbors += 1f;
+            }
+            else if (neighbor.FactionIndex == -1)
+            {
+                neutralNeighbors += 1f;
+            }
+            else
+            {
+                enemyNeighbors += 1f;
             }
         }
 
-        return neighborValue + Value;
-        //return neighborValue;
+        //return +friendlyNeighbors + neutralNeighbors - enemyNeighbors + Value;
+        return friendlyNeighbors;
     }
 
     public void AssignFaction(int factionIndex)
