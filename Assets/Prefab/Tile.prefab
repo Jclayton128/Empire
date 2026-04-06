@@ -205,6 +205,7 @@ MonoBehaviour:
   - {fileID: 2781158766097084807}
   - {fileID: 6478836263749214173}
   _tileFill: {fileID: 507743314489493505}
+  _coll: {fileID: 5734029230241487985}
   _factionIndex: -1
   _neighborTiles: []
   Value: 0

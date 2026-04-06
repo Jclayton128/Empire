@@ -9,6 +9,7 @@ public class TileHandler : MonoBehaviour
 
     [SerializeField] List<Transform> _neighborChecks = new List<Transform>();
     [SerializeField] SpriteRenderer _tileFill = null;
+    [SerializeField] Collider2D _coll = null;
 
 
 
@@ -25,6 +26,20 @@ public class TileHandler : MonoBehaviour
 
     public void InitializeTile()
     {
+        Value = TileController.Instance.GetValueFactorAtPoint(transform.position);
+
+
+        if (Value < 0.30f)
+        {
+            _tileFill.color = Color.clear;
+            _coll.enabled = false;
+        }
+
+
+    }
+
+    public void CheckForNeighbors()
+    {
         _neighborTiles.Clear();
 
         foreach (var check in _neighborChecks)
@@ -39,9 +54,6 @@ public class TileHandler : MonoBehaviour
         }
 
         _neighborTiles = Shuffle(_neighborTiles);
-
-        Value = TileController.Instance.GetValueFactorAtPoint(transform.position);
-
     }
 
     public List<TileHandler>  Shuffle(List<TileHandler> list)

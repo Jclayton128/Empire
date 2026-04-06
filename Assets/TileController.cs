@@ -97,6 +97,11 @@ public class TileController : MonoBehaviour
         {
             tile.InitializeTile();
         }
+
+        foreach (var tile in _tilesRaw)
+        {
+            tile.CheckForNeighbors();
+        }
     }
 
     public void SeedRandomFactions(int factionsToSeed)
@@ -132,7 +137,7 @@ public class TileController : MonoBehaviour
                 continue;
             }
 
-            Vector3 currentBarycenter = FindBarycenter(currentFaction);
+            Vector3 currentBarycenter = FindMoveBarycenter(currentFaction);
 
             growingFactions++;
 
@@ -141,7 +146,7 @@ public class TileController : MonoBehaviour
             List<TileHandler> tilesInThisFaction = _factionTiles[currentFaction];
 
             TileHandler bestTileToGrowFrom = null;
-            float factionValueToBeat = -9f;
+            float factionValueToBeat = -25f;
             foreach (var bestTileCandidate in tilesInThisFaction)
             {
                 bool hasUnfactionedNeighbors = false;
@@ -168,7 +173,7 @@ public class TileController : MonoBehaviour
             }
             else
             {
-                float unfactionedValueToBeat = -15f;
+                float unfactionedValueToBeat = -25f;
                 foreach (var tileToTest in bestTileToGrowFrom.NeighborTiles)
                 {
                     if (tileToTest.FactionIndex != -1)
@@ -187,7 +192,7 @@ public class TileController : MonoBehaviour
                     {
                         if (barycenterTest.FactionIndex != currentFaction && barycenterTest != tileToTest)
                         {
-                            distanceToBarycenter = 99f;
+                            distanceToBarycenter = (prospectiveBarycenter - tileToTest.transform.position).magnitude;
                         }
                         else
                         {
@@ -196,11 +201,13 @@ public class TileController : MonoBehaviour
                     }
                     else
                     {
+                        //Debug.Log("No barycenter tile");
                         distanceToBarycenter = (prospectiveBarycenter - tileToTest.transform.position).magnitude;
+                        //distanceToBarycenter = (prospectiveBarycenter - tileToTest.transform.position).magnitude;
                     }
                         
 
-                    if ((neighborlyScore - (distanceToBarycenter/4f)) > unfactionedValueToBeat)
+                    if ((neighborlyScore - (distanceToBarycenter/1f)) > unfactionedValueToBeat)
                     {
                         unfactionedValueToBeat = tileToTest.GetNeighborlyScore(bestTileToGrowFrom.FactionIndex);
                         tileToFaction = tileToTest;
@@ -238,7 +245,7 @@ public class TileController : MonoBehaviour
         return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
     }
 
-    private Vector3 FindBarycenter(int factionIndex)
+    private Vector3 FindMoveBarycenter(int factionIndex)
     {
         Vector3 barycenter = Vector3.zero;
 
@@ -274,10 +281,11 @@ public class TileController : MonoBehaviour
         return prospectiveBarycenter;
     }
 
-    private TileHandler GetTileHandlerAtPoint(Vector3 point)
+    private TileHandler GetTileHandlerAtPoint(Vector2 point)
     {
+        //Debug.Log($"Looking for tile at {point}");
         TileHandler tile;
-        var hit = Physics2D.OverlapPoint(point, 1 << 6);
+        var hit = Physics2D.OverlapCircle(point, 0.05f, 1 << 6);
         if (hit && hit.TryGetComponent<TileHandler>(out tile))
         {
             return tile;
