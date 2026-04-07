@@ -10,7 +10,7 @@ public class TileHandler : MonoBehaviour
     [SerializeField] List<Transform> _neighborChecks = new List<Transform>();
     [SerializeField] SpriteRenderer _tileFill = null;
     [SerializeField] Collider2D _coll = null;
-
+    [SerializeField] List<SpriteRenderer> _borders = null;
 
 
     //state
@@ -19,7 +19,8 @@ public class TileHandler : MonoBehaviour
     public int FactionIndex => _factionIndex;
 
     [SerializeField] List<TileHandler> _neighborTiles = new List<TileHandler>();
-    public List<TileHandler> NeighborTiles => _neighborTiles;
+    [SerializeField] List<TileHandler> _shuffledNeighborTiles = new List<TileHandler>();
+    public List<TileHandler> ShuffledNeighborTiles => _shuffledNeighborTiles;
     public float Value;
 
 
@@ -50,10 +51,14 @@ public class TileHandler : MonoBehaviour
             {
                 _neighborTiles.Add(neighbor);
             }
+            else
+            {
+                _neighborTiles.Add(null);
+            }
 
         }
 
-        _neighborTiles = Shuffle(_neighborTiles);
+        _shuffledNeighborTiles = Shuffle(_neighborTiles);
     }
 
     public List<TileHandler>  Shuffle(List<TileHandler> list)
@@ -88,6 +93,8 @@ public class TileHandler : MonoBehaviour
 
         foreach (var neighbor in _neighborTiles)
         {
+            if (neighbor == null) continue;
+
             if (neighbor.FactionIndex == askingFaction)
             {
                 friendlyNeighbors += 1f;
@@ -113,5 +120,24 @@ public class TileHandler : MonoBehaviour
         _tileFill.color = FactionController.Instance.GetFactionColor(factionIndex);
     }
 
+    public void HighlightBorders()
+    {
+        for (int i = 0; i < _neighborChecks.Count; i++)
+        {
+            if (_neighborTiles[i] == null)
+            {
+                _borders[i].color = Color.white;
+            }
+            else if (_neighborTiles[i].FactionIndex == _factionIndex)
+            {
+                _borders[i].color = Color.clear;
+            }
+            else if (_neighborTiles[i].FactionIndex != _factionIndex)
+            {
+                _borders[i].color = Color.white;
+            }
+        }
+
+    }
   
 }

@@ -19,6 +19,7 @@ public class TileController : MonoBehaviour
 
     // Radius of the hexagon (center to vertex)
     [SerializeField] float _radius = 0.5f;
+    [SerializeField] int _factions = 4;
 
 
     [Header("Perlin")]
@@ -39,9 +40,42 @@ public class TileController : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
+    private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            CreateNewWorld();
+        }
+    }
+
+    private void CreateNewWorld()
+    {
+        ClearTerrain();
         CreateTerrain();
+    }
+
+    private void ClearTerrain()
+    {
+        if (_tilesRaw.Count > 0)
+        {
+            for (int i = _tilesRaw.Count - 1; i >= 0; i--)
+            {
+                Destroy(_tilesRaw[i].gameObject);
+            }
+        }
+
+        if (_barycenterIndicators.Count > 0)
+        {
+            for (int i = _barycenterIndicators.Count - 1; i >= 0; i--)
+            {
+                Destroy(_barycenterIndicators[i].gameObject);
+            }
+        }
+
+        _barycenterIndicators.Clear();
+        _tilesRaw.Clear();
+        _factionTiles.Clear();
+        _isFactionGrowing.Clear();
     }
 
     private void CreateTerrain()
@@ -50,14 +84,11 @@ public class TileController : MonoBehaviour
         _xOffset = (float)_rnd.NextDouble() * 100f;
         _yOffset = (float)_rnd.NextDouble() * -234f;
 
-        _tilesRaw.Clear();
-        _factionTiles.Clear();
-        _isFactionGrowing.Clear();
 
         LayTiles();
         InitializeTiles();
 
-        SeedRandomFactions(15);
+        SeedRandomFactions(_factions);
 
         SpreadRegions();
     }
@@ -150,8 +181,10 @@ public class TileController : MonoBehaviour
             foreach (var bestTileCandidate in tilesInThisFaction)
             {
                 bool hasUnfactionedNeighbors = false;
-                foreach (var neighbor in bestTileCandidate.NeighborTiles)
+                foreach (var neighbor in bestTileCandidate.ShuffledNeighborTiles)
                 {
+                    if (neighbor == null) continue;
+
                     if (neighbor.FactionIndex == -1)
                     {
                         hasUnfactionedNeighbors = true;
@@ -174,8 +207,10 @@ public class TileController : MonoBehaviour
             else
             {
                 float unfactionedValueToBeat = -25f;
-                foreach (var tileToTest in bestTileToGrowFrom.NeighborTiles)
+                foreach (var tileToTest in bestTileToGrowFrom.ShuffledNeighborTiles)
                 {
+                    if (tileToTest == null) continue;
+                    
                     if (tileToTest.FactionIndex != -1)
                     {
                         continue;
@@ -232,11 +267,16 @@ public class TileController : MonoBehaviour
 
         if (growingFactions > 0)
         {
-            Invoke(nameof(SpreadRegions), 0.25f);
+            Invoke(nameof(SpreadRegions), 0.125f);
         }
         else
         {
             Debug.Log("Region spreading complete");
+
+            foreach (var factionTile in _factionTiles[0])
+            {
+                factionTile.HighlightBorders();
+            }
         }
     }
 
