@@ -8,7 +8,10 @@ public class TileHandler : MonoBehaviour
     //refs
 
     [SerializeField] List<Transform> _neighborChecks = new List<Transform>();
-    [SerializeField] SpriteRenderer _tileFill = null;
+    [SerializeField] SpriteRenderer _fullFill = null;
+    [SerializeField] SpriteRenderer _outerRing = null;
+    [SerializeField] SpriteRenderer _innerRing = null;
+    [SerializeField] SpriteRenderer _innerFill = null;
     [SerializeField] Collider2D _coll = null;
     [SerializeField] List<SpriteRenderer> _borders = null;
 
@@ -32,7 +35,7 @@ public class TileHandler : MonoBehaviour
 
         if (Value < 0.30f)
         {
-            _tileFill.color = Color.clear;
+            _fullFill.color = Color.clear;
             _coll.enabled = false;
         }
 
@@ -117,7 +120,7 @@ public class TileHandler : MonoBehaviour
     {
         _factionIndex = factionIndex;
 
-        _tileFill.color = FactionController.Instance.GetFactionColor(factionIndex);
+        _fullFill.color = FactionController.Instance.GetFactionColor_Desaturated(factionIndex);
     }
 
     public void HighlightBorders()
@@ -139,5 +142,37 @@ public class TileHandler : MonoBehaviour
         }
 
     }
-  
+
+    public void DehighlightBorders()
+    {
+        for (int i = 0; i < _neighborChecks.Count; i++)
+        {
+            if (_neighborTiles[i] == null)
+            {
+                _borders[i].color = FactionController.Instance.GetFactionColor(_factionIndex);
+            }
+            else if (_neighborTiles[i].FactionIndex == _factionIndex)
+            {
+                _borders[i].color = Color.clear;
+            }
+            else if (_neighborTiles[i].FactionIndex != _factionIndex)
+            {
+                _borders[i].color = FactionController.Instance.GetFactionColor(_factionIndex);
+            }
+        }
+    }
+
+    private void OnMouseEnter()
+    {
+        TileController.Instance.HandleMouseOverTile(this);
+        _innerRing.color = Color.yellow;
+
+    }
+
+    private void OnMouseExit()
+    {
+        TileController.Instance.HandleMouseExitTile();
+        _innerRing.color = Color.clear;
+    }
+
 }

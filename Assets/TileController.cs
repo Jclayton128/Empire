@@ -35,6 +35,8 @@ public class TileController : MonoBehaviour
     List<bool> _isFactionGrowing = new List<bool>();
     List<TextMeshPro> _barycenterIndicators = new List<TextMeshPro>();
 
+    TileHandler _tileUnderCursor;
+
     private void Awake()
     {
         Instance = this;
@@ -272,11 +274,7 @@ public class TileController : MonoBehaviour
         else
         {
             Debug.Log("Region spreading complete");
-
-            foreach (var factionTile in _factionTiles[0])
-            {
-                factionTile.HighlightBorders();
-            }
+            HighlightFaction(-9);
         }
     }
 
@@ -332,4 +330,46 @@ public class TileController : MonoBehaviour
         }
         else return null;
     }
+
+
+    #region Dynamic Tile Selection
+
+    public void HandleMouseOverTile(TileHandler tuc)
+    {
+        if (tuc == null) return;
+
+        _tileUnderCursor = tuc;
+        HighlightFaction(_tileUnderCursor.FactionIndex);
+
+    }
+
+    public void HandleMouseExitTile()
+    {
+        _tileUnderCursor = null;
+        HighlightFaction(-9);
+    }
+
+    public void HighlightFaction(int factionIndexToHighlight)
+    {
+        for (int factionIndex = 0; factionIndex < _factionTiles.Count; factionIndex++)
+        {
+            if (factionIndex == factionIndexToHighlight)
+            {
+                foreach (var tile in _factionTiles[factionIndex])
+                {
+                    tile.HighlightBorders();
+                }
+            }
+            else
+            {
+                foreach (var tile in _factionTiles[factionIndex])
+                {
+                    tile.DehighlightBorders();
+                }
+            }
+        }
+
+    }
+
+    #endregion
 }
