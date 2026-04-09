@@ -8,6 +8,8 @@ using UnityEngine;
 public class TileController : MonoBehaviour
 {
     public static TileController Instance { get; private set; }
+    public Action TileUnderCursorChanged;
+
 
 
     //settings
@@ -37,6 +39,7 @@ public class TileController : MonoBehaviour
     List<TextMeshPro> _barycenterIndicators = new List<TextMeshPro>();
 
     TileHandler _tileUnderCursor;
+    public TileHandler TileUnderCursor => _tileUnderCursor;
 
     private void Awake()
     {
@@ -341,13 +344,14 @@ public class TileController : MonoBehaviour
 
         _tileUnderCursor = tuc;
         HighlightFaction(_tileUnderCursor.FactionIndex);
-
+        TileUnderCursorChanged?.Invoke();
     }
 
     public void HandleMouseExitTile()
     {
         _tileUnderCursor = null;
         HighlightFaction(-9);
+        TileUnderCursorChanged?.Invoke();
     }
 
     public void HighlightFaction(int factionIndexToHighlight)

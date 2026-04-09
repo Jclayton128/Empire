@@ -21,8 +21,10 @@ public class TileHandler : MonoBehaviour
     [SerializeField] int _factionIndex = -1;
     public int FactionIndex => _factionIndex;
 
-    [SerializeField] List<TileHandler> _neighborTiles = new List<TileHandler>();
+    [SerializeField] List<TileHandler> _orderedNeighborTiles = new List<TileHandler>();
     [SerializeField] List<TileHandler> _shuffledNeighborTiles = new List<TileHandler>();
+
+    public List<TileHandler> OrderedNeighborTiles => _orderedNeighborTiles;
     public List<TileHandler> ShuffledNeighborTiles => _shuffledNeighborTiles;
     public float Value;
 
@@ -44,7 +46,7 @@ public class TileHandler : MonoBehaviour
 
     public void CheckForNeighbors()
     {
-        _neighborTiles.Clear();
+        _orderedNeighborTiles.Clear();
 
         foreach (var check in _neighborChecks)
         {
@@ -52,16 +54,16 @@ public class TileHandler : MonoBehaviour
             var hit = Physics2D.OverlapPoint(check.position, 1 << 6);
             if (hit && hit.TryGetComponent<TileHandler>(out neighbor))
             {
-                _neighborTiles.Add(neighbor);
+                _orderedNeighborTiles.Add(neighbor);
             }
             else
             {
-                _neighborTiles.Add(null);
+                _orderedNeighborTiles.Add(null);
             }
 
         }
 
-        _shuffledNeighborTiles = Shuffle(_neighborTiles);
+        _shuffledNeighborTiles = Shuffle(_orderedNeighborTiles);
     }
 
     public List<TileHandler>  Shuffle(List<TileHandler> list)
@@ -94,7 +96,7 @@ public class TileHandler : MonoBehaviour
         float neutralNeighbors = 0;
         float friendlyNeighbors = 0;
 
-        foreach (var neighbor in _neighborTiles)
+        foreach (var neighbor in _orderedNeighborTiles)
         {
             if (neighbor == null) continue;
 
@@ -127,15 +129,15 @@ public class TileHandler : MonoBehaviour
     {
         for (int i = 0; i < _neighborChecks.Count; i++)
         {
-            if (_neighborTiles[i] == null)
+            if (_orderedNeighborTiles[i] == null)
             {
                 _borders[i].color = Color.white;
             }
-            else if (_neighborTiles[i].FactionIndex == _factionIndex)
+            else if (_orderedNeighborTiles[i].FactionIndex == _factionIndex)
             {
                 _borders[i].color = Color.clear;
             }
-            else if (_neighborTiles[i].FactionIndex != _factionIndex)
+            else if (_orderedNeighborTiles[i].FactionIndex != _factionIndex)
             {
                 _borders[i].color = Color.white;
             }
@@ -147,15 +149,15 @@ public class TileHandler : MonoBehaviour
     {
         for (int i = 0; i < _neighborChecks.Count; i++)
         {
-            if (_neighborTiles[i] == null)
+            if (_orderedNeighborTiles[i] == null)
             {
                 _borders[i].color = FactionController.Instance.GetFactionColor(_factionIndex);
             }
-            else if (_neighborTiles[i].FactionIndex == _factionIndex)
+            else if (_orderedNeighborTiles[i].FactionIndex == _factionIndex)
             {
                 _borders[i].color = Color.clear;
             }
-            else if (_neighborTiles[i].FactionIndex != _factionIndex)
+            else if (_orderedNeighborTiles[i].FactionIndex != _factionIndex)
             {
                 _borders[i].color = FactionController.Instance.GetFactionColor(_factionIndex);
             }
