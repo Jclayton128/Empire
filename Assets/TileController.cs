@@ -20,6 +20,7 @@ public class TileController : MonoBehaviour
     // Radius of the hexagon (center to vertex)
     [SerializeField] float _radius = 0.5f;
     [SerializeField] int _factions = 4;
+    [SerializeField] float _buildTime = 0.0625f;
 
 
     [Header("Perlin")]
@@ -269,7 +270,7 @@ public class TileController : MonoBehaviour
 
         if (growingFactions > 0)
         {
-            Invoke(nameof(SpreadRegions), 0.125f);
+            Invoke(nameof(SpreadRegions), _buildTime);
         }
         else
         {
