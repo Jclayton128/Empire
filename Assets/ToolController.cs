@@ -15,8 +15,13 @@ public class ToolController : MonoBehaviour
     [SerializeField] TextMeshProUGUI _selectedToolTMP = null;
 
     //state
-    [SerializeField] Tools _selectedTool = Tools.Attack;
+    Tools _selectedTool = Tools.Attack;
     public Tools SelectedTool => _selectedTool;
+
+    [Header("Attack Values")]
+    [SerializeField] int _offensiveHelp = 0;
+    [SerializeField] int _defensiveHelp = 0;
+    [SerializeField] int _neutrals = 0;
 
     private void Awake()
     {
@@ -41,16 +46,15 @@ public class ToolController : MonoBehaviour
         switch (_selectedTool)
         {
             case Tools.Attack:
-                HandleProspectiveAttack();
+                DepictProspectiveAttack();
                 break;
 
 
         }
     }
 
-    private void HandleProspectiveAttack()
+    private void DepictProspectiveAttack()
     {
-        Debug.Log("Tick");
         TileHandler selectedTile = TileController.Instance.TileUnderCursor;
         if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {   
@@ -76,9 +80,9 @@ public class ToolController : MonoBehaviour
         //    return;
         //}
 
-        float defensiveHelp = 0;
-        float offensiveHelp = 0;
-        float neutrals = 0;
+        _defensiveHelp = 0;
+        _offensiveHelp = 0;
+        _neutrals = 0;
 
         foreach (var tile in selectedTile.ShuffledNeighborTiles)
         {
@@ -86,21 +90,82 @@ public class ToolController : MonoBehaviour
 
             if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
             {
-                offensiveHelp++;
+                
+                _offensiveHelp++;
+                //also need to account for 
             }
             else if (tile.FactionIndex == selectedTile.FactionIndex)
             {
-                defensiveHelp++;
+                _defensiveHelp++;
             }
             else
             {
-                neutrals++;
+                _neutrals++;
             }
         }
 
-        float odds = (offensiveHelp) / (defensiveHelp + offensiveHelp);
+        float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
         int oddsAsInt = Mathf.RoundToInt(odds * 100f);
         _bpd.DepictBattle(TileController.Instance.TileUnderCursor, oddsAsInt);
+    }
+
+    public void HandleClickOnTile(TileHandler clickedTile)
+    {
+        switch (_selectedTool)
+        {
+            case Tools.Attack:
+                AttemptAttack(clickedTile);
+                break;
+
+
+
+        }
+    }
+
+    private void AttemptAttack(TileHandler clickedTile)
+    {
+        if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
+        {
+            //cannot attack ownself
+            return;
+        }
+
+        bool isAdjacent = false;
+        foreach (var tile in clickedTile.ShuffledNeighborTiles)
+        {
+            if (tile == null) continue;
+            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            {
+                isAdjacent = true;
+                break;
+            }
+        }
+
+        if (isAdjacent == false)
+        {
+            //cannot attack non-adjacent tiles
+            return;
+        }
+
+
+        int totalOdds = _offensiveHelp + _defensiveHelp;
+        int rand = UnityEngine.Random.Range(1, totalOdds+1);
+        if (rand > _defensiveHelp)
+        {
+            //attacks succeeds
+            Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
+
+            int winningFaction = FactionController.Instance.PlayerFaction;
+
+            TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
+            clickedTile.AssignFactionToTile(winningFaction);
+            TileController.Instance.HighlightFaction(winningFaction);
+        }
+        else
+        {
+            //attack fails
+            Debug.Log($"Attack fails: {rand}/{totalOdds}");
+        }
     }
 
     public void SelectTool(Tools newTool)

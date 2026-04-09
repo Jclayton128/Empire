@@ -46,14 +46,7 @@ public class TileController : MonoBehaviour
         Instance = this;
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            CreateNewWorld();
-        }
-    }
-
+ 
     private void CreateNewWorld()
     {
         ClearTerrain();
@@ -154,7 +147,7 @@ public class TileController : MonoBehaviour
             List<TileHandler> aFactionsTiles = new List<TileHandler>();
             aFactionsTiles.Add(newCapitol);
             _factionTiles.Add(aFactionsTiles);
-            newCapitol.AssignFaction(i);
+            newCapitol.AssignFactionToTile(i);
             _isFactionGrowing.Add(true);
 
             Vector3 pos = newCapitol.transform.position;
@@ -257,7 +250,7 @@ public class TileController : MonoBehaviour
 
                 if (tileToFaction != null)
                 {
-                    tileToFaction.AssignFaction(bestTileToGrowFrom.FactionIndex);
+                    tileToFaction.AssignFactionToTile(bestTileToGrowFrom.FactionIndex);
                     tilesInThisFaction.Add(tileToFaction);
                 }
                 else
@@ -336,7 +329,29 @@ public class TileController : MonoBehaviour
     }
 
 
-    #region Dynamic Tile Selection
+    #region Flow
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            CreateNewWorld();
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            HandleLMBClick();
+        }
+    }
+
+    private void HandleLMBClick()
+    {
+        if (_tileUnderCursor)
+        {
+            ToolController.Instance.HandleClickOnTile(_tileUnderCursor);
+        }
+    }
+
 
     public void HandleMouseOverTile(TileHandler tuc)
     {
@@ -374,6 +389,12 @@ public class TileController : MonoBehaviour
             }
         }
 
+    }
+
+    public void ChangeTileFaction(TileHandler tile, int oldFaction, int newFaction)
+    {
+        _factionTiles[oldFaction].Remove(tile);
+        _factionTiles[newFaction].Add(tile);
     }
 
     #endregion

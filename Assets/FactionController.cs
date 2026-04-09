@@ -33,7 +33,7 @@ public class FactionController : MonoBehaviour
 
     public Color GetFactionColor(int factionIndex)
     {
-        if (factionIndex < _factionColors.Count)
+        if (factionIndex >= 0 && factionIndex < _factionColors.Count)
         {
             return _factionColors[factionIndex];
         }

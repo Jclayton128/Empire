@@ -118,11 +118,12 @@ public class TileHandler : MonoBehaviour
         return friendlyNeighbors;
     }
 
-    public void AssignFaction(int factionIndex)
+    public void AssignFactionToTile(int factionIndex)
     {
         _factionIndex = factionIndex;
 
         _fullFill.color = FactionController.Instance.GetFactionColor_Desaturated(factionIndex);
+
     }
 
     public void HighlightBorders()
