@@ -9,6 +9,7 @@ public class BattlePanelDriver : MonoBehaviour
     //ref
     [SerializeField] Image _centerSite = null;
     [SerializeField] List<Image> _neighborSites = null;
+    [SerializeField] List<TextMeshProUGUI> _neighborBonusTMP = null;
     [SerializeField] TextMeshProUGUI _oddsTMP = null;
 
     private void Awake()
@@ -31,6 +32,7 @@ public class BattlePanelDriver : MonoBehaviour
             for (int i = 0; i < _neighborSites.Count; i++)
             {
                 _neighborSites[i].color = Color.clear;
+                _neighborBonusTMP[i].text = " ";
             }
             _oddsTMP.text = " ";
         }
@@ -43,10 +45,28 @@ public class BattlePanelDriver : MonoBehaviour
                 if (centerTile.OrderedNeighborTiles[i] == null)
                 {
                     _neighborSites[i].color = Color.clear;
+                    _neighborBonusTMP[i].text = " ";
                 }
                 else
                 {
                     _neighborSites[i].color = FactionController.Instance.GetFactionColor(centerTile.OrderedNeighborTiles[i].FactionIndex);
+
+                    if (centerTile.OrderedNeighborTiles[i].FactionIndex == centerTile.FactionIndex)
+                    {
+                        int db = centerTile.OrderedNeighborTiles[i].DefendBonus;
+                        _neighborBonusTMP[i].text = $"{db + 1}";
+                    }
+                    else if (centerTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.PlayerFaction)
+                    {
+                        int ab = centerTile.OrderedNeighborTiles[i].AttackBonus;
+                        _neighborBonusTMP[i].text = $"{ab + 1}";
+                    }
+                    else
+                    {
+                        _neighborBonusTMP[i].text = " ";
+                    }
+
+
                 }
 
             }

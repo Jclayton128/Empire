@@ -96,7 +96,7 @@ public class ToolController : MonoBehaviour
             }
             else if (tile.FactionIndex == selectedTile.FactionIndex)
             {
-                _defensiveHelp++;
+                _defensiveHelp += tile.DefendBonus + 1;
             }
             else
             {
@@ -117,6 +117,9 @@ public class ToolController : MonoBehaviour
                 AttemptAttack(clickedTile);
                 break;
 
+            case Tools.Defend:
+                clickedTile.ModifyDefendBonus(1);
+                break;
 
 
         }

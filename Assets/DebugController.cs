@@ -54,5 +54,9 @@ public class DebugController : MonoBehaviour
         {
             FactionController.Instance.SetPlayerFaction(6);
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            FactionController.Instance.SetPlayerFaction(0);
+        }
     }
 }

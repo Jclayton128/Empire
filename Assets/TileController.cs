@@ -191,7 +191,7 @@ public class TileController : MonoBehaviour
                     }
                 }
 
-                if (hasUnfactionedNeighbors && bestTileCandidate.Value > factionValueToBeat)
+                if (hasUnfactionedNeighbors && bestTileCandidate.ArbitraryNoiseValue > factionValueToBeat)
                 {
                     bestTileToGrowFrom = bestTileCandidate;
                 }

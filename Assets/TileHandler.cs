@@ -15,6 +15,9 @@ public class TileHandler : MonoBehaviour
     [SerializeField] Collider2D _coll = null;
     [SerializeField] List<SpriteRenderer> _borders = null;
 
+    //settings
+
+    [SerializeField] Sprite _defendIcon = null;
 
     //state
 
@@ -26,16 +29,19 @@ public class TileHandler : MonoBehaviour
 
     public List<TileHandler> OrderedNeighborTiles => _orderedNeighborTiles;
     public List<TileHandler> ShuffledNeighborTiles => _shuffledNeighborTiles;
-    public float Value;
-
+    public float ArbitraryNoiseValue;
+    int _defendBonus = 0;
+    public int DefendBonus => _defendBonus;
+    int _attackBonus = 0;
+    public int AttackBonus => _attackBonus; 
 
 
     public void InitializeTile()
     {
-        Value = TileController.Instance.GetValueFactorAtPoint(transform.position);
+        ArbitraryNoiseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
 
 
-        if (Value < 0.30f)
+        if (ArbitraryNoiseValue < 0.30f)
         {
             _fullFill.color = Color.clear;
             _coll.enabled = false;
@@ -178,4 +184,29 @@ public class TileHandler : MonoBehaviour
         _innerRing.color = Color.clear;
     }
 
+    public void ModifyDefendBonus(int amountToAdd)
+    {
+        _defendBonus += amountToAdd;
+        if (_defendBonus > 0)
+        {
+            _innerFill.sprite = _defendIcon;
+        }
+        else
+        {
+            _innerFill.sprite = null;
+        }
+    }
+
+    public void ModifyAttackBonus(int amountToAdd)
+    {
+        _attackBonus += amountToAdd;
+        if (_attackBonus > 0)
+        {
+            //_innerFill.sprite = _defendIcon;
+        }
+        else
+        {
+            //_innerFill.sprite = null;
+        }
+    }
 }

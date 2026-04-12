@@ -278,15 +278,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 5156935ae80b23a4e8d927426a8596af, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &4113224996152692161
@@ -568,10 +568,11 @@ MonoBehaviour:
   - {fileID: 880258038851742358}
   - {fileID: 7626007515561757877}
   - {fileID: 8445078819532563503}
+  _defendIcon: {fileID: 21300000, guid: e66f47c184814bc499de94d19410b9a7, type: 3}
   _factionIndex: -1
-  _neighborTiles: []
+  _orderedNeighborTiles: []
   _shuffledNeighborTiles: []
-  Value: 0
+  ArbitraryNoiseValue: 0
 --- !u!60 &5734029230241487985
 PolygonCollider2D:
   m_ObjectHideFlags: 0
