@@ -128,10 +128,7 @@ public class TileController : MonoBehaviour
                 continue;
             }
 
-            if (resourcedTilesToBestow > faction.Count)
-            {
-                resourcedTilesToBestow = faction.Count;
-            }
+  
 
             List<TileHandler> tiles = new List<TileHandler>(faction);
     
@@ -141,6 +138,11 @@ public class TileController : MonoBehaviour
                 {
                     tiles.Remove(tile);
                 }
+            }
+
+            if (resourcedTilesToBestow > tiles.Count)
+            {
+                resourcedTilesToBestow = tiles.Count;
             }
 
             tiles = Shuffle(tiles);

@@ -204,8 +204,12 @@ public class TileHandler : MonoBehaviour
         }
         else
         {
-           SetTileType(TileType.TileTypes.Fortified);
+            SetTileType(TileType.TileTypes.Fortified);
 
+            //mega-Boost this tile's defense
+            ModifyDefendBonus(3);
+            
+            //mini-boost neighboring friendly tile's defenses
             foreach (var tile in _orderedNeighborTiles)
             {
                 if (tile == null || tile.FactionIndex != FactionIndex)
@@ -225,14 +229,14 @@ public class TileHandler : MonoBehaviour
     public void ModifyDefendBonus(int amountToAdd)
     {
         _defendBonus += amountToAdd;
-        if (_defendBonus > 0)
-        {
-            _innerFill.sprite = _fortifyIcon;
-        }
-        else
-        {
-            _innerFill.sprite = null;
-        }
+        //if (_defendBonus > 0)
+        //{
+        //    _innerFill.sprite = _fortifyIcon;
+        //}
+        //else
+        //{
+        //    _innerFill.sprite = null;
+        //}
     }
 
     public void ModifyAttackBonus(int amountToAdd)
