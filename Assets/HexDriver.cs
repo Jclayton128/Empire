@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class HexDriver : MonoBehaviour
 {
@@ -12,10 +13,28 @@ public class HexDriver : MonoBehaviour
     [SerializeField] TextMeshProUGUI _hexDescTMP = null;
     [SerializeField] Image _hexIcon = null;
 
-    public void SetHex(string hexType, string hexDesc, Sprite hexIcon)
+    public void SetHex(TileType tileType)
     {
-        _hexDescTMP.text = hexDesc;
-        _hexTypeTMP.text = hexType; 
-        _hexIcon.sprite = hexIcon;
+        _hexTypeTMP.text = tileType.TType.ToString();
+        _hexDescTMP.text = tileType.TypeDescription;
+
+        if (tileType.TileIcon == null)
+        {
+            _hexIcon.enabled = false;
+        }
+        else
+        {
+            _hexIcon.enabled = true;
+            _hexIcon.sprite = tileType.TileIcon;
+        }
+
     }
+
+    public void ClearHex()
+    {
+        _hexTypeTMP.text = " ";
+        _hexDescTMP.text = " ";
+        _hexIcon.enabled = false;
+    }
+
 }

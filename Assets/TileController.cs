@@ -18,6 +18,7 @@ public class TileController : MonoBehaviour
     [SerializeField] TextMeshPro _barycenterIndicatorPrefab = null;
     [SerializeField] int _gridWidth = 50;
     [SerializeField] int _gridHeight = 35;
+    [SerializeField] HexDriver _hexDriver = null;
 
     // Radius of the hexagon (center to vertex)
     [SerializeField] float _radius = 0.5f;
@@ -84,7 +85,7 @@ public class TileController : MonoBehaviour
 
 
         LayTiles();
-        InitializeTiles();
+
         NeighborizeTiles();
 
         SeedRandomFactions(FactionController.Instance.FactionCount);
@@ -114,20 +115,16 @@ public class TileController : MonoBehaviour
 
                 Vector3 position = new Vector3(xPos, yPos, 0);
                 var tile = Instantiate(_tilePrefab, position, Quaternion.identity, _hexMap);
+
+                tile.InitializeTile();
+
                 _tilesRaw.Add(tile);
                 tile.name = $"Tile_{_tilesRaw.Count}";
 
             }
         }
     }
-    
-    private void InitializeTiles()
-    {
-        foreach (var tile in _tilesRaw)
-        {
-            tile.InitializeTile();
-        }
-    }
+
 
     private void NeighborizeTiles()
     {
@@ -143,7 +140,7 @@ public class TileController : MonoBehaviour
 
         foreach (var tile in _tilesRaw)
         {
-            if (tile.TileType == TileHandler.TileTypes.Water)
+            if (tile.CurrentTileType.TType == TileType.TileTypes.Water)
             {
                 tilesUnfactioned.Remove(tile);
             }
@@ -288,10 +285,6 @@ public class TileController : MonoBehaviour
         }
     }
 
-    public float GetValueFactorAtPoint(Vector3 point)
-    {
-        return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom , (point.y + _yOffset) * _perlinZoom);
-    }
 
     private Vector3 FindMoveBarycenter(int factionIndex)
     {
@@ -341,18 +334,24 @@ public class TileController : MonoBehaviour
         else return null;
     }
 
+    #region Helpers
+    public float GetValueFactorAtPoint(Vector3 point)
+    {
+        return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
+    }
+
 
     public int GetFactionTerritoryCount(int factionIndex)
     {
         return _factionTiles[factionIndex].Count;
     }
 
+    #endregion
+
     #region Flow
 
     private void Update()
     {
-
-
         if (Input.GetMouseButtonDown(0))
         {
             HandleLMBClick();
@@ -374,14 +373,21 @@ public class TileController : MonoBehaviour
         if (tuc == null) return;
 
         _tileUnderCursor = tuc;
+
+        _hexDriver.SetHex(_tileUnderCursor.CurrentTileType);
+
         HighlightFaction(_tileUnderCursor.FactionIndex);
         FactionController.Instance.DisplayFaction(_tileUnderCursor.FactionIndex);
+
         TileUnderCursorChanged?.Invoke();
     }
 
     public void HandleMouseExitTile()
     {
         _tileUnderCursor = null;
+
+        _hexDriver.ClearHex();
+
         HighlightFaction(-9);
         FactionController.Instance.DisplayFaction(-9);
         TileUnderCursorChanged?.Invoke();

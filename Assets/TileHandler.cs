@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class TileHandler : MonoBehaviour
 {
-    public enum TileTypes { Plain, Mountain, Resourced, Defended, Water}
 
     //refs
 
@@ -23,6 +23,7 @@ public class TileHandler : MonoBehaviour
     [SerializeField] Sprite _mountainIcon = null;
     [SerializeField] Sprite _resourcedIcon = null;
 
+    [SerializeField] List<TileType> _tileMenu = null;
 
     //state
 
@@ -40,8 +41,8 @@ public class TileHandler : MonoBehaviour
     int _attackBonus = 0;
     public int AttackBonus => _attackBonus;
 
-    TileTypes _tileType = TileTypes.Plain;
-    public TileTypes TileType => _tileType;
+    [SerializeField] TileType _currentTileType;
+    public TileType CurrentTileType => _currentTileType;
 
     public void InitializeTile()
     {
@@ -49,16 +50,19 @@ public class TileHandler : MonoBehaviour
 
         if (ArbitraryNoiseValue < 0.30f)
         {
-            _tileType = TileTypes.Water;
-            _fullFill.color = Color.clear;
+            SetTileType(TileType.TileTypes.Water);
+            _fullFill.sprite = null;
             _coll.enabled = false;
         }
 
         else if (ArbitraryNoiseValue > 0.7f)
         {
-            _tileType = TileTypes.Mountain;
-            _innerFill.color = Color.black;
-            _innerFill.sprite = _mountainIcon;
+            SetTileType(TileType.TileTypes.Mountain);
+        }
+
+        else
+        {
+            SetTileType(TileType.TileTypes.Plain);
         }
     }
 
@@ -198,15 +202,14 @@ public class TileHandler : MonoBehaviour
 
     public bool AttemptFortifyTile()
     {
-        if (TileType != TileTypes.Plain)
+        if (_currentTileType.TType != TileType.TileTypes.Plain)
         {
             Debug.Log("Can only fortify Plain tiles");
             return false;
         }
         else
         {
-            _innerFill.color = Color.black;
-            _innerFill.sprite = _fortifyIcon;
+           SetTileType(TileType.TileTypes.Fortified);
 
             foreach (var tile in _orderedNeighborTiles)
             {
@@ -248,5 +251,20 @@ public class TileHandler : MonoBehaviour
         {
             //_innerFill.sprite = null;
         }
+    }
+
+    private void SetTileType(TileType.TileTypes tileType)
+    {
+        foreach (var t in _tileMenu)
+        {
+            if (t.TType == tileType)
+            {
+                _currentTileType = t;
+                continue;
+            }
+        }
+
+        _innerFill.color = Color.black;
+        _innerFill.sprite = _currentTileType.TileIcon;
     }
 }
