@@ -41,6 +41,9 @@ public class TileHandler : MonoBehaviour
     int _attackBonus = 0;
     public int AttackBonus => _attackBonus;
 
+    int _resourceBonus = 0;
+    public int ResourceBonus => _resourceBonus;
+
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
 
@@ -85,25 +88,10 @@ public class TileHandler : MonoBehaviour
 
         }
 
-        _shuffledNeighborTiles = Shuffle(_orderedNeighborTiles);
+        _shuffledNeighborTiles = TileController.Shuffle(_orderedNeighborTiles);
     }
 
-    public List<TileHandler>  Shuffle(List<TileHandler> list)
-    {
-        System.Random rnd = new System.Random();
-        List<TileHandler> output = new List<TileHandler>(list);
-        int n = output.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rnd.Next(n + 1);
-            TileHandler value = output[k];
-            output[k] = output[n];
-            output[n] = value;
-        }
 
-        return output;
-    }
 
 
     public float GetNeighborlyScore(int askingFaction)
@@ -198,6 +186,13 @@ public class TileHandler : MonoBehaviour
     {
         TileController.Instance.HandleMouseExitTile();
         _innerRing.color = Color.clear;
+    }
+
+    public bool ResourceTile()
+    {
+        SetTileType(TileType.TileTypes.Resourced);
+        _resourceBonus = 1;
+        return true;
     }
 
     public bool AttemptFortifyTile()

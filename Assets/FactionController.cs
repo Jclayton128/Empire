@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Net.Http.Headers;
 
 public class FactionController : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class FactionController : MonoBehaviour
     [SerializeField] List<Color> _factionColors = new List<Color>();
 
     [SerializeField] float _productionPerHex_Base = 0.2f;
+    public float ProductionPerHex => _productionPerHex_Base;
     [SerializeField] float _minProduction = 1;
 
 
@@ -75,9 +77,8 @@ public class FactionController : MonoBehaviour
     {
         if (faction >= 0 && faction < _factionCount)
         {
-            int territory = TileController.Instance.GetFactionTerritoryCount(faction);
-            float production = territory * _productionPerHex_Base;
-            production = Mathf.Clamp(production, _minProduction, 99f);
+            int territory = TileController.Instance.GetFactionTerritory(faction);
+            float production = TileController.Instance.GetFactionProduction(faction);
             _factionDriver.SetFaction(faction, territory, production, 0);
         }
         else

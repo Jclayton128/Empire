@@ -46,14 +46,14 @@ public class TileController : MonoBehaviour
         Instance = this;
     }
 
- 
+    #region Worldbuilding
     public void CreateNewWorld()
     {
-        ClearTerrain();
-        CreateTerrain();
+        ClearWorld();
+        CreateWorld();
     }
 
-    private void ClearTerrain()
+    private void ClearWorld()
     {
         if (_tilesRaw.Count > 0)
         {
@@ -77,7 +77,7 @@ public class TileController : MonoBehaviour
         _isFactionGrowing.Clear();
     }
 
-    private void CreateTerrain()
+    private void CreateWorld()
     {
         _rnd = new System.Random();
         _xOffset = (float)_rnd.NextDouble() * 100f;
@@ -91,6 +91,66 @@ public class TileController : MonoBehaviour
         SeedRandomFactions(FactionController.Instance.FactionCount);
 
         SpreadRegions();
+    }
+
+    private void Delay_RegionFinalization()
+    {
+        InjectBalanceResourcedTiles();
+    }
+
+    private void InjectBalanceResourcedTiles()
+    {
+        int highestTerritory = 0;
+        foreach (var faction in _factionTiles)
+        {
+            if (faction.Count > highestTerritory)
+            {
+                highestTerritory = faction.Count;
+            }
+        }
+
+        float runningProduction;
+        float productionDelta;
+        int resourcedTilesToBestow;
+        foreach (var faction in _factionTiles)
+        {
+
+            runningProduction = 0;
+            productionDelta = 0;
+            resourcedTilesToBestow = 0;
+
+            runningProduction = faction.Count * FactionController.Instance.ProductionPerHex;
+            productionDelta = (highestTerritory - faction.Count) * FactionController.Instance.ProductionPerHex;
+            resourcedTilesToBestow = 1 + Mathf.RoundToInt(productionDelta);
+
+            if (resourcedTilesToBestow <= 0)
+            {
+                continue;
+            }
+
+            if (resourcedTilesToBestow > faction.Count)
+            {
+                resourcedTilesToBestow = faction.Count;
+            }
+
+            List<TileHandler> tiles = new List<TileHandler>(faction);
+    
+            foreach (var tile in faction)
+            {
+                if (tile.CurrentTileType.TType != TileType.TileTypes.Plain)
+                {
+                    tiles.Remove(tile);
+                }
+            }
+
+            tiles = Shuffle(tiles);
+
+            for (int i = 0; i < resourcedTilesToBestow; ++i)
+            {
+                tiles[i].ResourceTile();
+            }
+            
+        }
     }
 
 
@@ -265,7 +325,6 @@ public class TileController : MonoBehaviour
                 else
                 {
                     _isFactionGrowing[currentFaction] = false;
-
                     //_growingFactions.RemoveAt(currentFaction);
                     //Debug.Log($"Faction {currentFaction} has no tiles to grow into. Factions still growing: " + _growingFactions.Count);
                 }
@@ -281,6 +340,7 @@ public class TileController : MonoBehaviour
         else
         {
             Debug.Log("Region spreading complete");
+            Delay_RegionFinalization();
             HighlightFaction(-9);
         }
     }
@@ -322,6 +382,11 @@ public class TileController : MonoBehaviour
         return prospectiveBarycenter;
     }
 
+    #endregion
+
+
+
+    #region Helpers
     private TileHandler GetTileHandlerAtPoint(Vector2 point)
     {
         //Debug.Log($"Looking for tile at {point}");
@@ -333,17 +398,44 @@ public class TileController : MonoBehaviour
         }
         else return null;
     }
+    public static List<TileHandler> Shuffle(List<TileHandler> list)
+    {
+        System.Random rnd = new System.Random();
+        List<TileHandler> output = new List<TileHandler>(list);
+        int n = output.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = rnd.Next(n + 1);
+            TileHandler value = output[k];
+            output[k] = output[n];
+            output[n] = value;
+        }
 
-    #region Helpers
+        return output;
+    }
+
     public float GetValueFactorAtPoint(Vector3 point)
     {
         return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
     }
 
-
-    public int GetFactionTerritoryCount(int factionIndex)
+    public int GetFactionTerritory(int factionIndex)
     {
         return _factionTiles[factionIndex].Count;
+    }
+
+    public float GetFactionProduction(int factionIndex)
+    {
+        float production = 0;
+
+        foreach (var tile in _factionTiles[factionIndex])
+        {
+            production += FactionController.Instance.ProductionPerHex;
+            production += tile.ResourceBonus;
+        }
+
+        return production;
     }
 
     #endregion
