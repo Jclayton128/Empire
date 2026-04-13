@@ -85,6 +85,7 @@ public class TileController : MonoBehaviour
 
         LayTiles();
         InitializeTiles();
+        NeighborizeTiles();
 
         SeedRandomFactions(FactionController.Instance.FactionCount);
 
@@ -126,7 +127,10 @@ public class TileController : MonoBehaviour
         {
             tile.InitializeTile();
         }
+    }
 
+    private void NeighborizeTiles()
+    {
         foreach (var tile in _tilesRaw)
         {
             tile.CheckForNeighbors();
@@ -137,6 +141,14 @@ public class TileController : MonoBehaviour
     {
         List<TileHandler> tilesUnfactioned = new List<TileHandler>(_tilesRaw);
 
+        foreach (var tile in _tilesRaw)
+        {
+            if (tile.TileType == TileHandler.TileTypes.Water)
+            {
+                tilesUnfactioned.Remove(tile);
+            }
+        }
+
         for (int i = 0; i < factionsToSeed; i++)
         {
             int rand = UnityEngine.Random.Range(0, tilesUnfactioned.Count);
@@ -144,11 +156,12 @@ public class TileController : MonoBehaviour
 
             tilesUnfactioned.Remove(newCapitol);
             List<TileHandler> aFactionsTiles = new List<TileHandler>();
-            aFactionsTiles.Add(newCapitol);
             _factionTiles.Add(aFactionsTiles);
-            newCapitol.AssignFactionToTile(i);
+
+            _factionTiles[i].Add(newCapitol);
             _isFactionGrowing.Add(true);
 
+            newCapitol.AssignFactionToTile(i);
             Vector3 pos = newCapitol.transform.position;
             var barycenter = Instantiate(_barycenterIndicatorPrefab, pos, Quaternion.identity);
             _barycenterIndicators.Add(barycenter);  
@@ -277,7 +290,7 @@ public class TileController : MonoBehaviour
 
     public float GetValueFactorAtPoint(Vector3 point)
     {
-        return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
+        return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom , (point.y + _yOffset) * _perlinZoom);
     }
 
     private Vector3 FindMoveBarycenter(int factionIndex)

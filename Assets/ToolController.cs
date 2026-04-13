@@ -127,7 +127,7 @@ public class ToolController : MonoBehaviour
                 break;
 
             case Tools.Defend:
-                clickedTile.ModifyDefendBonus(1);
+                clickedTile.AttemptFortifyTile();
                 break;
 
 

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class TileHandler : MonoBehaviour
 {
+    public enum TileTypes { Plain, Mountain, Resourced, Defended, Water}
+
     //refs
 
     [SerializeField] List<Transform> _neighborChecks = new List<Transform>();
@@ -17,7 +19,10 @@ public class TileHandler : MonoBehaviour
 
     //settings
 
-    [SerializeField] Sprite _defendIcon = null;
+    [SerializeField] Sprite _fortifyIcon = null;
+    [SerializeField] Sprite _mountainIcon = null;
+    [SerializeField] Sprite _resourcedIcon = null;
+
 
     //state
 
@@ -33,21 +38,28 @@ public class TileHandler : MonoBehaviour
     int _defendBonus = 0;
     public int DefendBonus => _defendBonus;
     int _attackBonus = 0;
-    public int AttackBonus => _attackBonus; 
+    public int AttackBonus => _attackBonus;
 
+    TileTypes _tileType = TileTypes.Plain;
+    public TileTypes TileType => _tileType;
 
     public void InitializeTile()
     {
         ArbitraryNoiseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
 
-
         if (ArbitraryNoiseValue < 0.30f)
         {
+            _tileType = TileTypes.Water;
             _fullFill.color = Color.clear;
             _coll.enabled = false;
         }
 
-
+        else if (ArbitraryNoiseValue > 0.7f)
+        {
+            _tileType = TileTypes.Mountain;
+            _innerFill.color = Color.black;
+            _innerFill.sprite = _mountainIcon;
+        }
     }
 
     public void CheckForNeighbors()
@@ -184,12 +196,40 @@ public class TileHandler : MonoBehaviour
         _innerRing.color = Color.clear;
     }
 
+    public bool AttemptFortifyTile()
+    {
+        if (TileType != TileTypes.Plain)
+        {
+            Debug.Log("Can only fortify Plain tiles");
+            return false;
+        }
+        else
+        {
+            _innerFill.color = Color.black;
+            _innerFill.sprite = _fortifyIcon;
+
+            foreach (var tile in _orderedNeighborTiles)
+            {
+                if (tile == null || tile.FactionIndex != FactionIndex)
+                {
+                    continue;
+                }
+                else
+                {
+                    tile.ModifyDefendBonus(1);
+                }
+            }
+
+            return true;
+        }
+    }
+
     public void ModifyDefendBonus(int amountToAdd)
     {
         _defendBonus += amountToAdd;
         if (_defendBonus > 0)
         {
-            _innerFill.sprite = _defendIcon;
+            _innerFill.sprite = _fortifyIcon;
         }
         else
         {

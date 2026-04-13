@@ -283,7 +283,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10, y: 10}
+  m_Size: {x: 0.512, y: 0.512}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -568,7 +568,9 @@ MonoBehaviour:
   - {fileID: 880258038851742358}
   - {fileID: 7626007515561757877}
   - {fileID: 8445078819532563503}
-  _defendIcon: {fileID: 21300000, guid: e66f47c184814bc499de94d19410b9a7, type: 3}
+  _fortifyIcon: {fileID: 21300000, guid: 35e71eb56095d0c45a31d61a2dd814f2, type: 3}
+  _mountainIcon: {fileID: 21300000, guid: 7e900821fa2e93246a0182f801615089, type: 3}
+  _resourcedIcon: {fileID: 21300000, guid: dc4a9a0a35bfc2d49b881fd92890adb7, type: 3}
   _factionIndex: -1
   _orderedNeighborTiles: []
   _shuffledNeighborTiles: []
