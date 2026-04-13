@@ -8,13 +8,16 @@ public class FactionController : MonoBehaviour
     public static FactionController Instance { get; private set; }
 
     //refs
-    [SerializeField] TextMeshProUGUI _playerFactionTMP = null;
+    [SerializeField] FactionDriver _factionDriver = null;
+    [SerializeField] TextMeshProUGUI _playerEmpireTMP = null;
 
 
     //settings
 
-    [SerializeField] int _factionCount;
+    [SerializeField] int _factionCount = 4;
+    public int FactionCount => _factionCount;
     [SerializeField] List<Color> _factionColors = new List<Color>();
+
 
     //state
 
@@ -64,6 +67,20 @@ public class FactionController : MonoBehaviour
     public void SetPlayerFaction(int playerFaction)
     {
         _playerFaction = playerFaction;
-        _playerFactionTMP.text = $"Player: {_playerFaction}";
+        _playerEmpireTMP.text = $"Player: {_playerFaction}";
+    }
+
+    public void DisplayFaction(int faction)
+    {
+        if (faction >= 0 && faction < _factionCount)
+        {
+            int territory = TileController.Instance.GetFactionTerritoryCount(faction);
+            _factionDriver.SetFaction(faction, territory, 2, 3);
+        }
+        else
+        {
+            _factionDriver.ClearFaction();
+        }
+
     }
 }

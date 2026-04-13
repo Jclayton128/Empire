@@ -21,7 +21,6 @@ public class TileController : MonoBehaviour
 
     // Radius of the hexagon (center to vertex)
     [SerializeField] float _radius = 0.5f;
-    [SerializeField] int _factions = 4;
     [SerializeField] float _buildTime = 0.0625f;
 
 
@@ -87,7 +86,7 @@ public class TileController : MonoBehaviour
         LayTiles();
         InitializeTiles();
 
-        SeedRandomFactions(_factions);
+        SeedRandomFactions(FactionController.Instance.FactionCount);
 
         SpreadRegions();
     }
@@ -134,7 +133,7 @@ public class TileController : MonoBehaviour
         }
     }
 
-    public void SeedRandomFactions(int factionsToSeed)
+    private void SeedRandomFactions(int factionsToSeed)
     {
         List<TileHandler> tilesUnfactioned = new List<TileHandler>(_tilesRaw);
 
@@ -329,6 +328,11 @@ public class TileController : MonoBehaviour
     }
 
 
+    public int GetFactionTerritoryCount(int factionIndex)
+    {
+        return _factionTiles[factionIndex].Count;
+    }
+
     #region Flow
 
     private void Update()
@@ -349,6 +353,7 @@ public class TileController : MonoBehaviour
         if (_tileUnderCursor)
         {
             ToolController.Instance.HandleClickOnTile(_tileUnderCursor);
+            FactionController.Instance.DisplayFaction(_tileUnderCursor.FactionIndex);
         }
     }
 
@@ -359,6 +364,7 @@ public class TileController : MonoBehaviour
 
         _tileUnderCursor = tuc;
         HighlightFaction(_tileUnderCursor.FactionIndex);
+        FactionController.Instance.DisplayFaction(_tileUnderCursor.FactionIndex);
         TileUnderCursorChanged?.Invoke();
     }
 
@@ -366,6 +372,7 @@ public class TileController : MonoBehaviour
     {
         _tileUnderCursor = null;
         HighlightFaction(-9);
+        FactionController.Instance.DisplayFaction(-9);
         TileUnderCursorChanged?.Invoke();
     }
 
