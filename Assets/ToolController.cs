@@ -8,14 +8,14 @@ public class ToolController : MonoBehaviour
 {
 
     public static ToolController Instance {get; private set;}
-    public enum Tools { Attack, Defend, Strike, Invest}
+    public enum Tools {Undefined, Attack, Defend, Strike, Invest}
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
     [SerializeField] TextMeshProUGUI _selectedToolTMP = null;
 
     //state
-    Tools _selectedTool = Tools.Attack;
+    Tools _selectedTool = Tools.Undefined;
     public Tools SelectedTool => _selectedTool;
 
     [Header("Attack Values")]
@@ -30,7 +30,7 @@ public class ToolController : MonoBehaviour
 
     private void Start()
     {
-        SelectTool(Tools.Attack);
+        SelectTool(Tools.Undefined);
         TileController.Instance.TileUnderCursorChanged += HandleTileUnderCursorChanged;
     }
 
@@ -45,12 +45,21 @@ public class ToolController : MonoBehaviour
 
         switch (_selectedTool)
         {
+            case Tools.Undefined:
+                DepictUndefinedTool();
+                break;
+
             case Tools.Attack:
                 DepictProspectiveAttack();
                 break;
 
 
         }
+    }
+
+    private void DepictUndefinedTool()
+    {
+        _bpd.HideBattleDepiction();
     }
 
     private void DepictProspectiveAttack()

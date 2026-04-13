@@ -18,21 +18,22 @@ public class FactionController : MonoBehaviour
     public int FactionCount => _factionCount;
     [SerializeField] List<Color> _factionColors = new List<Color>();
 
+    [SerializeField] float _productionPerHex_Base = 0.2f;
+    [SerializeField] float _minProduction = 1;
+
 
     //state
 
     [SerializeField] int _playerFaction = 0;
     public int PlayerFaction => _playerFaction;
 
+    List<float> _bankedProductions = new List<float>();
+
     private void Awake()
     {
          Instance = this;
     }
 
-    private void Start()
-    {
-        SetPlayerFaction(0);
-    }
 
     public Color GetFactionColor(int factionIndex)
     {
@@ -75,7 +76,9 @@ public class FactionController : MonoBehaviour
         if (faction >= 0 && faction < _factionCount)
         {
             int territory = TileController.Instance.GetFactionTerritoryCount(faction);
-            _factionDriver.SetFaction(faction, territory, 2, 3);
+            float production = territory * _productionPerHex_Base;
+            production = Mathf.Clamp(production, _minProduction, 99f);
+            _factionDriver.SetFaction(faction, territory, production, 0);
         }
         else
         {

@@ -13,12 +13,12 @@ public class FactionDriver : MonoBehaviour
     [SerializeField] TextMeshProUGUI _unrestTMP = null;
 
 
-    public void SetFaction(int factionIndex, int territoryCount, int productionCount, int unrestCount)
+    public void SetFaction(int factionIndex, int territoryCount, float productionCount, int unrestCount)
     {
         _factionNameTMP.text = $"Faction {factionIndex}";
         _territoryTMP.text = $"Territory: {territoryCount}";
-        _productionTMP.text = $"Production: {productionCount}";
-        _unrestTMP.text = $"Unrest: {unrestCount}";
+        _productionTMP.text = "Production: " + string.Format("{0:F1}", productionCount);
+        _unrestTMP.text = $"Unrest: {unrestCount}%";
     }
 
     public void ClearFaction()

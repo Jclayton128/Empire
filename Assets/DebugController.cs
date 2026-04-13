@@ -10,6 +10,11 @@ public class DebugController : MonoBehaviour
     {
         SelectCurrentTool();
         SelectPlayerFaction();
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            GameController.Instance.StartNewGame();
+        }
     }
 
     private void SelectCurrentTool()

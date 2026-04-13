@@ -46,7 +46,7 @@ public class TileController : MonoBehaviour
     }
 
  
-    private void CreateNewWorld()
+    public void CreateNewWorld()
     {
         ClearTerrain();
         CreateTerrain();
@@ -255,6 +255,7 @@ public class TileController : MonoBehaviour
                 else
                 {
                     _isFactionGrowing[currentFaction] = false;
+
                     //_growingFactions.RemoveAt(currentFaction);
                     //Debug.Log($"Faction {currentFaction} has no tiles to grow into. Factions still growing: " + _growingFactions.Count);
                 }
@@ -337,10 +338,7 @@ public class TileController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            CreateNewWorld();
-        }
+
 
         if (Input.GetMouseButtonDown(0))
         {
