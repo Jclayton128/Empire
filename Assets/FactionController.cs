@@ -16,7 +16,9 @@ public class FactionController : MonoBehaviour
     //settings
 
     [SerializeField] int _factionCount = 4;
+    [SerializeField] int _factionStartingSize = 4;
     public int FactionCount => _factionCount;
+    public int FactionStartingSize => _factionStartingSize;
     [SerializeField] List<Color> _factionColors = new List<Color>();
 
     [SerializeField] float _productionPerHex_Base = 0.2f;

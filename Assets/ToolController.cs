@@ -89,7 +89,7 @@ public class ToolController : MonoBehaviour
         //    return;
         //}
 
-        _defensiveHelp = 0;
+        _defensiveHelp = 1 + selectedTile.DefendBonus;
         _offensiveHelp = 0;
         _neutrals = 0;
 
@@ -103,7 +103,7 @@ public class ToolController : MonoBehaviour
                 _offensiveHelp++;
                 //also need to account for 
             }
-            else if (tile.FactionIndex == selectedTile.FactionIndex)
+            else if (tile.FactionIndex != -1 && tile.FactionIndex == selectedTile.FactionIndex)
             {
                 _defensiveHelp += tile.DefendBonus + 1;
             }

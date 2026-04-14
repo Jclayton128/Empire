@@ -85,8 +85,9 @@ public class TileController : MonoBehaviour
 
 
         LayTiles();
-
         NeighborizeTiles();
+
+        //SprinkleRandomResourceTiles
 
         SeedRandomFactions(FactionController.Instance.FactionCount);
 
@@ -95,7 +96,7 @@ public class TileController : MonoBehaviour
 
     private void Delay_RegionFinalization()
     {
-        InjectBalanceResourcedTiles();
+        //InjectBalanceResourcedTiles();
     }
 
     private void InjectBalanceResourcedTiles()
@@ -233,6 +234,11 @@ public class TileController : MonoBehaviour
         int growingFactions = 0;
         for (int currentFaction = 0; currentFaction < _factionTiles.Count; currentFaction++)
         {
+            if (_factionTiles[currentFaction].Count >= FactionController.Instance.FactionStartingSize)
+            {
+                _isFactionGrowing[currentFaction] = false;
+            }
+
             if (_isFactionGrowing[currentFaction] == false)
             {
                 continue;
@@ -511,8 +517,16 @@ public class TileController : MonoBehaviour
 
     public void ChangeTileFaction(TileHandler tile, int oldFaction, int newFaction)
     {
-        _factionTiles[oldFaction].Remove(tile);
-        _factionTiles[newFaction].Add(tile);
+        if (oldFaction >= 0 )
+        {
+            _factionTiles[oldFaction].Remove(tile);
+        }
+
+        if (newFaction >= 0 )
+        {
+            _factionTiles[newFaction].Add(tile);
+        }
+
     }
 
     #endregion
