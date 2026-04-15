@@ -11,21 +11,27 @@ public class HexDriver : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI _hexTypeTMP = null;
     [SerializeField] TextMeshProUGUI _hexDescTMP = null;
+    [SerializeField] TextMeshProUGUI _hexIndexTMP = null;
     [SerializeField] Image _hexIcon = null;
 
-    public void SetHex(TileType tileType)
+    public void SetHex(TileHandler tile)
     {
-        _hexTypeTMP.text = tileType.TType.ToString();
-        _hexDescTMP.text = tileType.TypeDescription;
+        _hexTypeTMP.text = tile.CurrentTileType.TType.ToString();
+        _hexDescTMP.text = tile.CurrentTileType.TypeDescription;
 
-        if (tileType.TileIcon == null)
+        int dist = TileController.Instance.GetDistanceToSpecialTile(TileController.Instance.ReferenceTile, tile);
+        _hexIndexTMP.text = dist.ToString();
+
+
+
+        if (tile.CurrentTileType.TileIcon == null)
         {
             _hexIcon.enabled = false;
         }
         else
         {
             _hexIcon.enabled = true;
-            _hexIcon.sprite = tileType.TileIcon;
+            _hexIcon.sprite = tile.CurrentTileType.TileIcon;
         }
 
     }
@@ -34,6 +40,7 @@ public class HexDriver : MonoBehaviour
     {
         _hexTypeTMP.text = " ";
         _hexDescTMP.text = " ";
+        _hexIndexTMP.text = " ";
         _hexIcon.enabled = false;
     }
 

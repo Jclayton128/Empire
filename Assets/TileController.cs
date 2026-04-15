@@ -40,7 +40,7 @@ public class TileController : MonoBehaviour
 
     TileHandler _tileUnderCursor;
     public TileHandler TileUnderCursor => _tileUnderCursor;
-
+    public TileHandler ReferenceTile;
     private void Awake()
     {
         Instance = this;
@@ -180,8 +180,8 @@ public class TileController : MonoBehaviour
                 var tile = Instantiate(_tilePrefab, position, Quaternion.identity, _hexMap);
 
                 tile.InitializeTile();
-
                 _tilesRaw.Add(tile);
+                tile.Index = _tilesRaw.Count;
                 tile.name = $"Tile_{_tilesRaw.Count}";
 
             }
@@ -392,8 +392,6 @@ public class TileController : MonoBehaviour
 
     #endregion
 
-
-
     #region Helpers
     private TileHandler GetTileHandlerAtPoint(Vector2 point)
     {
@@ -448,6 +446,102 @@ public class TileController : MonoBehaviour
 
     #endregion
 
+    #region Pathfinding
+    public int GetDistanceToSpecialTile(TileHandler startingTile, TileHandler specialTile)
+    {
+        if (startingTile == null || specialTile == null || startingTile == specialTile )
+        {
+            return 0;
+        }
+
+        foreach (var tile in _tilesRaw)
+        {
+            tile.PreviousTile = null;
+        }
+
+        Stack<TileHandler> currentCheckPath = new Stack<TileHandler>();
+
+        List<TileHandler> tilesChecked = new List<TileHandler>();
+        Queue<TileHandler> tilesToCheck = new Queue<TileHandler>();
+
+        tilesToCheck.Enqueue(startingTile);
+
+        TileHandler tileBeingChecked = null;
+
+        while (tilesToCheck.Count > 0)
+        {
+
+            tileBeingChecked = tilesToCheck.Dequeue();
+
+            if (tileBeingChecked == specialTile)
+            {
+                break;
+            }
+
+            tilesChecked.Add(tileBeingChecked);
+
+            //if (isBlockedByAgents && tileBeingChecked.Occupant != null && tileBeingChecked.Occupant.IsAgent)
+            if (false == true)
+            {
+                //Debug.Log($"blocked at {tileBeingChecked.TileIndex}");
+
+            }
+            else
+            {
+                foreach (var tile in tileBeingChecked.OrderedNeighborTiles)
+                {
+                    if (tile == null || tilesChecked.Contains(tile) || tilesToCheck.Contains(tile))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        tilesToCheck.Enqueue(tile);
+
+                        if (tile.PreviousTile == null)
+                        {
+                            tile.PreviousTile = tileBeingChecked;
+                        }
+
+                    }
+
+                }
+            }
+
+
+            //Debug.Log($"checked {tilesChecked.Count} tiles. {tilesToCheck.Count} in queue.");
+
+
+            if (tilesChecked.Count > 500)
+            {
+                //Debug.Log("Break at 500!");
+                break;
+            }
+        }
+
+        currentCheckPath.Push(tileBeingChecked);
+        TileHandler reverseWalker = null;
+
+        int breaker = 40;
+        while (reverseWalker != startingTile)
+        {
+            reverseWalker = currentCheckPath.Peek().PreviousTile;
+            currentCheckPath.Push(reverseWalker);
+
+            breaker--;
+            if (breaker == 0)
+            {
+                //Debug.Log("path breaker");
+                break;
+            }
+        }
+
+        List<TileHandler> pathAsList = new List<TileHandler>(currentCheckPath);
+
+        return pathAsList.Count - 1;
+    }
+    #endregion
+
     #region Flow
 
     private void Update()
@@ -455,6 +549,11 @@ public class TileController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             HandleLMBClick();
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            HandleRMBClick();
         }
     }
 
@@ -467,6 +566,15 @@ public class TileController : MonoBehaviour
         }
     }
 
+    private void HandleRMBClick()
+    {
+        if (_tileUnderCursor)
+        {
+            ReferenceTile = _tileUnderCursor;
+            Debug.Log("new reference: " + _tileUnderCursor.name);
+        }
+    }
+
 
     public void HandleMouseOverTile(TileHandler tuc)
     {
@@ -474,7 +582,7 @@ public class TileController : MonoBehaviour
 
         _tileUnderCursor = tuc;
 
-        _hexDriver.SetHex(_tileUnderCursor.CurrentTileType);
+        _hexDriver.SetHex(_tileUnderCursor);
 
         HighlightFaction(_tileUnderCursor.FactionIndex);
         FactionController.Instance.DisplayFaction(_tileUnderCursor.FactionIndex);

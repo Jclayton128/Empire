@@ -47,8 +47,13 @@ public class TileHandler : MonoBehaviour
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
 
+    public TileHandler PreviousTile = null;
+    public int Index;
+
     public void InitializeTile()
     {
+        PreviousTile = null;
+        Index = -1;
         ArbitraryNoiseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
 
         if (ArbitraryNoiseValue < 0.30f)
