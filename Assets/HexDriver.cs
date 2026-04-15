@@ -19,7 +19,7 @@ public class HexDriver : MonoBehaviour
         _hexTypeTMP.text = tile.CurrentTileType.TType.ToString();
         _hexDescTMP.text = tile.CurrentTileType.TypeDescription;
 
-        int dist = TileController.Instance.GetDistanceToSpecialTile(TileController.Instance.ReferenceTile, tile);
+        int dist = TileController.Instance.FindDistanceToSpecialTile(TileController.Instance.ReferenceTile, tile);
         _hexIndexTMP.text = dist.ToString();
 
 

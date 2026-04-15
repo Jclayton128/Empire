@@ -87,11 +87,47 @@ public class TileController : MonoBehaviour
         LayTiles();
         NeighborizeTiles();
 
+        CheckForInaccessability();
         //SprinkleRandomResourceTiles
 
         SeedRandomFactions(FactionController.Instance.FactionCount);
 
         SpreadRegions();
+    }
+
+    private void CheckForInaccessability()
+    {
+        bool t = true;
+        foreach(var startingTile in _tilesRaw)
+        {
+            foreach (var endingTile in _tilesRaw)
+            {
+                //Debug.Log($"{startingTile} to {endingTile}");
+                int dist = FindDistanceToSpecialTile(startingTile, endingTile);
+
+                if (dist < 0)
+                {
+                    t = false;
+                    break;
+                }
+
+            }
+
+            if (t == false)
+            {
+                break;
+            }
+
+        }
+
+        if (t == false)
+        {
+            Debug.Log("Island detected");
+        }
+        else
+        {
+            Debug.Log("No Islands detected");
+        }
     }
 
     private void Delay_RegionFinalization()
@@ -447,9 +483,16 @@ public class TileController : MonoBehaviour
     #endregion
 
     #region Pathfinding
-    public int GetDistanceToSpecialTile(TileHandler startingTile, TileHandler specialTile)
+    public int FindDistanceToSpecialTile(TileHandler startingTile, TileHandler specialTile)
     {
-        if (startingTile == null || specialTile == null || startingTile == specialTile )
+        if (startingTile == null || specialTile == null ||
+            startingTile.CurrentTileType.TType == TileType.TileTypes.Water ||
+            specialTile.CurrentTileType.TType == TileType.TileTypes.Water)
+        {
+            return 0;
+        }
+            
+        if (startingTile == specialTile )
         {
             return 0;
         }
@@ -538,7 +581,16 @@ public class TileController : MonoBehaviour
 
         List<TileHandler> pathAsList = new List<TileHandler>(currentCheckPath);
 
-        return pathAsList.Count - 1;
+        if (pathAsList.Contains(specialTile))
+        {
+            return pathAsList.Count - 1;
+        }
+        else
+        {
+            return -(pathAsList.Count - 1);
+        }
+
+
     }
     #endregion
 
