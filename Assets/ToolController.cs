@@ -64,6 +64,12 @@ public class ToolController : MonoBehaviour
 
     private void DepictProspectiveAttack()
     {
+        if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Water)
+        {
+            //cannot attack water
+            return;
+        }
+
         TileHandler selectedTile = TileController.Instance.TileUnderCursor;
         if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {   
@@ -139,6 +145,12 @@ public class ToolController : MonoBehaviour
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             //cannot attack ownself
+            return;
+        }
+
+        if (clickedTile.CurrentTileType.TType == TileType.TileTypes.Water)
+        {
+            //cannot attack water
             return;
         }
 

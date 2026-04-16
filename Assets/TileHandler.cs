@@ -59,8 +59,8 @@ public class TileHandler : MonoBehaviour
         if (ArbitraryNoiseValue < 0.30f)
         {
             SetTileType(TileType.TileTypes.Water);
-            _fullFill.sprite = null;
-            _coll.enabled = false;
+
+            //_coll.enabled = false;
         }
 
         else if (ArbitraryNoiseValue > 0.7f)
@@ -135,8 +135,13 @@ public class TileHandler : MonoBehaviour
 
     public void AssignFactionToTile(int factionIndex)
     {
-        _factionIndex = factionIndex;
+        if (CurrentTileType.TType == TileType.TileTypes.Water)
+        {
+            Debug.Log("Cannot assign faction to water tiles");
+            return;
+        }
 
+        _factionIndex = factionIndex;
         _fullFill.color = FactionController.Instance.GetFactionColor_Desaturated(factionIndex);
 
     }
@@ -202,6 +207,14 @@ public class TileHandler : MonoBehaviour
 
     public bool AttemptFortifyTile()
     {
+
+        if (_currentTileType.TType == TileType.TileTypes.Water)
+        {
+            //cannot attack water
+            return false;
+        }
+
+
         if (_currentTileType.TType != TileType.TileTypes.Plain)
         {
             Debug.Log("Can only fortify Plain tiles");
@@ -257,7 +270,7 @@ public class TileHandler : MonoBehaviour
         }
     }
 
-    private void SetTileType(TileType.TileTypes tileType)
+    public void SetTileType(TileType.TileTypes tileType)
     {
         foreach (var t in _tileMenu)
         {
@@ -266,6 +279,11 @@ public class TileHandler : MonoBehaviour
                 _currentTileType = t;
                 continue;
             }
+        }
+
+        if (tileType == TileType.TileTypes.Water)
+        {
+            _fullFill.sprite = null;
         }
 
         _innerFill.color = Color.black;

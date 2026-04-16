@@ -978,7 +978,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.5, y: 11.5, z: -10}
+  m_LocalPosition: {x: 18, y: 13.5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1642,14 +1642,15 @@ MonoBehaviour:
   _hexMap: {fileID: 661244174}
   _tilePrefab: {fileID: 2653999975602381464, guid: 2de492624b5d58949aca035ad144082c, type: 3}
   _barycenterIndicatorPrefab: {fileID: 6478490692505286757, guid: 0ae7b706f57b397488bdafcf4037cf66, type: 3}
-  _gridWidth: 20
-  _gridHeight: 10
+  _gridWidth: 22
+  _gridHeight: 12
   _hexDriver: {fileID: 741355761}
   _radius: 1
   _buildTime: 0.0625
   _perlinZoom: 0.1
   _xOffset: 0
   _yOffset: 0
+  ReferenceTile: {fileID: 0}
 --- !u!4 &962095110
 Transform:
   m_ObjectHideFlags: 0

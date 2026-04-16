@@ -86,14 +86,16 @@ public class TileController : MonoBehaviour
 
         LayTiles();
         NeighborizeTiles();
+        ConvertEdgeTilesToWater();
 
-        CheckForInaccessability();
+        //CheckForInaccessability();
         //SprinkleRandomResourceTiles
 
         SeedRandomFactions(FactionController.Instance.FactionCount);
 
         SpreadRegions();
     }
+
 
     private void CheckForInaccessability()
     {
@@ -103,7 +105,7 @@ public class TileController : MonoBehaviour
             foreach (var endingTile in _tilesRaw)
             {
                 //Debug.Log($"{startingTile} to {endingTile}");
-                int dist = FindDistanceToSpecialTile(startingTile, endingTile);
+                int dist = FindDistanceThroughLand(startingTile, endingTile);
 
                 if (dist < 0)
                 {
@@ -233,6 +235,23 @@ public class TileController : MonoBehaviour
         }
     }
 
+
+    private void ConvertEdgeTilesToWater()
+    {
+        foreach (var tile in _tilesRaw)
+        {
+            foreach (var t in tile.OrderedNeighborTiles)
+            {
+                //if a tile is missing any of its 6 neighbors, then it must be on the edge of the map and should therefore be converted to water
+                if (t == null)
+                {
+                    tile.SetTileType(TileType.TileTypes.Water);
+                    continue;
+                }
+            }
+        }
+    }
+
     private void SeedRandomFactions(int factionsToSeed)
     {
         List<TileHandler> tilesUnfactioned = new List<TileHandler>(_tilesRaw);
@@ -297,14 +316,15 @@ public class TileController : MonoBehaviour
                 {
                     if (neighbor == null) continue;
 
-                    if (neighbor.FactionIndex == -1)
+                    if (neighbor.FactionIndex == -1 && neighbor.CurrentTileType.TType != TileType.TileTypes.Water)
                     {
                         hasUnfactionedNeighbors = true;
                         break;
                     }
                 }
 
-                if (hasUnfactionedNeighbors && bestTileCandidate.ArbitraryNoiseValue > factionValueToBeat)
+                if (hasUnfactionedNeighbors && bestTileCandidate.CurrentTileType.TType != TileType.TileTypes.Water &&
+                    bestTileCandidate.ArbitraryNoiseValue > factionValueToBeat)
                 {
                     bestTileToGrowFrom = bestTileCandidate;
                 }
@@ -323,7 +343,7 @@ public class TileController : MonoBehaviour
                 {
                     if (tileToTest == null) continue;
                     
-                    if (tileToTest.FactionIndex != -1)
+                    if (tileToTest.FactionIndex != -1 || tileToTest.CurrentTileType.TType == TileType.TileTypes.Water)
                     {
                         continue;
                     }
@@ -483,16 +503,16 @@ public class TileController : MonoBehaviour
     #endregion
 
     #region Pathfinding
-    public int FindDistanceToSpecialTile(TileHandler startingTile, TileHandler specialTile)
+    public int FindDistanceThroughLand(TileHandler startingTile, TileHandler endingTile)
     {
-        if (startingTile == null || specialTile == null ||
+        if (startingTile == null || endingTile == null ||
             startingTile.CurrentTileType.TType == TileType.TileTypes.Water ||
-            specialTile.CurrentTileType.TType == TileType.TileTypes.Water)
+            endingTile.CurrentTileType.TType == TileType.TileTypes.Water)
         {
             return 0;
         }
             
-        if (startingTile == specialTile )
+        if (startingTile == endingTile )
         {
             return 0;
         }
@@ -516,7 +536,7 @@ public class TileController : MonoBehaviour
 
             tileBeingChecked = tilesToCheck.Dequeue();
 
-            if (tileBeingChecked == specialTile)
+            if (tileBeingChecked == endingTile)
             {
                 break;
             }
@@ -533,7 +553,13 @@ public class TileController : MonoBehaviour
             {
                 foreach (var tile in tileBeingChecked.OrderedNeighborTiles)
                 {
+
+
                     if (tile == null || tilesChecked.Contains(tile) || tilesToCheck.Contains(tile))
+                    {
+                        continue;
+                    }
+                    else if (tile.CurrentTileType.TType == TileType.TileTypes.Water)
                     {
                         continue;
                     }
@@ -581,7 +607,7 @@ public class TileController : MonoBehaviour
 
         List<TileHandler> pathAsList = new List<TileHandler>(currentCheckPath);
 
-        if (pathAsList.Contains(specialTile))
+        if (pathAsList.Contains(endingTile))
         {
             return pathAsList.Count - 1;
         }
@@ -592,6 +618,117 @@ public class TileController : MonoBehaviour
 
 
     }
+
+    public int FindDistanceThroughWater(TileHandler startingTile, TileHandler endingTile)
+    {
+        if (startingTile == null || endingTile == null ||
+            startingTile.CurrentTileType.TType == TileType.TileTypes.Water ||
+            endingTile.CurrentTileType.TType == TileType.TileTypes.Water)
+        {
+            return 0;
+        }
+
+        if (startingTile == endingTile)
+        {
+            return 0;
+        }
+
+        foreach (var tile in _tilesRaw)
+        {
+            tile.PreviousTile = null;
+        }
+
+        Stack<TileHandler> currentCheckPath = new Stack<TileHandler>();
+
+        List<TileHandler> tilesChecked = new List<TileHandler>();
+        Queue<TileHandler> tilesToCheck = new Queue<TileHandler>();
+
+        tilesToCheck.Enqueue(startingTile);
+
+        TileHandler tileBeingChecked = null;
+
+        while (tilesToCheck.Count > 0)
+        {
+
+            tileBeingChecked = tilesToCheck.Dequeue();
+
+            if (tileBeingChecked == endingTile)
+            {
+                break;
+            }
+
+            tilesChecked.Add(tileBeingChecked);
+
+            //if (isBlockedByAgents && tileBeingChecked.Occupant != null && tileBeingChecked.Occupant.IsAgent)
+            if (false == true)
+            {
+                //Debug.Log($"blocked at {tileBeingChecked.TileIndex}");
+
+            }
+            else
+            {
+                foreach (var tile in tileBeingChecked.OrderedNeighborTiles)
+                {
+                    if (tile == null || tilesChecked.Contains(tile) || tilesToCheck.Contains(tile))
+                    {
+                        continue;
+                    }
+                    else if (tile != endingTile && tile.CurrentTileType.TType != TileType.TileTypes.Water)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        tilesToCheck.Enqueue(tile);
+
+                        if (tile.PreviousTile == null)
+                        {
+                            tile.PreviousTile = tileBeingChecked;
+                        }
+
+                    }
+
+                }
+            }
+
+            if (tilesChecked.Count > 500)
+            {
+                //Debug.Log("Break at 500!");
+                break;
+            }
+        }
+
+        currentCheckPath.Push(tileBeingChecked);
+        TileHandler reverseWalker = null;
+
+        int breaker = 40;
+        while (reverseWalker != startingTile)
+        {
+            reverseWalker = currentCheckPath.Peek().PreviousTile;
+            currentCheckPath.Push(reverseWalker);
+
+            breaker--;
+            if (breaker == 0)
+            {
+                //Debug.Log("path breaker");
+                break;
+            }
+        }
+
+        List<TileHandler> pathAsList = new List<TileHandler>(currentCheckPath);
+
+        if (pathAsList.Contains(endingTile))
+        {
+            return pathAsList.Count - 1;
+        }
+        else
+        {
+            return -(pathAsList.Count - 1);
+        }
+
+
+    }
+
     #endregion
 
     #region Flow
