@@ -78,15 +78,15 @@ public class ToolController : MonoBehaviour
             return;
         }
 
-        //bool isAdjacent = false;
-        //foreach (var tile in selectedTile.OrderedNeighborTiles)
-        //{
-        //    if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
-        //    {
-        //        isAdjacent = true;
-        //        break;
-        //    }
-        //}
+        bool isAdjacent = false;
+        foreach (var tile in selectedTile.OrderedNeighborTiles)
+        {
+            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            {
+                isAdjacent = true;
+                break;
+            }
+        }
 
         //if (isAdjacent == false)
         //{
@@ -95,33 +95,109 @@ public class ToolController : MonoBehaviour
         //    return;
         //}
 
-        _defensiveHelp = 1 + selectedTile.DefendBonus;
-        _offensiveHelp = 0;
-        _neutrals = 0;
-
-        foreach (var tile in selectedTile.ShuffledNeighborTiles)
+        if (isAdjacent)
         {
-            if (tile == null) continue;
+            //Set up a land battle
+            List<int> neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
+            List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
 
-            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            _defensiveHelp = 1 + selectedTile.DefendBonus;
+            _offensiveHelp = 0;
+            _neutrals = 0;
+
+            for (int i = 0; i < selectedTile.OrderedNeighborTiles.Count; i++)
             {
-                
-                _offensiveHelp++;
-                //also need to account for 
+                if (selectedTile.OrderedNeighborTiles[i] == null) continue;
+
+                if (selectedTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.ActiveFaction)
+                {
+                    _offensiveHelp += selectedTile.OrderedNeighborTiles[i].AttackBonus + 1;
+                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].AttackBonus + 1;
+                    neighborFactions[i] = FactionController.Instance.ActiveFaction;
+                }
+                else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
+                    selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
+                {
+                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
+                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
+                    neighborFactions[i] = selectedTile.FactionIndex;
+                }
+                else
+                {
+                    _neutrals++;
+                    neighborValues[i] = 0;
+                    neighborFactions[i] = selectedTile.OrderedNeighborTiles[i].FactionIndex;
+                }
             }
-            else if (tile.FactionIndex != -1 && tile.FactionIndex == selectedTile.FactionIndex)
+
+
+            float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
+            int oddsAsInt = Mathf.RoundToInt(odds * 100f);
+
+            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions, oddsAsInt);
+        }
+        else
+        {
+            //detect if water attack is possible
+            int waterDist = 0;
+            List<TileHandler> attackerTiles = TileController.Instance.GetFactionTileList(FactionController.Instance.ActiveFaction);
+            TileHandler tileToAttackFrom = null;
+            foreach (var tile in attackerTiles)
             {
-                _defensiveHelp += tile.DefendBonus + 1;
+                waterDist = TileController.Instance.FindDistanceThroughWater(tile, TileController.Instance.TileUnderCursor);
+                if (waterDist > 0)
+                {
+                    tileToAttackFrom = tile;
+                    break;
+                }
             }
-            else
+
+            if (tileToAttackFrom == null)
             {
-                _neutrals++;
+                Debug.Log("No attack possible");
+                return;
             }
+
+            List<int> neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
+            List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
+
+            _defensiveHelp = 1 + selectedTile.DefendBonus;
+            _offensiveHelp = 12; //water attacks are not buffed in same way as land.
+            _neutrals = 0;
+
+            for (int i = 0; i < selectedTile.OrderedNeighborTiles.Count; i++)
+            {
+                if (selectedTile.OrderedNeighborTiles[i] == null) continue;
+
+                if (selectedTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.ActiveFaction)
+                {
+                    _offensiveHelp++;
+                    neighborFactions[i] = FactionController.Instance.ActiveFaction;
+                }
+                else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
+                    selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
+                {
+                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
+                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
+                    neighborFactions[i] = selectedTile.FactionIndex;
+                }
+                else
+                {
+                    _neutrals++;
+                    neighborValues[i] = 0;
+                    neighborFactions[i] = selectedTile.OrderedNeighborTiles[i].FactionIndex;
+                }
+            }
+
+
+            float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
+            int oddsAsInt = Mathf.RoundToInt(odds * 100f);
+           
+            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions, oddsAsInt);
+
         }
 
-        float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
-        int oddsAsInt = Mathf.RoundToInt(odds * 100f);
-        _bpd.DepictBattle(TileController.Instance.TileUnderCursor, oddsAsInt);
+        
     }
 
     public void HandleClickOnTile(TileHandler clickedTile)

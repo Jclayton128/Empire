@@ -500,6 +500,11 @@ public class TileController : MonoBehaviour
         return production;
     }
 
+    public List<TileHandler> GetFactionTileList(int factionIndex)
+    {
+        return _factionTiles[factionIndex];
+    }
+
     #endregion
 
     #region Pathfinding
@@ -700,6 +705,11 @@ public class TileController : MonoBehaviour
 
         currentCheckPath.Push(tileBeingChecked);
         TileHandler reverseWalker = null;
+
+        if (currentCheckPath.Count == 0 || !currentCheckPath.Contains(endingTile))
+        {
+            return -1;
+        }
 
         int breaker = 40;
         while (reverseWalker != startingTile)

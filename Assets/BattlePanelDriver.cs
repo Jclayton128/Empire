@@ -23,11 +23,12 @@ public class BattlePanelDriver : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void DepictBattle(TileHandler centerTile, int odds)
+    public void DepictBattle(int defendingFactionIndex,
+        int centerTileValue, List<int> orderedNeighborTileValues, List<int> orderedNeighborTileFactions, int odds)
     {
         gameObject.SetActive(true);
 
-        if (centerTile == null)
+        if (centerTileValue == -1)
         {
             _centerSite.color = Color.clear;
             for (int i = 0; i < _neighborSites.Count; i++)
@@ -39,36 +40,20 @@ public class BattlePanelDriver : MonoBehaviour
         }
         else
         {
-            _centerSite.color = FactionController.Instance.GetFactionColor(centerTile.FactionIndex);
-            _centerTMP.text = $"{1 + centerTile.DefendBonus}";
+            _centerSite.color = FactionController.Instance.GetFactionColor(defendingFactionIndex);
+            _centerTMP.text = centerTileValue.ToString();
 
             for (int i = 0; i < _neighborSites.Count; i++)
             {
-                if (centerTile.OrderedNeighborTiles[i] == null)
+                if (orderedNeighborTileValues[i] == -1)
                 {
                     _neighborSites[i].color = Color.clear;
                     _neighborBonusTMP[i].text = " ";
                 }
                 else
                 {
-                    _neighborSites[i].color = FactionController.Instance.GetFactionColor(centerTile.OrderedNeighborTiles[i].FactionIndex);
-
-                    if (centerTile.FactionIndex != -1 && centerTile.OrderedNeighborTiles[i].FactionIndex == centerTile.FactionIndex)
-                    {
-                        int db = centerTile.OrderedNeighborTiles[i].DefendBonus;
-                        _neighborBonusTMP[i].text = $"{db + 1}";
-                    }
-                    else if (centerTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.PlayerFaction)
-                    {
-                        int ab = centerTile.OrderedNeighborTiles[i].AttackBonus;
-                        _neighborBonusTMP[i].text = $"{ab + 1}";
-                    }
-                    else
-                    {
-                        _neighborBonusTMP[i].text = " ";
-                    }
-
-
+                    _neighborSites[i].color = FactionController.Instance.GetFactionColor(orderedNeighborTileFactions[i]);
+                    _neighborBonusTMP[i].text = orderedNeighborTileValues[i].ToString();                   
                 }
 
             }

@@ -25,6 +25,7 @@ public class FactionController : MonoBehaviour
     public float ProductionPerHex => _productionPerHex_Base;
     [SerializeField] float _minProduction = 1;
 
+    public int ActiveFaction => _playerFaction; //This will eventually be updated to reflect whatever's faction has the turn priority.
 
     //state
 
