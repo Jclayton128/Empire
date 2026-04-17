@@ -48,14 +48,16 @@ public class FactionController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("this faction doesn't exist");
-            return Color.gray;
+            //Debug.LogWarning("this faction doesn't exist");
+
+            //neutral or rebel factions don't have borders
+            return Color.clear;
         }
     }
 
     public Color GetFactionColor_Desaturated(int factionIndex)
     {
-        if (factionIndex < _factionColors.Count)
+        if (factionIndex >= 0 && factionIndex < _factionColors.Count)
         {
             Color col = _factionColors[factionIndex];
             col.r *= 0.5f;
@@ -65,7 +67,8 @@ public class FactionController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("this faction doesn't exist");
+            //Debug.LogWarning("this faction doesn't exist");
+            //neutral or rebel faction fill
             return Color.gray;
         }
     }

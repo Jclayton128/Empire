@@ -626,9 +626,10 @@ public class TileController : MonoBehaviour
 
     public int FindDistanceThroughWater(TileHandler startingTile, TileHandler endingTile)
     {
-        if (startingTile == null || endingTile == null ||
-            startingTile.CurrentTileType.TType == TileType.TileTypes.Water ||
-            endingTile.CurrentTileType.TType == TileType.TileTypes.Water)
+        //if (startingTile == null || endingTile == null ||
+        //    startingTile.CurrentTileType.TType == TileType.TileTypes.Water ||
+        //    endingTile.CurrentTileType.TType == TileType.TileTypes.Water)
+        if (startingTile == null || endingTile == null)
         {
             return 0;
         }

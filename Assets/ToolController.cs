@@ -22,6 +22,7 @@ public class ToolController : MonoBehaviour
     [SerializeField] int _offensiveHelp = 0;
     [SerializeField] int _defensiveHelp = 0;
     [SerializeField] int _neutrals = 0;
+    [SerializeField] TileHandler _tileToAttackFromForWaterAttacks;
 
     private void Awake()
     {
@@ -141,18 +142,18 @@ public class ToolController : MonoBehaviour
             //detect if water attack is possible
             int waterDist = 0;
             List<TileHandler> attackerTiles = TileController.Instance.GetFactionTileList(FactionController.Instance.ActiveFaction);
-            TileHandler tileToAttackFrom = null;
+            _tileToAttackFromForWaterAttacks = null;
             foreach (var tile in attackerTiles)
             {
                 waterDist = TileController.Instance.FindDistanceThroughWater(tile, TileController.Instance.TileUnderCursor);
                 if (waterDist > 0)
                 {
-                    tileToAttackFrom = tile;
+                    _tileToAttackFromForWaterAttacks = tile;
                     break;
                 }
             }
 
-            if (tileToAttackFrom == null)
+            if (_tileToAttackFromForWaterAttacks == null)
             {
                 Debug.Log("No attack possible");
                 return;
@@ -162,17 +163,29 @@ public class ToolController : MonoBehaviour
             List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
 
             _defensiveHelp = 1 + selectedTile.DefendBonus;
-            _offensiveHelp = 12; //water attacks are not buffed in same way as land.
+            _offensiveHelp = 0; //water attacks are not buffed in same way as land.
             _neutrals = 0;
 
             for (int i = 0; i < selectedTile.OrderedNeighborTiles.Count; i++)
             {
                 if (selectedTile.OrderedNeighborTiles[i] == null) continue;
 
-                if (selectedTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.ActiveFaction)
+                if (selectedTile.OrderedNeighborTiles[i].CurrentTileType.TType == TileType.TileTypes.Water)
                 {
-                    _offensiveHelp++;
-                    neighborFactions[i] = FactionController.Instance.ActiveFaction;
+                    int c = TileController.Instance.FindDistanceThroughWater(selectedTile.OrderedNeighborTiles[i], _tileToAttackFromForWaterAttacks);
+                    if (c > 0)
+                    {
+                        //This set up means that water attacks improve against islands and peninsulas
+                        _offensiveHelp += 1;
+                        neighborValues[i] = 1;
+                    }
+                    else
+                    {
+                        _offensiveHelp += 0;
+                        neighborValues[i] = 0;
+                    }
+
+                    neighborFactions[i] = selectedTile.OrderedNeighborTiles[i].FactionIndex;
                 }
                 else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
                     selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
@@ -216,18 +229,17 @@ public class ToolController : MonoBehaviour
         }
     }
 
-    private void AttemptAttack(TileHandler clickedTile)
+    private bool AttemptAttack(TileHandler clickedTile)
     {
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             //cannot attack ownself
-            return;
+            return false;
         }
-
         if (clickedTile.CurrentTileType.TType == TileType.TileTypes.Water)
         {
-            //cannot attack water
-            return;
+            //cannot attack or own water tiles
+            return false;
         }
 
         bool isAdjacent = false;
@@ -241,15 +253,27 @@ public class ToolController : MonoBehaviour
             }
         }
 
-        if (isAdjacent == false)
+
+        if (!isAdjacent)
         {
-            //cannot attack non-adjacent tiles
-            return;
+            bool didAttackResolve = AttemptWaterAttack(clickedTile);
+            return didAttackResolve;
+        }
+        else
+        {
+            bool didAttackResolve = AttemptLandAttack(clickedTile);
+            return didAttackResolve;
         }
 
 
+    }
+
+    private bool AttemptLandAttack(TileHandler clickedTile)
+    {
+
+
         int totalOdds = _offensiveHelp + _defensiveHelp;
-        int rand = UnityEngine.Random.Range(1, totalOdds+1);
+        int rand = UnityEngine.Random.Range(1, totalOdds + 1);
         if (rand > _defensiveHelp)
         {
             //attacks succeeds
@@ -266,6 +290,54 @@ public class ToolController : MonoBehaviour
             //attack fails
             Debug.Log($"Attack fails: {rand}/{totalOdds}");
         }
+
+        return true;
+    }
+
+    private bool AttemptWaterAttack(TileHandler clickedTile)
+    {
+
+        int c = TileController.Instance.FindDistanceThroughWater(_tileToAttackFromForWaterAttacks, clickedTile);
+        if (c <= 0)
+        {
+
+            //no path from tile to attack from to clicked tile
+            return false;
+        }
+
+
+        int totalOdds = _offensiveHelp + _defensiveHelp;
+        int rand = UnityEngine.Random.Range(1, totalOdds + 1);
+        if (rand > _defensiveHelp)
+        {
+            //attacks succeeds
+            Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
+
+            int winningFaction = FactionController.Instance.PlayerFaction;
+            int oldFaction = clickedTile.FactionIndex;
+
+            if (clickedTile.FactionIndex > 0)
+            {
+                TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, -1);
+                clickedTile.AssignFactionToTile(-1);
+                clickedTile.DehighlightBorders();
+                TileController.Instance.HighlightFaction(oldFaction);
+            }
+            else if (clickedTile.FactionIndex == -1)
+            {
+                TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
+                clickedTile.AssignFactionToTile(winningFaction);
+                TileController.Instance.HighlightFaction(winningFaction);
+            }
+
+        }
+        else
+        {
+            //attack fails
+            Debug.Log($"Attack fails: {rand}/{totalOdds}");
+        }
+
+        return true;
     }
 
     public void SelectTool(Tools newTool)
