@@ -10,8 +10,11 @@ public class BattlePanelDriver : MonoBehaviour
     [SerializeField] Image _centerSite = null;
     [SerializeField] List<Image> _neighborSites = null;
     [SerializeField] List<TextMeshProUGUI> _neighborBonusTMP = null;
-    [SerializeField] TextMeshProUGUI _oddsTMP = null;
     [SerializeField] TextMeshProUGUI _centerTMP = null;
+    [SerializeField] TextMeshProUGUI _oddsTMP = null;
+    [SerializeField] TextMeshProUGUI _attackCountTMP = null;
+    [SerializeField] TextMeshProUGUI _defendCountTMP = null;
+
 
     private void Awake()
     {
@@ -24,7 +27,8 @@ public class BattlePanelDriver : MonoBehaviour
     }
 
     public void DepictBattle(int defendingFactionIndex,
-        int centerTileValue, List<int> orderedNeighborTileValues, List<int> orderedNeighborTileFactions, int odds)
+        int centerTileValue, List<int> orderedNeighborTileValues, List<int> orderedNeighborTileFactions,
+        int attackCount, int defendCount, int odds)
     {
         gameObject.SetActive(true);
 
@@ -40,7 +44,7 @@ public class BattlePanelDriver : MonoBehaviour
         }
         else
         {
-            _centerSite.color = FactionController.Instance.GetFactionBorderColor(defendingFactionIndex);
+            _centerSite.color = FactionController.Instance.GetFactionFillColor(defendingFactionIndex);
             _centerTMP.text = centerTileValue.ToString();
 
             for (int i = 0; i < _neighborSites.Count; i++)
@@ -58,6 +62,8 @@ public class BattlePanelDriver : MonoBehaviour
 
             }
             _oddsTMP.text = $"{odds.ToString()}%";
+            _attackCountTMP.text = attackCount.ToString();
+            _defendCountTMP.text = defendCount.ToString();
         }
 
            

@@ -135,7 +135,8 @@ public class ToolController : MonoBehaviour
             float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
             int oddsAsInt = Mathf.RoundToInt(odds * 100f);
 
-            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions, oddsAsInt);
+            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions,
+                _offensiveHelp, _defensiveHelp, oddsAsInt);
         }
         else
         {
@@ -206,7 +207,8 @@ public class ToolController : MonoBehaviour
             float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
             int oddsAsInt = Mathf.RoundToInt(odds * 100f);
            
-            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions, oddsAsInt);
+            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions,
+                _offensiveHelp, _defensiveHelp, oddsAsInt);
 
         }
 
