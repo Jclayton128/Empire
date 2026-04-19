@@ -138,11 +138,13 @@ public class TileHandler : MonoBehaviour
         if (CurrentTileType.TType == TileType.TileTypes.Water)
         {
             Debug.Log("Cannot assign faction to water tiles");
+            _factionIndex = -2;
+            _fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
             return;
         }
 
         _factionIndex = factionIndex;
-        _fullFill.color = FactionController.Instance.GetFactionColor_Desaturated(factionIndex);
+        _fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
 
     }
 
@@ -172,7 +174,7 @@ public class TileHandler : MonoBehaviour
         {
             if (_orderedNeighborTiles[i] == null)
             {
-                _borders[i].color = FactionController.Instance.GetFactionColor(_factionIndex);
+                _borders[i].color = FactionController.Instance.GetFactionBorderColor(_factionIndex);
             }
             else if (_orderedNeighborTiles[i].FactionIndex == _factionIndex)
             {
@@ -180,7 +182,7 @@ public class TileHandler : MonoBehaviour
             }
             else if (_orderedNeighborTiles[i].FactionIndex != _factionIndex)
             {
-                _borders[i].color = FactionController.Instance.GetFactionColor(_factionIndex);
+                _borders[i].color = FactionController.Instance.GetFactionBorderColor(_factionIndex);
             }
         }
     }
@@ -283,7 +285,9 @@ public class TileHandler : MonoBehaviour
 
         if (tileType == TileType.TileTypes.Water)
         {
-            _fullFill.sprite = null;
+            //_fullFill.sprite = null;
+            _factionIndex = -2;
+            _fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
         }
 
         _innerFill.color = Color.black;

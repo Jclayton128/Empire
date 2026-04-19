@@ -40,7 +40,7 @@ public class BattlePanelDriver : MonoBehaviour
         }
         else
         {
-            _centerSite.color = FactionController.Instance.GetFactionColor(defendingFactionIndex);
+            _centerSite.color = FactionController.Instance.GetFactionBorderColor(defendingFactionIndex);
             _centerTMP.text = centerTileValue.ToString();
 
             for (int i = 0; i < _neighborSites.Count; i++)
@@ -52,7 +52,7 @@ public class BattlePanelDriver : MonoBehaviour
                 }
                 else
                 {
-                    _neighborSites[i].color = FactionController.Instance.GetFactionColor(orderedNeighborTileFactions[i]);
+                    _neighborSites[i].color = FactionController.Instance.GetFactionFillColor(orderedNeighborTileFactions[i]);
                     _neighborBonusTMP[i].text = orderedNeighborTileValues[i].ToString();                   
                 }
 

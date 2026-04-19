@@ -21,7 +21,7 @@ public class FactionDriver : MonoBehaviour
         _territoryTMP.text = $"Territory: {territoryCount}";
         _productionTMP.text = "Production: " + string.Format("{0:F1}", productionCount);
         _unrestTMP.text = $"Unrest: {unrestCount}%";
-        _factionHex.color = FactionController.Instance.GetFactionColor(factionIndex);
+        _factionHex.color = FactionController.Instance.GetFactionBorderColor(factionIndex);
     }
 
     public void ClearFaction()
