@@ -482,6 +482,11 @@ public class TileController : MonoBehaviour
         return Mathf.PerlinNoise((point.x + _xOffset) * _perlinZoom, (point.y + _yOffset) * _perlinZoom);
     }
 
+    public float GetValueFactorAtPoint_Scaled(Vector3 point, float scale)
+    {
+        return Mathf.PerlinNoise((point.x + _xOffset) * scale, (point.y + _yOffset) * scale);
+    }
+
     public int GetFactionTerritory(int factionIndex)
     {
         return _factionTiles[factionIndex].Count;
