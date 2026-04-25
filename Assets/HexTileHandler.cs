@@ -10,22 +10,27 @@ public class HexTileHandler : MonoBehaviour
     [SerializeField] GameObject _landMesh = null;
     [SerializeField] GameObject _waterMesh = null;
 
-    public void InitializeHexTileHandler()
-    {
-        
-        float baseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
-        float noiseValue = TileController.Instance.GetValueFactorAtPoint_Scaled(transform.position, 1f);
-        float value = baseValue + noiseValue;
-        transform.DOLocalMoveZ(value, 1f);
 
-        if (value < 0.3f)
+
+    public void InitializeHexTileHandler(TileType.TileTypes tileType)
+    {
+        float baseValue = 0;
+        float value = 0;
+
+        if (tileType == TileType.TileTypes.Water)
         {
+            value = baseValue;
             SetAsWater();
         }
         else
         {
+            baseValue = 0 - (TileController.Instance.GetValueFactorAtPoint(transform.position) * 1f);
+            float noiseValue = TileController.Instance.GetValueFactorAtPoint_Scaled(transform.position, 1f);
+            value = baseValue + (noiseValue * .2f);
             SetAsLand();
         }
+
+        transform.DOLocalMoveZ(value, 1f);
     }
 
     public void SetAsWater()

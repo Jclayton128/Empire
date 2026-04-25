@@ -25,8 +25,6 @@ public class HexSubTileController : MonoBehaviour
     [ContextMenu("Lay SubTiles")]
     public void LaySubTiles()
     {
-        ClearAllSubTiles();
-
         float hexWidth = Mathf.Sqrt(3) * _radius;
         float hexHeight = 2f * _radius;
 
@@ -46,7 +44,7 @@ public class HexSubTileController : MonoBehaviour
                 Vector3 position = new Vector3(xPos, yPos, 0);
                 var tile = Instantiate(_hexSubTilePrefab, position, Quaternion.identity, _hexMap);
 
-                tile.InitializeHexTileHandler();
+                //tile.InitializeHexTileHandler();
                 _subTiles.Add(tile);
                 //tile.Index = _subTiles.Count;
                 tile.name = $"SubTile_{_subTiles.Count}";
@@ -55,7 +53,7 @@ public class HexSubTileController : MonoBehaviour
         }
     }
 
-    private void ClearAllSubTiles()
+    public void ClearAllSubTiles()
     {
         if (_subTiles.Count > 0)
         {

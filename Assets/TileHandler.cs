@@ -32,7 +32,7 @@ public class TileHandler : MonoBehaviour
 
     [SerializeField] List<TileHandler> _orderedNeighborTiles = new List<TileHandler>();
     [SerializeField] List<TileHandler> _shuffledNeighborTiles = new List<TileHandler>();
-
+    [SerializeField] List<HexTileHandler> _capturedSubtiles = new List<HexTileHandler>();
     public List<TileHandler> OrderedNeighborTiles => _orderedNeighborTiles;
     public List<TileHandler> ShuffledNeighborTiles => _shuffledNeighborTiles;
     public float ArbitraryNoiseValue;
@@ -96,7 +96,26 @@ public class TileHandler : MonoBehaviour
         _shuffledNeighborTiles = TileController.Shuffle(_orderedNeighborTiles);
     }
 
-
+    public void CaptureSubtiles()
+    {
+        _capturedSubtiles.Clear();
+        ContactFilter2D cf2d = new ContactFilter2D();
+        cf2d.useLayerMask = true;
+        cf2d.layerMask = 1 << 7;
+        List<Collider2D> hits = new List<Collider2D>();
+        var hitCount = Physics2D.OverlapCollider(_coll, cf2d, hits);
+        if (hitCount > 0)
+        {
+            HexTileHandler th;
+            foreach (var hit in hits)
+            {
+                th = hit.GetComponent<HexTileHandler>();
+                th.InitializeHexTileHandler(CurrentTileType.TType);
+                _capturedSubtiles.Add(th);
+                
+            }
+        }
+    }
 
 
     public float GetNeighborlyScore(int askingFaction)

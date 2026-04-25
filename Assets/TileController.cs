@@ -75,6 +75,8 @@ public class TileController : MonoBehaviour
         _tilesRaw.Clear();
         _factionTiles.Clear();
         _isFactionGrowing.Clear();
+
+        HexSubTileController.Instance.ClearAllSubTiles();
     }
 
     private void CreateWorld()
@@ -88,6 +90,9 @@ public class TileController : MonoBehaviour
         NeighborizeTiles();
         ConvertEdgeTilesToWater();
 
+        HexSubTileController.Instance.LaySubTiles();
+        HaveTilesCaptureSubtiles();
+
         //CheckForInaccessability();
         //SprinkleRandomResourceTiles
 
@@ -95,6 +100,7 @@ public class TileController : MonoBehaviour
 
         SpreadRegions();
     }
+
 
 
     private void CheckForInaccessability()
@@ -251,7 +257,13 @@ public class TileController : MonoBehaviour
             }
         }
     }
-
+    private void HaveTilesCaptureSubtiles()
+    {
+        foreach (var tile in _tilesRaw)
+        {
+            tile.CaptureSubtiles();
+        }
+    }
     private void SeedRandomFactions(int factionsToSeed)
     {
         List<TileHandler> tilesUnfactioned = new List<TileHandler>(_tilesRaw);

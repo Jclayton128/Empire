@@ -426,7 +426,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6706365109722133815}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -580,8 +580,11 @@ MonoBehaviour:
   _factionIndex: -1
   _orderedNeighborTiles: []
   _shuffledNeighborTiles: []
+  _capturedSubtiles: []
   ArbitraryNoiseValue: 0
   _currentTileType: {fileID: 0}
+  PreviousTile: {fileID: 0}
+  Index: 0
 --- !u!60 &5734029230241487985
 PolygonCollider2D:
   m_ObjectHideFlags: 0
