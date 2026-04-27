@@ -4,19 +4,30 @@ using UnityEngine;
 using TMPro;
 using System;
 
-public class ToolController : MonoBehaviour
+public class ActionController : MonoBehaviour
 {
 
-    public static ToolController Instance {get; private set;}
-    public enum Tools {Undefined, Attack, Defend, Strike, Invest}
+    public static ActionController Instance {get; private set;}
+    public enum ActionTypes {Undefined, Attack, Defend, Research, Exploit, Scout, Count}
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
     [SerializeField] TextMeshProUGUI _selectedToolTMP = null;
 
-    //state
-    Tools _selectedTool = Tools.Undefined;
-    public Tools SelectedTool => _selectedTool;
+    //settings
+    [Header("Attack")]
+    [SerializeField] Sprite _actionIcons_Attack = null;
+    [SerializeField] float _duration_Attack = 3f;
+    [Header("Defend")]
+    [SerializeField] Sprite _actionIcons_Defend = null;
+    [SerializeField] float _duration_Defend = 10f;
+    [SerializeField] Sprite _actionIcons_Research = null;
+    [SerializeField] Sprite _actionIcons_Exploit = null;
+    [SerializeField] Sprite _actionIcons_Scout = null;
+
+
+    ActionTypes _selectedAction = ActionTypes.Undefined;
+    public ActionTypes SelectedAction => _selectedAction;
 
     [Header("Attack Values")]
     [SerializeField] int _offensiveHelp = 0;
@@ -31,7 +42,7 @@ public class ToolController : MonoBehaviour
 
     private void Start()
     {
-        SelectTool(Tools.Undefined);
+        SelectTool(ActionTypes.Undefined);
         TileController.Instance.TileUnderCursorChanged += HandleTileUnderCursorChanged;
     }
 
@@ -44,14 +55,21 @@ public class ToolController : MonoBehaviour
         }
 
 
-        switch (_selectedTool)
+        switch (_selectedAction)
         {
-            case Tools.Undefined:
-                DepictUndefinedTool();
-                break;
+            //case ActionTypes.Undefined:
+            //    DepictUndefinedTool();
+            //    break;
 
-            case Tools.Attack:
-                DepictProspectiveAttack();
+            case ActionTypes.Attack:
+                if (CheckIfAttackIsPossibleAtTileUnderCursor())
+                {
+                    DepictProspectiveAttack();
+                }
+                else
+                {
+                    _bpd.HideBattleDepiction();
+                }
                 break;
 
 
@@ -63,22 +81,102 @@ public class ToolController : MonoBehaviour
         _bpd.HideBattleDepiction();
     }
 
-    private void DepictProspectiveAttack()
+    public void HandleClickOnTile(TileHandler clickedTile)
+    {
+        switch (_selectedAction)
+        {
+            case ActionTypes.Attack:
+
+                if (CheckIfAttackIsPossibleAtTileUnderCursor())
+                {
+                    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
+                }
+                else
+                {
+                    //Can't attack here for some reason
+                }
+
+                //AttemptAttack(clickedTile);
+                break;
+
+            case ActionTypes.Defend:
+                if (CheckIfDefendIsPossibleAtTileUnderCursor())
+                {
+                    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
+                }
+                else
+                {
+
+                }
+
+
+                //clickedTile.AttemptFortifyTile();
+                break;
+
+
+        }
+    }
+
+    #region Attack Action
+
+    private bool CheckIfAttackIsPossibleAtTileUnderCursor()
     {
         if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Water)
         {
             //cannot attack water
-            return;
+            return false;
         }
 
         TileHandler selectedTile = TileController.Instance.TileUnderCursor;
         if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
-        {   
+        {
             //No point in depicting a battle against yourself, right?
-            _bpd.HideBattleDepiction();
-            return;
+
+            return false;
         }
 
+        bool isAdjacent = false;
+        foreach (var tile in selectedTile.OrderedNeighborTiles)
+        {
+            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            {
+                isAdjacent = true;
+                return true;
+                //break;
+            }
+        }
+
+        if (!isAdjacent)
+        {
+            //detect if water attack is possible
+            int waterDist = 0;
+            List<TileHandler> attackerTiles = TileController.Instance.GetFactionTileList(FactionController.Instance.ActiveFaction);
+            foreach (var tile in attackerTiles)
+            {
+                waterDist = TileController.Instance.FindDistanceThroughWater(tile, TileController.Instance.TileUnderCursor);
+                if (waterDist > 0)
+                {
+                    return true;
+                }
+            }
+
+            if (_tileToAttackFromForWaterAttacks == null)
+            {
+                //Debug.Log("No attack possible");
+                return false;
+            }
+        }
+
+
+        return false;
+
+
+    }
+
+    private void DepictProspectiveAttack()
+    {
+
+        TileHandler selectedTile = TileController.Instance.TileUnderCursor;
         bool isAdjacent = false;
         foreach (var tile in selectedTile.OrderedNeighborTiles)
         {
@@ -89,12 +187,6 @@ public class ToolController : MonoBehaviour
             }
         }
 
-        //if (isAdjacent == false)
-        //{
-        //    //No point in depicting a battle that isn't adjacent to player territory, right?
-        //    _bpd.HideBattleDepiction();
-        //    return;
-        //}
 
         if (isAdjacent)
         {
@@ -215,23 +307,7 @@ public class ToolController : MonoBehaviour
         
     }
 
-    public void HandleClickOnTile(TileHandler clickedTile)
-    {
-        switch (_selectedTool)
-        {
-            case Tools.Attack:
-                AttemptAttack(clickedTile);
-                break;
-
-            case Tools.Defend:
-                clickedTile.AttemptFortifyTile();
-                break;
-
-
-        }
-    }
-
-    private bool AttemptAttack(TileHandler clickedTile)
+    public bool ResolveAttackAttempt(TileHandler clickedTile)
     {
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
@@ -342,9 +418,60 @@ public class ToolController : MonoBehaviour
         return true;
     }
 
-    public void SelectTool(Tools newTool)
+
+    #endregion
+
+    #region Defend Action
+
+    private bool CheckIfDefendIsPossibleAtTileUnderCursor()
     {
-        _selectedTool = newTool;
-        _selectedToolTMP.text = _selectedTool.ToString();
+        if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain &&
+            TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
+        {
+            return true;
+        }
+        else return false;
     }
+
+
+
+    #endregion
+    
+    
+
+    #region Action Selection
+
+    public void SelectTool(ActionTypes newTool)
+    {
+        _selectedAction = newTool;
+        _selectedToolTMP.text = _selectedAction.ToString();
+    }
+
+    public void IncrementToolSelection()
+    {
+        if ((int)_selectedAction == (int)ActionTypes.Count)
+        {
+            _selectedAction = (ActionTypes)1;
+        }
+        else 
+        {
+            _selectedAction++;
+        }
+        _selectedToolTMP.text = _selectedAction.ToString();
+    }
+
+    public void DecrementToolSelection()
+    {
+        if ((int)_selectedAction == 1)
+        {
+            _selectedAction = (ActionTypes)ActionTypes.Count;
+        }
+        else
+        {
+            _selectedAction--;
+        }
+        _selectedToolTMP.text = _selectedAction.ToString();
+    }
+
+    #endregion
 }

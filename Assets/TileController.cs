@@ -90,8 +90,8 @@ public class TileController : MonoBehaviour
         NeighborizeTiles();
         ConvertEdgeTilesToWater();
 
-        HexSubTileController.Instance.LaySubTiles();
-        HaveTilesCaptureSubtiles();
+        //HexSubTileController.Instance.LaySubTiles();
+        //HaveTilesCaptureSubtiles();
 
         //CheckForInaccessability();
         //SprinkleRandomResourceTiles
@@ -778,7 +778,7 @@ public class TileController : MonoBehaviour
     {
         if (_tileUnderCursor)
         {
-            ToolController.Instance.HandleClickOnTile(_tileUnderCursor);
+            ActionController.Instance.HandleClickOnTile(_tileUnderCursor);
             FactionController.Instance.DisplayFaction(_tileUnderCursor.FactionIndex);
         }
     }

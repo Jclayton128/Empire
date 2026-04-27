@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TileHandler : MonoBehaviour
 {
@@ -13,7 +14,8 @@ public class TileHandler : MonoBehaviour
     [SerializeField] SpriteRenderer _fullFill = null;
     [SerializeField] SpriteRenderer _outerRing = null;
     [SerializeField] SpriteRenderer _innerRing = null;
-    [SerializeField] SpriteRenderer _innerFill = null;
+
+
     [SerializeField] Collider2D _coll = null;
     [SerializeField] List<SpriteRenderer> _borders = null;
 
@@ -63,10 +65,10 @@ public class TileHandler : MonoBehaviour
             //_coll.enabled = false;
         }
 
-        else if (ArbitraryNoiseValue > 0.7f)
-        {
-            SetTileType(TileType.TileTypes.Mountain);
-        }
+        //else if (ArbitraryNoiseValue > 0.7f)
+        //{
+        //    SetTileType(TileType.TileTypes.Mountain);
+        //}
 
         else
         {
@@ -226,7 +228,7 @@ public class TileHandler : MonoBehaviour
         return true;
     }
 
-    public bool AttemptFortifyTile()
+    public bool AttemptDefendTile()
     {
 
         if (_currentTileType.TType == TileType.TileTypes.Water)
@@ -263,6 +265,11 @@ public class TileHandler : MonoBehaviour
 
             return true;
         }
+    }
+
+    public void UndefendTile()
+    {
+        Debug.LogWarning("not implemented!");
     }
 
     public void ModifyDefendBonus(int amountToAdd)
@@ -309,7 +316,7 @@ public class TileHandler : MonoBehaviour
             _fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
         }
 
-        _innerFill.color = Color.black;
-        _innerFill.sprite = _currentTileType.TileIcon;
+        //_innerFill.color = Color.black;
+        //_innerFill.sprite = _currentTileType.TileIcon;
     }
 }

@@ -1026,7 +1026,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 90
   orthographic: 1
   orthographic size: 14
   m_Depth: -1
@@ -1053,7 +1053,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 18, y: 13.5, z: -10}
+  m_LocalPosition: {x: 18, y: 14, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1343,7 +1343,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 67, y: 301.86}
+  m_AnchoredPosition: {x: 67, y: 302}
   m_SizeDelta: {x: 264, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &741355761
@@ -1942,14 +1942,14 @@ MonoBehaviour:
   _factionDriver: {fileID: 1507831874}
   _playerEmpireTMP: {fileID: 1131690492}
   _factionCount: 8
-  _factionStartingSize: 99
+  _factionStartingSize: 3
   _oceanColor: {r: 0.16078432, g: 0.14117648, b: 0.32941177, a: 0.2784314}
   _factionColors:
-  - {r: 0.7686275, g: 0.8117648, b: 0.6862745, a: 0.14901961}
-  - {r: 0.31764707, g: 0.5254902, b: 0.4901961, a: 0.14901961}
-  - {r: 0.91372555, g: 0.90196085, b: 0.36862746, a: 0.14901961}
-  - {r: 0.4156863, g: 0.74509805, b: 0.76470596, a: 0.14901961}
-  - {r: 0.8784314, g: 0.23137255, b: 0.18039216, a: 0.14901961}
+  - {r: 0.7686275, g: 0.8117648, b: 0.6862745, a: 1}
+  - {r: 0.31764707, g: 0.5254902, b: 0.4901961, a: 1}
+  - {r: 0.91372555, g: 0.90196085, b: 0.36862746, a: 1}
+  - {r: 0.4156863, g: 0.74509805, b: 0.76470596, a: 1}
+  - {r: 0.8784314, g: 0.23137255, b: 0.18039216, a: 1}
   - {r: 0.6132076, g: 0.3615611, b: 0.4097789, a: 1}
   - {r: 0.60784316, g: 0.48235297, b: 0.29803923, a: 1}
   - {r: 0.43529415, g: 0.3921569, b: 0.2392157, a: 1}
@@ -1984,11 +1984,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 962095108}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 291f08374334e754d82cb2440d05ba9d, type: 3}
+  m_Script: {fileID: 11500000, guid: 4cb1525281473c440a511ee139986276, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _bpd: {fileID: 1704965063}
   _selectedToolTMP: {fileID: 1565330436}
+  _actionIcons_Attack: {fileID: 21300000, guid: d69d5d21dd60abf4c80b396d7e35c41b, type: 3}
+  _actionIcons_Defend: {fileID: 21300000, guid: 35e71eb56095d0c45a31d61a2dd814f2, type: 3}
+  _actionIcons_Research: {fileID: 0}
+  _actionIcons_Exploit: {fileID: 21300000, guid: dc4a9a0a35bfc2d49b881fd92890adb7, type: 3}
+  _actionIcons_Scout: {fileID: 0}
   _offensiveHelp: 0
   _defensiveHelp: 0
   _neutrals: 0
@@ -3120,7 +3125,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -205, y: 301.86}
+  m_AnchoredPosition: {x: -205, y: 302}
   m_SizeDelta: {x: 264, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1506636921 stripped
@@ -3173,7 +3178,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 339.37964, y: 301.85706}
+  m_AnchoredPosition: {x: 339.37964, y: 301.99707}
   m_SizeDelta: {x: 264, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1507831874
@@ -3229,7 +3234,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -406.1, y: 301.86}
+  m_AnchoredPosition: {x: -406.1, y: 302}
   m_SizeDelta: {x: 128, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1565330435 stripped

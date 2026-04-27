@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class DebugController : MonoBehaviour
 {
-   
     void Update()
     {
         SelectCurrentTool();
@@ -15,21 +14,31 @@ public class DebugController : MonoBehaviour
         {
             GameController.Instance.StartNewGame();
         }
+
     }
 
     private void SelectCurrentTool()
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            ToolController.Instance.SelectTool(ToolController.Tools.Attack);
+            ActionController.Instance.SelectTool(ActionController.ActionTypes.Attack);
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
-            ToolController.Instance.SelectTool(ToolController.Tools.Defend);
+            ActionController.Instance.SelectTool(ActionController.ActionTypes.Defend);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            ToolController.Instance.SelectTool(ToolController.Tools.Strike);
+            ActionController.Instance.SelectTool(ActionController.ActionTypes.Research);
+        }
+
+        if (Input.mouseScrollDelta.y > Mathf.Epsilon)
+        {
+            ActionController.Instance.IncrementToolSelection();
+        }
+        else if (Input.mouseScrollDelta.y < -Mathf.Epsilon)
+        {
+            ActionController.Instance.DecrementToolSelection();
         }
     }
 
