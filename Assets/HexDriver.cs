@@ -12,6 +12,9 @@ public class HexDriver : MonoBehaviour
     [SerializeField] TextMeshProUGUI _hexTypeTMP = null;
     [SerializeField] TextMeshProUGUI _hexDescTMP = null;
     [SerializeField] TextMeshProUGUI _hexIndexTMP = null;
+    [SerializeField] TextMeshProUGUI _attackBonusTMP = null;
+    [SerializeField] TextMeshProUGUI _defendBonusTMP = null;
+    [SerializeField] TextMeshProUGUI _productionBonusTMP = null;
     [SerializeField] Image _hexIcon = null;
 
     public void SetHex(TileHandler tile)
@@ -22,7 +25,9 @@ public class HexDriver : MonoBehaviour
         int dist = TileController.Instance.FindDistanceThroughWater(TileController.Instance.ReferenceTile, tile);
         _hexIndexTMP.text = dist.ToString();
 
-
+        _attackBonusTMP.text = tile.AttackBonus.ToString();
+        _defendBonusTMP.text = tile.DefendBonus.ToString();
+        _productionBonusTMP.text = tile.ProductionBonus.ToString();
 
         if (tile.CurrentTileType.TileIcon == null)
         {

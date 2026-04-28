@@ -24,8 +24,11 @@ public class TileHandler : MonoBehaviour
     [SerializeField] Sprite _fortifyIcon = null;
     [SerializeField] Sprite _mountainIcon = null;
     [SerializeField] Sprite _resourcedIcon = null;
-
     [SerializeField] List<TileType> _tileMenu = null;
+
+    [Header("Defend Action Parameters")]
+    [SerializeField] int _defendBonus_Self = 3;
+    [SerializeField] int _defendBonus_Adjacent = 1;
 
     //state
 
@@ -38,13 +41,13 @@ public class TileHandler : MonoBehaviour
     public List<TileHandler> OrderedNeighborTiles => _orderedNeighborTiles;
     public List<TileHandler> ShuffledNeighborTiles => _shuffledNeighborTiles;
     public float ArbitraryNoiseValue;
-    int _defendBonus = 0;
+    int _defendBonus = 1;
     public int DefendBonus => _defendBonus;
-    int _attackBonus = 0;
+    int _attackBonus = 1;
     public int AttackBonus => _attackBonus;
 
-    int _resourceBonus = 0;
-    public int ResourceBonus => _resourceBonus;
+    int _productionBonus = 0;
+    public int ProductionBonus => _productionBonus;
 
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
@@ -224,7 +227,7 @@ public class TileHandler : MonoBehaviour
     public bool ResourceTile()
     {
         SetTileType(TileType.TileTypes.Resourced);
-        _resourceBonus = 1;
+        _productionBonus = 1;
         return true;
     }
 
@@ -240,15 +243,15 @@ public class TileHandler : MonoBehaviour
 
         if (_currentTileType.TType != TileType.TileTypes.Plain)
         {
-            Debug.Log("Can only fortify Plain tiles");
+            Debug.Log("Can only defend Plain tiles");
             return false;
         }
         else
         {
-            SetTileType(TileType.TileTypes.Fortified);
+            //SetTileType(TileType.TileTypes.Fortified);
 
             //mega-Boost this tile's defense
-            ModifyDefendBonus(3);
+            ModifyDefendBonus(_defendBonus_Self);
             
             //mini-boost neighboring friendly tile's defenses
             foreach (var tile in _orderedNeighborTiles)
@@ -259,7 +262,7 @@ public class TileHandler : MonoBehaviour
                 }
                 else
                 {
-                    tile.ModifyDefendBonus(1);
+                    tile.ModifyDefendBonus(_defendBonus_Adjacent);
                 }
             }
 
@@ -269,7 +272,20 @@ public class TileHandler : MonoBehaviour
 
     public void UndefendTile()
     {
-        Debug.LogWarning("not implemented!");
+        ModifyDefendBonus(-_defendBonus_Self);
+
+        //mini-boost neighboring friendly tile's defenses
+        foreach (var tile in _orderedNeighborTiles)
+        {
+            if (tile == null || tile.FactionIndex != FactionIndex)
+            {
+                continue;
+            }
+            else
+            {
+                tile.ModifyDefendBonus(-_defendBonus_Adjacent);
+            }
+        }
     }
 
     public void ModifyDefendBonus(int amountToAdd)

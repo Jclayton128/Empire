@@ -511,7 +511,7 @@ public class TileController : MonoBehaviour
         foreach (var tile in _factionTiles[factionIndex])
         {
             production += FactionController.Instance.ProductionPerHex;
-            production += tile.ResourceBonus;
+            production += tile.ProductionBonus;
         }
 
         return production;
@@ -792,6 +792,10 @@ public class TileController : MonoBehaviour
         }
     }
 
+    public void PushChangesFromTileUnderCursorChanged()
+    {
+        HandleMouseOverTile(_tileUnderCursor);
+    }
 
     public void HandleMouseOverTile(TileHandler tuc)
     {

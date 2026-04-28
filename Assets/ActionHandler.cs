@@ -27,6 +27,9 @@ public class ActionHandler : MonoBehaviour
 
     public void AssignAction(ActionController.ActionTypes action, float actionDuration, bool countsUp, Sprite actionIcon)
     {
+        //can't have multiple actions in a hex, or overwrite existing actions.
+        if (_action != ActionController.ActionTypes.Undefined) return;
+
         _action = action;
         ResolveAssignedActionAtStart();
 
@@ -86,6 +89,8 @@ public class ActionHandler : MonoBehaviour
                 _th.AttemptDefendTile();
                 break;
         }
+
+        TileController.Instance.PushChangesFromTileUnderCursorChanged();
     }
 
     private void ResolveAssignedActionAtEnd()
@@ -100,5 +105,7 @@ public class ActionHandler : MonoBehaviour
                 _th.UndefendTile();
                 break;
         }
+
+        TileController.Instance.PushChangesFromTileUnderCursorChanged();
     }
 }

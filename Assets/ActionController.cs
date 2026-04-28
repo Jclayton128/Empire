@@ -7,6 +7,7 @@ using System;
 public class ActionController : MonoBehaviour
 {
 
+
     public static ActionController Instance {get; private set;}
     public enum ActionTypes {Undefined, Attack, Defend, Research, Exploit, Scout, Count}
 
@@ -194,7 +195,7 @@ public class ActionController : MonoBehaviour
             List<int> neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
             List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
 
-            _defensiveHelp = 1 + selectedTile.DefendBonus;
+            _defensiveHelp = selectedTile.DefendBonus;
             _offensiveHelp = 0;
             _neutrals = 0;
 
@@ -204,15 +205,15 @@ public class ActionController : MonoBehaviour
 
                 if (selectedTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.ActiveFaction)
                 {
-                    _offensiveHelp += selectedTile.OrderedNeighborTiles[i].AttackBonus + 1;
-                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].AttackBonus + 1;
+                    _offensiveHelp += selectedTile.OrderedNeighborTiles[i].AttackBonus;
+                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].AttackBonus;
                     neighborFactions[i] = FactionController.Instance.ActiveFaction;
                 }
                 else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
                     selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
                 {
-                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
-                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
+                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus;
+                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus;
                     neighborFactions[i] = selectedTile.FactionIndex;
                 }
                 else
@@ -227,7 +228,7 @@ public class ActionController : MonoBehaviour
             float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
             int oddsAsInt = Mathf.RoundToInt(odds * 100f);
 
-            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions,
+            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus, neighborValues, neighborFactions,
                 _offensiveHelp, _defensiveHelp, oddsAsInt);
         }
         else
@@ -255,7 +256,7 @@ public class ActionController : MonoBehaviour
             List<int> neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
             List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
 
-            _defensiveHelp = 1 + selectedTile.DefendBonus;
+            _defensiveHelp = selectedTile.DefendBonus;
             _offensiveHelp = 0; //water attacks are not buffed in same way as land.
             _neutrals = 0;
 
@@ -283,8 +284,8 @@ public class ActionController : MonoBehaviour
                 else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
                     selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
                 {
-                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
-                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus + 1;
+                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus;
+                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus;
                     neighborFactions[i] = selectedTile.FactionIndex;
                 }
                 else
@@ -299,7 +300,7 @@ public class ActionController : MonoBehaviour
             float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
             int oddsAsInt = Mathf.RoundToInt(odds * 100f);
            
-            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus + 1, neighborValues, neighborFactions,
+            _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus, neighborValues, neighborFactions,
                 _offensiveHelp, _defensiveHelp, oddsAsInt);
 
         }
@@ -462,7 +463,7 @@ public class ActionController : MonoBehaviour
 
     public void DecrementToolSelection()
     {
-        if ((int)_selectedAction == 1)
+        if ((int)_selectedAction <= 1)
         {
             _selectedAction = (ActionTypes)ActionTypes.Count;
         }
