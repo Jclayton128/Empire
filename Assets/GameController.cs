@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
 
     public void StartNewGame()
     {
+        FactionController.Instance.SetupFactions();
         FactionController.Instance.SetPlayerFaction(0);
         TileController.Instance.CreateNewWorld();
         

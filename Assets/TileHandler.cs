@@ -30,6 +30,8 @@ public class TileHandler : MonoBehaviour
     [SerializeField] int _defendBonus_Self = 3;
     [SerializeField] int _defendBonus_Adjacent = 1;
 
+    [Header("Production Parameters")]
+
     //state
 
     [SerializeField] int _factionIndex = -1;

@@ -143,62 +143,62 @@ public class TileController : MonoBehaviour
         //InjectBalanceResourcedTiles();
     }
 
-    private void InjectBalanceResourcedTiles()
-    {
-        int highestTerritory = 0;
-        foreach (var faction in _factionTiles)
-        {
-            if (faction.Count > highestTerritory)
-            {
-                highestTerritory = faction.Count;
-            }
-        }
+    //private void InjectBalanceResourcedTiles()
+    //{
+    //    int highestTerritory = 0;
+    //    foreach (var faction in _factionTiles)
+    //    {
+    //        if (faction.Count > highestTerritory)
+    //        {
+    //            highestTerritory = faction.Count;
+    //        }
+    //    }
 
-        float runningProduction;
-        float productionDelta;
-        int resourcedTilesToBestow;
-        foreach (var faction in _factionTiles)
-        {
+    //    float runningProduction;
+    //    float productionDelta;
+    //    int resourcedTilesToBestow;
+    //    foreach (var faction in _factionTiles)
+    //    {
 
-            runningProduction = 0;
-            productionDelta = 0;
-            resourcedTilesToBestow = 0;
+    //        runningProduction = 0;
+    //        productionDelta = 0;
+    //        resourcedTilesToBestow = 0;
 
-            runningProduction = faction.Count * FactionController.Instance.ProductionPerHex;
-            productionDelta = (highestTerritory - faction.Count) * FactionController.Instance.ProductionPerHex;
-            resourcedTilesToBestow = 1 + Mathf.RoundToInt(productionDelta);
+    //        runningProduction = faction.Count * FactionController.Instance.ProductionPerHex;
+    //        productionDelta = (highestTerritory - faction.Count) * FactionController.Instance.ProductionPerHex;
+    //        resourcedTilesToBestow = 1 + Mathf.RoundToInt(productionDelta);
 
-            if (resourcedTilesToBestow <= 0)
-            {
-                continue;
-            }
+    //        if (resourcedTilesToBestow <= 0)
+    //        {
+    //            continue;
+    //        }
 
   
 
-            List<TileHandler> tiles = new List<TileHandler>(faction);
+    //        List<TileHandler> tiles = new List<TileHandler>(faction);
     
-            foreach (var tile in faction)
-            {
-                if (tile.CurrentTileType.TType != TileType.TileTypes.Plain)
-                {
-                    tiles.Remove(tile);
-                }
-            }
+    //        foreach (var tile in faction)
+    //        {
+    //            if (tile.CurrentTileType.TType != TileType.TileTypes.Plain)
+    //            {
+    //                tiles.Remove(tile);
+    //            }
+    //        }
 
-            if (resourcedTilesToBestow > tiles.Count)
-            {
-                resourcedTilesToBestow = tiles.Count;
-            }
+    //        if (resourcedTilesToBestow > tiles.Count)
+    //        {
+    //            resourcedTilesToBestow = tiles.Count;
+    //        }
 
-            tiles = Shuffle(tiles);
+    //        tiles = Shuffle(tiles);
 
-            for (int i = 0; i < resourcedTilesToBestow; ++i)
-            {
-                tiles[i].ResourceTile();
-            }
+    //        for (int i = 0; i < resourcedTilesToBestow; ++i)
+    //        {
+    //            tiles[i].ResourceTile();
+    //        }
             
-        }
-    }
+    //    }
+    //}
 
 
 
@@ -510,7 +510,6 @@ public class TileController : MonoBehaviour
 
         foreach (var tile in _factionTiles[factionIndex])
         {
-            production += FactionController.Instance.ProductionPerHex;
             production += tile.ProductionBonus;
         }
 

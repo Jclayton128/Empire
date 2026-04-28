@@ -13,19 +13,22 @@ public class ActionController : MonoBehaviour
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
-    [SerializeField] TextMeshProUGUI _selectedToolTMP = null;
+    [SerializeField] TextMeshProUGUI _selectedToolNameTMP = null;
+    [SerializeField] TextMeshProUGUI _selectedToolCostTMP = null;
 
     //settings
     [Header("Attack")]
     [SerializeField] Sprite _actionIcons_Attack = null;
     [SerializeField] float _duration_Attack = 3f;
+    [SerializeField] int _cost_Attack = 2;
+
     [Header("Defend")]
     [SerializeField] Sprite _actionIcons_Defend = null;
     [SerializeField] float _duration_Defend = 10f;
     [SerializeField] Sprite _actionIcons_Research = null;
     [SerializeField] Sprite _actionIcons_Exploit = null;
     [SerializeField] Sprite _actionIcons_Scout = null;
-
+    [SerializeField] int _cost_Defend = 3;
 
     ActionTypes _selectedAction = ActionTypes.Undefined;
     public ActionTypes SelectedAction => _selectedAction;
@@ -88,6 +91,13 @@ public class ActionController : MonoBehaviour
         {
             case ActionTypes.Attack:
 
+                if (FactionController.Instance.CheckIfAffordable(_cost_Attack, FactionController.Instance.PlayerFaction) == false) return;
+                else
+                {
+                    FactionController.Instance.AdjustProduction(-_cost_Attack, FactionController.Instance.PlayerFaction);
+                }
+
+
                 if (CheckIfAttackIsPossibleAtTileUnderCursor())
                 {
                     clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
@@ -96,22 +106,24 @@ public class ActionController : MonoBehaviour
                 {
                     //Can't attack here for some reason
                 }
-
-                //AttemptAttack(clickedTile);
                 break;
 
             case ActionTypes.Defend:
+
+                if (FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction) == false) return;
+                else
+                {
+                    FactionController.Instance.AdjustProduction(-_cost_Defend, FactionController.Instance.PlayerFaction);
+                }
+
                 if (CheckIfDefendIsPossibleAtTileUnderCursor())
                 {
                     clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
                 }
                 else
                 {
-
+                    //Can't defend here for some reason
                 }
-
-
-                //clickedTile.AttemptFortifyTile();
                 break;
 
 
@@ -445,7 +457,8 @@ public class ActionController : MonoBehaviour
     public void SelectTool(ActionTypes newTool)
     {
         _selectedAction = newTool;
-        _selectedToolTMP.text = _selectedAction.ToString();
+        _selectedToolNameTMP.text = _selectedAction.ToString();
+        ShowActionCost();
     }
 
     public void IncrementToolSelection()
@@ -458,7 +471,8 @@ public class ActionController : MonoBehaviour
         {
             _selectedAction++;
         }
-        _selectedToolTMP.text = _selectedAction.ToString();
+        _selectedToolNameTMP.text = _selectedAction.ToString();
+        ShowActionCost();
     }
 
     public void DecrementToolSelection()
@@ -471,7 +485,23 @@ public class ActionController : MonoBehaviour
         {
             _selectedAction--;
         }
-        _selectedToolTMP.text = _selectedAction.ToString();
+        _selectedToolNameTMP.text = _selectedAction.ToString();
+        ShowActionCost();
+    }
+
+    private void ShowActionCost()
+    {
+        switch (_selectedAction)
+        {
+            case ActionTypes.Attack:
+                _selectedToolCostTMP.text = $"${_cost_Attack}";
+                break;
+
+            case ActionTypes.Defend:
+                _selectedToolCostTMP.text = $"${_cost_Defend}";
+                break;
+
+        }
     }
 
     #endregion

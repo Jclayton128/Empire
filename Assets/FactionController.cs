@@ -9,7 +9,7 @@ public class FactionController : MonoBehaviour
 
     //refs
     [SerializeField] FactionDriver _factionDriver = null;
-    [SerializeField] TextMeshProUGUI _playerEmpireTMP = null;
+    [SerializeField] EmpireDriver _playerEmpireDriver = null;
 
 
     //settings
@@ -22,9 +22,7 @@ public class FactionController : MonoBehaviour
     [SerializeField] Color _oceanColor = Color.blue;
     [SerializeField] List<Color> _factionColors = new List<Color>();
 
-    [SerializeField] float _productionPerHex_Base = 0.2f;
-    public float ProductionPerHex => _productionPerHex_Base;
-    [SerializeField] float _minProduction = 1;
+    [SerializeField] int _factionStartingProduction = 10;
 
     public int ActiveFaction => _playerFaction; //This will eventually be updated to reflect whatever's faction has the turn priority.
 
@@ -33,11 +31,21 @@ public class FactionController : MonoBehaviour
     [SerializeField] int _playerFaction = 0;
     public int PlayerFaction => _playerFaction;
 
-    List<float> _bankedProductions = new List<float>();
+    List<int> _bankedProductions;
 
     private void Awake()
     {
          Instance = this;
+    }
+
+    public void SetupFactions()
+    {
+        _bankedProductions = new List<int>();
+
+        for (int i = 0; i < _factionCount; i++)
+        {
+            _bankedProductions.Add(_factionStartingProduction);
+        }
     }
 
 
@@ -86,7 +94,8 @@ public class FactionController : MonoBehaviour
     public void SetPlayerFaction(int playerFaction)
     {
         _playerFaction = playerFaction;
-        _playerEmpireTMP.text = $"Player: {_playerFaction}";
+        _playerEmpireDriver.SetPlayerEmpireName($"Player: {_playerFaction}");
+        _playerEmpireDriver.ShowProduction(_bankedProductions[_playerFaction]);
     }
 
     public void DisplayFaction(int faction)
@@ -103,4 +112,29 @@ public class FactionController : MonoBehaviour
         }
 
     }
+
+
+    #region Production
+
+    public bool CheckIfAffordable(int cost, int faction)
+    {
+        if (_bankedProductions[faction] >= cost)
+        {
+            return true;
+        }
+        else return false;
+    }
+
+    public void AdjustProduction(int amountToAdd, int faction)
+    {
+        _bankedProductions[faction] += amountToAdd;
+
+        if (faction == _playerFaction)
+        {
+            _playerEmpireDriver.ShowProduction(_bankedProductions[faction]);
+        }
+    }
+
+    #endregion
+
 }
