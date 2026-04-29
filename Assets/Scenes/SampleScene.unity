@@ -2674,12 +2674,21 @@ MonoBehaviour:
   _costResource_Attack: 2
   _costPop_Attack: 1
   _actionIcons_Defend: {fileID: 21300000, guid: 35e71eb56095d0c45a31d61a2dd814f2, type: 3}
-  _duration_Defend: 10
+  _duration_Defend: 15
+  _costResource_Defend: 6
+  _costPop_Defend: 2
   _actionIcons_Research: {fileID: 21300000, guid: 32b0db5e35e596f40a2d9b0ce8ee8201, type: 3}
-  _actionIcons_Exploit: {fileID: 21300000, guid: dc4a9a0a35bfc2d49b881fd92890adb7, type: 3}
+  _duration_Research: 20
+  _costResource_Research: 3
+  _costPop_Research: 1
+  _actionIcons_Mine: {fileID: 21300000, guid: 10f1fbd487948944abef296cf7e3d43d, type: 3}
+  _duration_Mine: 4
+  _costResource_Mine: 0
+  _costPop_Mine: 1
   _actionIcons_Scout: {fileID: 21300000, guid: 716c0f4585b949442856e40d2b4767a3, type: 3}
-  _costResource_Defend: 2
-  _costPop_Defend: 3
+  _duration_Scout: 1
+  _costResource_Scout: 2
+  _costPop_Scout: 0
   _offensiveHelp: 0
   _defensiveHelp: 0
   _neutrals: 0

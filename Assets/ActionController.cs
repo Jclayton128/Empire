@@ -9,7 +9,7 @@ public class ActionController : MonoBehaviour
 
 
     public static ActionController Instance {get; private set;}
-    public enum ActionTypes {Undefined, Attack, Defend, Research, Exploit, Scout, Count}
+    public enum ActionTypes {Undefined, Attack, Defend, Research, Mine, Scout, Count}
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
@@ -28,10 +28,23 @@ public class ActionController : MonoBehaviour
     [SerializeField] int _costResource_Defend = 3;
     [SerializeField] int _costPop_Defend = 2;
 
-    [Header("other")]
+    [Header("Research")]
     [SerializeField] Sprite _actionIcons_Research = null;
-    [SerializeField] Sprite _actionIcons_Exploit = null;
+    [SerializeField] float _duration_Research = 20f;
+    [SerializeField] int _costResource_Research = 2;
+    [SerializeField] int _costPop_Research = 1;
+
+    [Header("Mine")]
+    [SerializeField] Sprite _actionIcons_Mine = null;
+    [SerializeField] float _duration_Mine = 3f;
+    [SerializeField] int _costResource_Mine = 0;
+    [SerializeField] int _costPop_Mine = 1;
+
+    [Header("Scout")]
     [SerializeField] Sprite _actionIcons_Scout = null;
+    [SerializeField] float _duration_Scout = 3f;
+    [SerializeField] int _costResource_Scout = 0;
+    [SerializeField] int _costPop_Scout = 1;
 
 
     ActionTypes _selectedAction = ActionTypes.Undefined;
@@ -93,7 +106,7 @@ public class ActionController : MonoBehaviour
     {
         if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
         {
-            //cannot assign a new action to a place already performing an action.
+            //cannot assign any new action to a place already performing an action.
             return;
         }
 
@@ -132,7 +145,20 @@ public class ActionController : MonoBehaviour
 
                 break;
 
-
+            case ActionTypes.Mine:
+                if (FactionController.Instance.CheckIfAffordable(
+                    _costResource_Mine, _costPop_Mine, FactionController.Instance.PlayerFaction) == false) return;
+                else if (CheckIfMineIsPossibleAtTileUnderCursor())
+                {
+                    FactionController.Instance.AdjustResources(-_costResource_Mine, FactionController.Instance.PlayerFaction);
+                    FactionController.Instance.AdjustPopulation(-_costPop_Mine, FactionController.Instance.PlayerFaction);
+                    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Mine, _duration_Mine, true, _actionIcons_Mine);
+                }
+                else
+                {
+                    //Can't mine here for some reason
+                }
+                break;
         }
     }
 
@@ -467,8 +493,21 @@ public class ActionController : MonoBehaviour
 
 
     #endregion
-    
-    
+
+    #region Mine Action
+
+    private bool CheckIfMineIsPossibleAtTileUnderCursor()
+    {
+        if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain &&
+            TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
+        {
+            return true;
+        }
+        else return false;
+    }
+
+    #endregion
+
 
     #region Action Selection
 
@@ -517,6 +556,18 @@ public class ActionController : MonoBehaviour
 
             case ActionTypes.Defend:
                 _actionDriver.SetCost(_costResource_Defend, _costPop_Defend);
+                break;
+
+            case ActionTypes.Research:
+                _actionDriver.SetCost(_costResource_Research, _costPop_Research);
+                break;
+
+            case ActionTypes.Mine:
+                _actionDriver.SetCost(_costResource_Mine, _costPop_Mine);
+                break;
+
+            case ActionTypes.Scout:
+                _actionDriver.SetCost(_costResource_Scout, _costPop_Scout);
                 break;
 
         }

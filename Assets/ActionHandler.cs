@@ -105,6 +105,10 @@ public class ActionHandler : MonoBehaviour
             case ActionController.ActionTypes.Defend:
                 _th.UndefendTile();
                 break;
+
+            case ActionController.ActionTypes.Mine:
+                FactionController.Instance.AdjustResources(_th.ResourceBonus * 2, FactionController.Instance.PlayerFaction);
+                break;
         }
 
         TileController.Instance.PushChangesFromTileUnderCursorChanged();
