@@ -510,7 +510,7 @@ public class TileController : MonoBehaviour
 
         foreach (var tile in _factionTiles[factionIndex])
         {
-            production += tile.ProductionBonus;
+            production += tile.ResourceBonus;
         }
 
         return production;

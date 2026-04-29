@@ -30,10 +30,10 @@ public class TileHandler : MonoBehaviour
     [SerializeField] int _defendBonus_Self = 3;
     [SerializeField] int _defendBonus_Adjacent = 1;
 
-    [Header("Production Parameters")]
+
 
     //state
-
+    public ActionHandler TileActionHandler { get; private set; }
     [SerializeField] int _factionIndex = -1;
     public int FactionIndex => _factionIndex;
 
@@ -48,8 +48,11 @@ public class TileHandler : MonoBehaviour
     int _attackBonus = 1;
     public int AttackBonus => _attackBonus;
 
-    int _productionBonus = 0;
-    public int ProductionBonus => _productionBonus;
+    int _resourceBonus = 1;
+    public int ResourceBonus => _resourceBonus;
+
+    int _populationBonus = 1;
+    public int PopulationBonus => _populationBonus;
 
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
@@ -79,6 +82,8 @@ public class TileHandler : MonoBehaviour
         {
             SetTileType(TileType.TileTypes.Plain);
         }
+
+        TileActionHandler = GetComponent<ActionHandler>();
     }
 
     public void CheckForNeighbors()
@@ -229,7 +234,7 @@ public class TileHandler : MonoBehaviour
     public bool ResourceTile()
     {
         SetTileType(TileType.TileTypes.Resourced);
-        _productionBonus = 1;
+        _resourceBonus = 1;
         return true;
     }
 

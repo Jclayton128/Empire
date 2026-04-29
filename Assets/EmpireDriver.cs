@@ -10,6 +10,7 @@ public class EmpireDriver : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI _playerEmpireNameTMP = null;
     [SerializeField] TextMeshProUGUI _playerProductionBankedTMP = null;
+    [SerializeField] TextMeshProUGUI _playerPopulationBankedTMP = null;
 
     public void SetPlayerEmpireName(string playerEmpireName)
     {
@@ -18,7 +19,12 @@ public class EmpireDriver : MonoBehaviour
 
     public void ShowProduction(int amount)
     {
-        _playerProductionBankedTMP.text = $"${amount}";    
+        _playerProductionBankedTMP.text = $"{amount}";    
+    }
+
+    public void ShowPopulation(int amount)
+    {
+        _playerPopulationBankedTMP.text = $"{amount}";
     }
     
 }

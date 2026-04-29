@@ -22,7 +22,7 @@ public class FactionController : MonoBehaviour
     [SerializeField] Color _oceanColor = Color.blue;
     [SerializeField] List<Color> _factionColors = new List<Color>();
 
-    [SerializeField] int _factionStartingProduction = 10;
+    [SerializeField] int _factionStartingResources = 10;
 
     public int ActiveFaction => _playerFaction; //This will eventually be updated to reflect whatever's faction has the turn priority.
 
@@ -31,7 +31,8 @@ public class FactionController : MonoBehaviour
     [SerializeField] int _playerFaction = 0;
     public int PlayerFaction => _playerFaction;
 
-    List<int> _bankedProductions;
+    List<int> _bankedResources;
+    List<int> _unusedPopulation;
 
     private void Awake()
     {
@@ -40,12 +41,16 @@ public class FactionController : MonoBehaviour
 
     public void SetupFactions()
     {
-        _bankedProductions = new List<int>();
+        _bankedResources = new List<int>();
+        _unusedPopulation = new List<int>();
 
         for (int i = 0; i < _factionCount; i++)
         {
-            _bankedProductions.Add(_factionStartingProduction);
+            _bankedResources.Add(_factionStartingResources);
+            _unusedPopulation.Add(_factionStartingSize);
         }
+        _playerEmpireDriver.ShowProduction(_bankedResources[_playerFaction]);
+        _playerEmpireDriver.ShowPopulation(_unusedPopulation[_playerFaction]);
     }
 
 
@@ -95,7 +100,7 @@ public class FactionController : MonoBehaviour
     {
         _playerFaction = playerFaction;
         _playerEmpireDriver.SetPlayerEmpireName($"Player: {_playerFaction}");
-        _playerEmpireDriver.ShowProduction(_bankedProductions[_playerFaction]);
+        _playerEmpireDriver.ShowProduction(_bankedResources[_playerFaction]);
     }
 
     public void DisplayFaction(int faction)
@@ -116,22 +121,61 @@ public class FactionController : MonoBehaviour
 
     #region Production
 
-    public bool CheckIfAffordable(int cost, int faction)
+    public bool CheckIfAffordable(int resourceCost, int populationCost, int faction)
     {
-        if (_bankedProductions[faction] >= cost)
+        if (_bankedResources[faction] >= resourceCost && _unusedPopulation[faction] >= populationCost)
         {
             return true;
         }
         else return false;
     }
 
-    public void AdjustProduction(int amountToAdd, int faction)
+    public void AdjustResources(int amountToAdd, int faction)
     {
-        _bankedProductions[faction] += amountToAdd;
+        _bankedResources[faction] += amountToAdd;
 
         if (faction == _playerFaction)
         {
-            _playerEmpireDriver.ShowProduction(_bankedProductions[faction]);
+            _playerEmpireDriver.ShowProduction(_bankedResources[faction]);
+        }
+    }
+
+    public void GatherProductionAtEndOfTurn()
+    {
+        int resources = 0;
+        int population = 0;
+        for (int faction = 0; faction < _factionCount; faction++)
+        {
+            List<TileHandler> tiles = TileController.Instance.GetFactionTileList(faction);
+
+            foreach (var tile in tiles)
+            {
+                resources += tile.ResourceBonus;
+                population += tile.PopulationBonus;
+            }
+
+            AdjustResources(resources, faction);
+            SetPopulation(population, faction);
+        }
+
+    }
+
+
+    public void SetPopulation(int amountToSetAt, int faction)
+    {
+        _unusedPopulation[faction] = amountToSetAt;
+        if (faction == _playerFaction)
+        {
+            _playerEmpireDriver.ShowPopulation(_unusedPopulation[faction]);
+        }
+    }
+
+    public void AdjustPopulation(int amountToAdd, int faction)
+    {
+        _unusedPopulation[faction] += amountToAdd;
+        if (faction == _playerFaction)
+        {
+            _playerEmpireDriver.ShowPopulation(_unusedPopulation[faction]);
         }
     }
 

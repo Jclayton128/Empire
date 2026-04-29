@@ -1,18 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class TimeDriver : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    //ref
+
+    [SerializeField] Slider _timeRemainingSlider = null;
+
+    [SerializeField] TextMeshProUGUI _daysElapsedTMP = null;
+
+
+    public void SetTimeFactor(float factor)
     {
-        
+        _timeRemainingSlider.value = 1- factor;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetTurn(int turn)
     {
-        
+        _daysElapsedTMP.text = $"{turn}";
     }
 }

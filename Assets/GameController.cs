@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
         FactionController.Instance.SetupFactions();
         FactionController.Instance.SetPlayerFaction(0);
         TileController.Instance.CreateNewWorld();
+        TimeController.Instance.StartNewRun();
         
     }
 }

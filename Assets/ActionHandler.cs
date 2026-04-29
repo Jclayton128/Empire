@@ -18,7 +18,8 @@ public class ActionHandler : MonoBehaviour
     [SerializeField] bool _countsUp = true;
     [SerializeField] float _timeBuildup = 0;
 
-    [SerializeField] ActionController.ActionTypes _action = ActionController.ActionTypes.Undefined;
+    [SerializeField] ActionController.ActionTypes _assignedAction = ActionController.ActionTypes.Undefined;
+    public ActionController.ActionTypes AssignedAction => _assignedAction;
 
     private void Awake()
     {
@@ -28,9 +29,9 @@ public class ActionHandler : MonoBehaviour
     public void AssignAction(ActionController.ActionTypes action, float actionDuration, bool countsUp, Sprite actionIcon)
     {
         //can't have multiple actions in a hex, or overwrite existing actions.
-        if (_action != ActionController.ActionTypes.Undefined) return;
+        if (_assignedAction != ActionController.ActionTypes.Undefined) return;
 
-        _action = action;
+        _assignedAction = action;
         ResolveAssignedActionAtStart();
 
         _initialDuration = actionDuration;
@@ -52,7 +53,7 @@ public class ActionHandler : MonoBehaviour
 
     private void Update()
     {
-        if (_action == ActionController.ActionTypes.Undefined) return;
+        if (_assignedAction == ActionController.ActionTypes.Undefined) return;
 
         if (_countsUp)
         {
@@ -74,7 +75,7 @@ public class ActionHandler : MonoBehaviour
         {
             //resolve action
             ResolveAssignedActionAtEnd();
-            _action = ActionController.ActionTypes.Undefined;
+            _assignedAction = ActionController.ActionTypes.Undefined;
             _actionFillBar.fillAmount = 0;
             _actionIcon.enabled = false;
             _countsUp = true;
@@ -83,7 +84,7 @@ public class ActionHandler : MonoBehaviour
 
     private void ResolveAssignedActionAtStart()
     {
-        switch (_action)
+        switch (_assignedAction)
         {
             case ActionController.ActionTypes.Defend:
                 _th.AttemptDefendTile();
@@ -95,7 +96,7 @@ public class ActionHandler : MonoBehaviour
 
     private void ResolveAssignedActionAtEnd()
     {
-        switch (_action)
+        switch (_assignedAction)
         {
             case ActionController.ActionTypes.Attack:
                 ActionController.Instance.ResolveAttackAttempt(_th);

@@ -27,7 +27,7 @@ public class HexDriver : MonoBehaviour
 
         _attackBonusTMP.text = tile.AttackBonus.ToString();
         _defendBonusTMP.text = tile.DefendBonus.ToString();
-        _productionBonusTMP.text = tile.ProductionBonus.ToString();
+        _productionBonusTMP.text = tile.ResourceBonus.ToString();
 
         if (tile.CurrentTileType.TileIcon == null)
         {
