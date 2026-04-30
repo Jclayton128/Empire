@@ -19,27 +19,27 @@ public class DebugController : MonoBehaviour
 
     private void SelectCurrentTool()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            ActionController.Instance.SelectTool(ActionController.ActionTypes.Attack);
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            ActionController.Instance.SelectTool(ActionController.ActionTypes.Defend);
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            ActionController.Instance.SelectTool(ActionController.ActionTypes.Research);
-        }
+        //if (Input.GetKeyDown(KeyCode.A))
+        //{
+        //    ActionController.Instance.SelectTool(ActionController.ActionTypes.Attack);
+        //}
+        //if (Input.GetKeyDown(KeyCode.D))
+        //{
+        //    ActionController.Instance.SelectTool(ActionController.ActionTypes.Defend);
+        //}
+        //if (Input.GetKeyDown(KeyCode.S))
+        //{
+        //    ActionController.Instance.SelectTool(ActionController.ActionTypes.Research);
+        //}
 
-        if (Input.mouseScrollDelta.y > Mathf.Epsilon)
-        {
-            ActionController.Instance.IncrementToolSelection();
-        }
-        else if (Input.mouseScrollDelta.y < -Mathf.Epsilon)
-        {
-            ActionController.Instance.DecrementToolSelection();
-        }
+        //if (Input.mouseScrollDelta.y > Mathf.Epsilon)
+        //{
+        //    ActionController.Instance.IncrementToolSelection();
+        //}
+        //else if (Input.mouseScrollDelta.y < -Mathf.Epsilon)
+        //{
+        //    ActionController.Instance.DecrementToolSelection();
+        //}
     }
 
     private void SelectPlayerFaction()

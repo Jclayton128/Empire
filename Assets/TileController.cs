@@ -777,7 +777,7 @@ public class TileController : MonoBehaviour
     {
         if (_tileUnderCursor)
         {
-            ActionController.Instance.HandleClickOnTile(_tileUnderCursor);
+            ActionController.Instance.HandleLMBClickOnTile(_tileUnderCursor);
             FactionController.Instance.DisplayFaction(_tileUnderCursor.FactionIndex);
         }
     }
@@ -786,8 +786,9 @@ public class TileController : MonoBehaviour
     {
         if (_tileUnderCursor)
         {
-            ReferenceTile = _tileUnderCursor;
-            Debug.Log("new reference: " + _tileUnderCursor.name);
+            ActionController.Instance.HandleRMBClickOnTile(_tileUnderCursor);
+            //ReferenceTile = _tileUnderCursor;
+            //Debug.Log("new reference: " + _tileUnderCursor.name);
         }
     }
 

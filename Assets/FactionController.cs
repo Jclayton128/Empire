@@ -31,7 +31,7 @@ public class FactionController : MonoBehaviour
     [SerializeField] int _playerFaction = 0;
     public int PlayerFaction => _playerFaction;
 
-    List<int> _bankedResources;
+    List<int> _resources;
     List<int> _unusedPopulation;
 
     private void Awake()
@@ -41,15 +41,15 @@ public class FactionController : MonoBehaviour
 
     public void SetupFactions()
     {
-        _bankedResources = new List<int>();
+        _resources = new List<int>();
         _unusedPopulation = new List<int>();
 
         for (int i = 0; i < _factionCount; i++)
         {
-            _bankedResources.Add(_factionStartingResources);
+            _resources.Add(_factionStartingResources);
             _unusedPopulation.Add(_factionStartingSize);
         }
-        _playerEmpireDriver.ShowProduction(_bankedResources[_playerFaction]);
+        _playerEmpireDriver.ShowProduction(_resources[_playerFaction]);
         _playerEmpireDriver.ShowPopulation(_unusedPopulation[_playerFaction]);
     }
 
@@ -100,7 +100,7 @@ public class FactionController : MonoBehaviour
     {
         _playerFaction = playerFaction;
         _playerEmpireDriver.SetPlayerEmpireName($"Player: {_playerFaction}");
-        _playerEmpireDriver.ShowProduction(_bankedResources[_playerFaction]);
+        _playerEmpireDriver.ShowProduction(_resources[_playerFaction]);
     }
 
     public void DisplayFaction(int faction)
@@ -121,9 +121,9 @@ public class FactionController : MonoBehaviour
 
     #region Production
 
-    public bool CheckIfAffordable(int resourceCost, int populationCost, int faction)
+    public bool CheckIfAffordable(int resourceCost,int faction)
     {
-        if (_bankedResources[faction] >= resourceCost && _unusedPopulation[faction] >= populationCost)
+        if (_resources[faction] >= resourceCost)
         {
             return true;
         }
@@ -132,18 +132,17 @@ public class FactionController : MonoBehaviour
 
     public void AdjustResources(int amountToAdd, int faction)
     {
-        _bankedResources[faction] += amountToAdd;
+        _resources[faction] += amountToAdd;
 
         if (faction == _playerFaction)
         {
-            _playerEmpireDriver.ShowProduction(_bankedResources[faction]);
+            _playerEmpireDriver.ShowProduction(_resources[faction]);
         }
     }
 
     public void GatherProductionAtEndOfTurn()
     {
         int resources = 0;
-        int population = 0;
         for (int faction = 0; faction < _factionCount; faction++)
         {
             List<TileHandler> tiles = TileController.Instance.GetFactionTileList(faction);
@@ -151,32 +150,11 @@ public class FactionController : MonoBehaviour
             foreach (var tile in tiles)
             {
                 resources += tile.ResourceBonus;
-                population += tile.PopulationBonus;
             }
 
             AdjustResources(resources, faction);
-            SetPopulation(population, faction);
         }
 
-    }
-
-
-    public void SetPopulation(int amountToSetAt, int faction)
-    {
-        _unusedPopulation[faction] = amountToSetAt;
-        if (faction == _playerFaction)
-        {
-            _playerEmpireDriver.ShowPopulation(_unusedPopulation[faction]);
-        }
-    }
-
-    public void AdjustPopulation(int amountToAdd, int faction)
-    {
-        _unusedPopulation[faction] += amountToAdd;
-        if (faction == _playerFaction)
-        {
-            _playerEmpireDriver.ShowPopulation(_unusedPopulation[faction]);
-        }
     }
 
     #endregion

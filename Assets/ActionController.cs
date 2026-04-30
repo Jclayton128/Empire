@@ -13,42 +13,31 @@ public class ActionController : MonoBehaviour
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
-    [SerializeField] ActionDriver _actionDriver = null;
+    [SerializeField] ActionDriver _actionDriver_left = null;
+    [SerializeField] ActionDriver _actionDriver_right = null;
 
     //settings
     [Header("Attack")]
     [SerializeField] Sprite _actionIcons_Attack = null;
     [SerializeField] float _duration_Attack = 3f;
-    [SerializeField] int _costResource_Attack = 2;
-    [SerializeField] int _costPop_Attack = 1;
+    [SerializeField] int _cost_Attack = 2;
 
     [Header("Defend")]
     [SerializeField] Sprite _actionIcons_Defend = null;
     [SerializeField] float _duration_Defend = 10f;
-    [SerializeField] int _costResource_Defend = 3;
-    [SerializeField] int _costPop_Defend = 2;
+    [SerializeField] int _cost_Defend = 3;
 
-    [Header("Research")]
-    [SerializeField] Sprite _actionIcons_Research = null;
-    [SerializeField] float _duration_Research = 20f;
-    [SerializeField] int _costResource_Research = 2;
-    [SerializeField] int _costPop_Research = 1;
 
     [Header("Mine")]
     [SerializeField] Sprite _actionIcons_Mine = null;
     [SerializeField] float _duration_Mine = 3f;
-    [SerializeField] int _costResource_Mine = 0;
-    [SerializeField] int _costPop_Mine = 1;
+    [SerializeField] int _cost_Mine = 0;
 
-    [Header("Scout")]
-    [SerializeField] Sprite _actionIcons_Scout = null;
-    [SerializeField] float _duration_Scout = 3f;
-    [SerializeField] int _costResource_Scout = 0;
-    [SerializeField] int _costPop_Scout = 1;
+    [Header("Trade")]
+    [SerializeField] Sprite _actionIcons_Trade = null;
+    [SerializeField] float _duration_Trade = 3f;
+    [SerializeField] int _cost_Trade = 0;
 
-
-    ActionTypes _selectedAction = ActionTypes.Undefined;
-    public ActionTypes SelectedAction => _selectedAction;
 
     [Header("Attack Values")]
     [SerializeField] int _offensiveHelp = 0;
@@ -63,7 +52,6 @@ public class ActionController : MonoBehaviour
 
     private void Start()
     {
-        SelectTool(ActionTypes.Undefined);
         TileController.Instance.TileUnderCursorChanged += HandleTileUnderCursorChanged;
     }
 
@@ -75,34 +63,34 @@ public class ActionController : MonoBehaviour
             return;
         }
 
-
-        switch (_selectedAction)
+        if (TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            //case ActionTypes.Undefined:
-            //    DepictUndefinedTool();
-            //    break;
-
-            case ActionTypes.Attack:
-                if (CheckIfAttackIsPossibleAtTileUnderCursor())
-                {
-                    DepictProspectiveAttack();
-                }
-                else
-                {
-                    _bpd.HideBattleDepiction();
-                }
-                break;
-
-
+            _actionDriver_left.SetName("Defend");
+            _actionDriver_left.SetCost(_cost_Defend);
+            _actionDriver_right.SetName("Mine");
+            _actionDriver_right.SetCost(_cost_Mine);
+            _bpd.HideBattleDepiction();
         }
+        else
+        {
+            _actionDriver_left.SetName("Attack");
+            _actionDriver_left.SetCost(_cost_Attack);
+            _actionDriver_right.SetName("Trade");
+            _actionDriver_right.SetCost(_cost_Trade);
+
+            if (CheckIfAttackIsPossibleAtTileUnderCursor())
+            {
+                DepictProspectiveAttack();
+            }
+            else
+            {
+                _bpd.HideBattleDepiction();
+            }
+        }        
     }
 
-    private void DepictUndefinedTool()
-    {
-        _bpd.HideBattleDepiction();
-    }
 
-    public void HandleClickOnTile(TileHandler clickedTile)
+    public void HandleLMBClickOnTile(TileHandler clickedTile)
     {
         if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
         {
@@ -110,55 +98,53 @@ public class ActionController : MonoBehaviour
             return;
         }
 
-        switch (_selectedAction)
+        //check if clickedtile is in or out
+
+        if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            case ActionTypes.Attack:
+            if (CheckIfDefendIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction))
+            {
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
+                FactionController.Instance.AdjustResources(-_cost_Defend, FactionController.Instance.PlayerFaction);
+            }
+        }
+        else
+        {
+            if (CheckIfAttackIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Attack, FactionController.Instance.PlayerFaction))
+            {
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
+                FactionController.Instance.AdjustResources(-_cost_Attack, FactionController.Instance.PlayerFaction);
+            }
+        }
+    }
 
-                if (FactionController.Instance.CheckIfAffordable(
-                    _costPop_Attack, _costPop_Attack, FactionController.Instance.PlayerFaction) == false) return;
-                else if(CheckIfAttackIsPossibleAtTileUnderCursor())
-                {
-                    FactionController.Instance.AdjustResources(-_costResource_Attack, FactionController.Instance.PlayerFaction);
-                    FactionController.Instance.AdjustPopulation(-_costPop_Attack, FactionController.Instance.PlayerFaction);
-                    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
-                }
-                else
-                {
-                    //Can't attack here for some reason
-                }
-                break;
+    public void HandleRMBClickOnTile(TileHandler clickedTile)
+    {
+        if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
+        {
+            //cannot assign any new action to a place already performing an action.
+            return;
+        }
 
-            case ActionTypes.Defend:
+        if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
+        {
+            if (CheckIfMineIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Mine, FactionController.Instance.PlayerFaction))
+            {
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Mine, _duration_Mine, false, _actionIcons_Mine);
+                FactionController.Instance.AdjustResources(-_cost_Mine, FactionController.Instance.PlayerFaction);
+            }
+        }
+        else
+        {
+            //Diplomacy
 
-                if (FactionController.Instance.CheckIfAffordable(
-                    _costResource_Defend, _costPop_Defend, FactionController.Instance.PlayerFaction) == false) return;
-                else if (CheckIfDefendIsPossibleAtTileUnderCursor())
-                {
-                    FactionController.Instance.AdjustResources(-_costResource_Defend, FactionController.Instance.PlayerFaction);
-                    FactionController.Instance.AdjustPopulation(-_costPop_Defend, FactionController.Instance.PlayerFaction);
-                    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
-                }
-                else
-                {
-                    //Can't defend here for some reason
-                }
-
-                break;
-
-            case ActionTypes.Mine:
-                if (FactionController.Instance.CheckIfAffordable(
-                    _costResource_Mine, _costPop_Mine, FactionController.Instance.PlayerFaction) == false) return;
-                else if (CheckIfMineIsPossibleAtTileUnderCursor())
-                {
-                    FactionController.Instance.AdjustResources(-_costResource_Mine, FactionController.Instance.PlayerFaction);
-                    FactionController.Instance.AdjustPopulation(-_costPop_Mine, FactionController.Instance.PlayerFaction);
-                    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Mine, _duration_Mine, true, _actionIcons_Mine);
-                }
-                else
-                {
-                    //Can't mine here for some reason
-                }
-                break;
+            //if (CheckIfAttackIsPossibleAtTileUnderCursor())
+            //{
+            //    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
+            //}
         }
     }
 
@@ -509,69 +495,5 @@ public class ActionController : MonoBehaviour
     #endregion
 
 
-    #region Action Selection
-
-    public void SelectTool(ActionTypes newTool)
-    {
-        _selectedAction = newTool;
-        _actionDriver.SetName(_selectedAction.ToString());
-        ShowActionCost();
-    }
-
-    public void IncrementToolSelection()
-    {
-        if ((int)_selectedAction == (int)ActionTypes.Count-1)
-        {
-            _selectedAction = (ActionTypes)1;
-        }
-        else 
-        {
-            _selectedAction++;
-        }
-        _actionDriver.SetName(_selectedAction.ToString());
-        ShowActionCost();
-    }
-
-    public void DecrementToolSelection()
-    {
-        if ((int)_selectedAction <= 1)
-        {
-            _selectedAction = (ActionTypes)ActionTypes.Count-1;
-        }
-        else
-        {
-            _selectedAction--;
-        }
-        _actionDriver.SetName(_selectedAction.ToString());
-        ShowActionCost();
-    }
-
-    private void ShowActionCost()
-    {
-        switch (_selectedAction)
-        {
-            case ActionTypes.Attack:
-                _actionDriver.SetCost(_costResource_Attack, _costPop_Attack);
-                break;
-
-            case ActionTypes.Defend:
-                _actionDriver.SetCost(_costResource_Defend, _costPop_Defend);
-                break;
-
-            case ActionTypes.Research:
-                _actionDriver.SetCost(_costResource_Research, _costPop_Research);
-                break;
-
-            case ActionTypes.Mine:
-                _actionDriver.SetCost(_costResource_Mine, _costPop_Mine);
-                break;
-
-            case ActionTypes.Scout:
-                _actionDriver.SetCost(_costResource_Scout, _costPop_Scout);
-                break;
-
-        }
-    }
-
-    #endregion
+    
 }

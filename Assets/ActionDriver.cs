@@ -10,7 +10,6 @@ public class ActionDriver : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI _actionNameTMP = null;
     [SerializeField] TextMeshProUGUI _actionResourceCostTMP = null;
-    [SerializeField] TextMeshProUGUI _actionPopulationCostTMP = null;
 
 
     public void SetName(string name)
@@ -18,9 +17,8 @@ public class ActionDriver : MonoBehaviour
         _actionNameTMP.text = name;
     }
 
-    public void SetCost(int resourceCost, int populationCost)
+    public void SetCost(int resourceCost)
     {
         _actionResourceCostTMP.text = resourceCost.ToString();
-        _actionPopulationCostTMP.text = populationCost.ToString();
     }
 }
