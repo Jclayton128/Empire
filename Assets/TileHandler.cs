@@ -15,6 +15,7 @@ public class TileHandler : MonoBehaviour
     [SerializeField] SpriteRenderer _outerRing = null;
     [SerializeField] SpriteRenderer _innerRing = null;
 
+    [SerializeField] NodeHandler _nodeHandler = null;
 
     [SerializeField] Collider2D _coll = null;
     [SerializeField] List<SpriteRenderer> _borders = null;
@@ -31,6 +32,8 @@ public class TileHandler : MonoBehaviour
     [SerializeField] int _defendBonus_Adjacent = 1;
 
 
+    [SerializeField] float _timeBetweenNodeGrowths = 5f;
+    [SerializeField] float _maxNodeLevel = 3;
 
     //state
     public ActionHandler TileActionHandler { get; private set; }
@@ -48,11 +51,11 @@ public class TileHandler : MonoBehaviour
     int _attackBonus = 1;
     public int AttackBonus => _attackBonus;
 
-    int _resourceBonus = 1;
+    int _resourceBonus = 0;
     public int ResourceBonus => _resourceBonus;
 
-    int _populationBonus = 1;
-    public int PopulationBonus => _populationBonus;
+    float _timeForNextNodeGrowth;
+    float _currentNodeLevel = 0;
 
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
@@ -60,8 +63,13 @@ public class TileHandler : MonoBehaviour
     public TileHandler PreviousTile = null;
     public int Index;
 
+
+
     public void InitializeTile()
     {
+        _timeForNextNodeGrowth = Time.time + _timeBetweenNodeGrowths;
+        _nodeHandler.SetNodes(0, 0, 0);
+
         PreviousTile = null;
         Index = -1;
         ArbitraryNoiseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
@@ -321,6 +329,14 @@ public class TileHandler : MonoBehaviour
         }
     }
 
+    public int HarvestNode()
+    {
+        int harvest = Mathf.FloorToInt(_currentNodeLevel);
+        _currentNodeLevel = 0;
+        _nodeHandler.SetNodes(0, 0, 0);
+        return harvest;
+    }
+
     public void SetTileType(TileType.TileTypes tileType)
     {
         foreach (var t in _tileMenu)
@@ -337,9 +353,67 @@ public class TileHandler : MonoBehaviour
             //_fullFill.sprite = null;
             _factionIndex = -2;
             _fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
+            _maxNodeLevel = 0;
         }
 
         //_innerFill.color = Color.black;
         //_innerFill.sprite = _currentTileType.TileIcon;
+    }
+
+    private void Update()
+    {
+        if (_currentNodeLevel < _maxNodeLevel)
+        {
+            if (Time.time > _timeForNextNodeGrowth)
+            {
+                _currentNodeLevel += 0.334f;
+                _timeForNextNodeGrowth = Time.time + _timeBetweenNodeGrowths;
+                
+                if (_currentNodeLevel >= 3f)
+                {
+                    _nodeHandler.SetNodes(3, 3, 3);
+                }
+                else if (_currentNodeLevel >= 2.6f)
+                {
+                    _nodeHandler.SetNodes(3, 3, 2);
+                }
+                else if (_currentNodeLevel >= 2.3f)
+                {
+                    _nodeHandler.SetNodes(3, 3, 1);
+                }
+                else if (_currentNodeLevel >= 2.0f)
+                {
+                    _nodeHandler.SetNodes(3, 3, 0);
+                }
+
+                else if (_currentNodeLevel >= 1.6f)
+                {
+                    _nodeHandler.SetNodes(3, 2, 0);
+                }
+
+                else if (_currentNodeLevel >= 1.3f)
+                {
+                    _nodeHandler.SetNodes(3, 1, 0);
+                }
+
+                else if (_currentNodeLevel >= 1.0f)
+                {
+                    _nodeHandler.SetNodes(3, 1, 0);
+                }
+
+                else if (_currentNodeLevel >= 0.6f)
+                {
+                    _nodeHandler.SetNodes(2, 0, 0);
+                }
+                else if (_currentNodeLevel >= 0.3f)
+                {
+                    _nodeHandler.SetNodes(1, 0, 0);
+                }
+                else
+                {
+                    _nodeHandler.SetNodes(0, 0, 0);
+                }
+            }
+        }
     }
 }

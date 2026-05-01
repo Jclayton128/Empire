@@ -107,7 +107,8 @@ public class ActionHandler : MonoBehaviour
                 break;
 
             case ActionController.ActionTypes.Mine:
-                FactionController.Instance.AdjustResources(_th.ResourceBonus * 2, FactionController.Instance.PlayerFaction);
+                int amount = _th.HarvestNode();
+                FactionController.Instance.AdjustResources(amount, FactionController.Instance.PlayerFaction);
                 break;
         }
 
