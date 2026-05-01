@@ -65,10 +65,11 @@ public class ActionController : MonoBehaviour
 
         if (TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            _actionDriver_left.SetName("Defend");
-            _actionDriver_left.SetCost(_cost_Defend);
-            _actionDriver_right.SetName("Mine");
-            _actionDriver_right.SetCost(_cost_Mine);
+            _actionDriver_left.SetName("Mine");
+            _actionDriver_left.SetCost(_cost_Mine);
+            _actionDriver_right.SetName("Defend");
+            _actionDriver_right.SetCost(_cost_Defend);
+
             _bpd.HideBattleDepiction();
         }
         else
@@ -78,7 +79,8 @@ public class ActionController : MonoBehaviour
             _actionDriver_right.SetName("Trade");
             _actionDriver_right.SetCost(_cost_Trade);
 
-            if (CheckIfAttackIsPossibleAtTileUnderCursor())
+            if (CheckIfAttackIsPossibleAtTileUnderCursor() ||
+                TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction == ActionTypes.Attack)
             {
                 DepictProspectiveAttack();
             }
@@ -88,7 +90,6 @@ public class ActionController : MonoBehaviour
             }
         }        
     }
-
 
     public void HandleLMBClickOnTile(TileHandler clickedTile)
     {
@@ -102,11 +103,11 @@ public class ActionController : MonoBehaviour
 
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            if (CheckIfDefendIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction))
+            if (CheckIfMineIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Mine, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
-                FactionController.Instance.AdjustResources(-_cost_Defend, FactionController.Instance.PlayerFaction);
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Mine, _duration_Mine, false, _actionIcons_Mine);
+                FactionController.Instance.AdjustResources(-_cost_Mine, FactionController.Instance.PlayerFaction);
             }
         }
         else
@@ -130,11 +131,11 @@ public class ActionController : MonoBehaviour
 
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            if (CheckIfMineIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Mine, FactionController.Instance.PlayerFaction))
+            if (CheckIfDefendIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Mine, _duration_Mine, false, _actionIcons_Mine);
-                FactionController.Instance.AdjustResources(-_cost_Mine, FactionController.Instance.PlayerFaction);
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
+                FactionController.Instance.AdjustResources(-_cost_Defend, FactionController.Instance.PlayerFaction);
             }
         }
         else
@@ -212,7 +213,7 @@ public class ActionController : MonoBehaviour
 
     private void DepictProspectiveAttack()
     {
-
+        //Debug.Log("depicting updated attack odds");
         TileHandler selectedTile = TileController.Instance.TileUnderCursor;
         bool isAdjacent = false;
         foreach (var tile in selectedTile.OrderedNeighborTiles)

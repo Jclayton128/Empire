@@ -795,6 +795,7 @@ public class TileController : MonoBehaviour
     public void PushChangesFromTileUnderCursorChanged()
     {
         HandleMouseOverTile(_tileUnderCursor);
+        TileUnderCursorChanged?.Invoke();
     }
 
     public void HandleMouseOverTile(TileHandler tuc)

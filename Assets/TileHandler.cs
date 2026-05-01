@@ -28,10 +28,9 @@ public class TileHandler : MonoBehaviour
     [SerializeField] List<TileType> _tileMenu = null;
 
     [Header("Defend Action Parameters")]
-    [SerializeField] int _defendBonus_Self = 3;
-    [SerializeField] int _defendBonus_Adjacent = 1;
+    [SerializeField] int _defendBonus_DefendAction = 3;
 
-
+    [Header("Resource Parameters")]
     [SerializeField] float _timeBetweenNodeGrowths = 5f;
     [SerializeField] float _maxNodeLevel = 3;
 
@@ -47,15 +46,14 @@ public class TileHandler : MonoBehaviour
     public List<TileHandler> ShuffledNeighborTiles => _shuffledNeighborTiles;
     public float ArbitraryNoiseValue;
     int _defendBonus = 1;
-    public int DefendBonus => _defendBonus;
+    public int DefendBonus => GetDefendBonus();
     int _attackBonus = 1;
-    public int AttackBonus => _attackBonus;
+    public int AttackBonus => GetAttackBonus();
 
-    int _resourceBonus = 0;
-    public int ResourceBonus => _resourceBonus;
+    public int ResourceBonus => GetResourceAmount();
 
     float _timeForNextNodeGrowth;
-    float _currentNodeLevel = 0;
+    [SerializeField] float _currentNodeLevel = 0;
 
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
@@ -239,12 +237,6 @@ public class TileHandler : MonoBehaviour
         _innerRing.color = Color.clear;
     }
 
-    public bool ResourceTile()
-    {
-        SetTileType(TileType.TileTypes.Resourced);
-        _resourceBonus = 1;
-        return true;
-    }
 
     public bool AttemptDefendTile()
     {
@@ -266,20 +258,20 @@ public class TileHandler : MonoBehaviour
             //SetTileType(TileType.TileTypes.Fortified);
 
             //mega-Boost this tile's defense
-            ModifyDefendBonus(_defendBonus_Self);
+            ModifyDefendBonus(_defendBonus_DefendAction);
             
-            //mini-boost neighboring friendly tile's defenses
-            foreach (var tile in _orderedNeighborTiles)
-            {
-                if (tile == null || tile.FactionIndex != FactionIndex)
-                {
-                    continue;
-                }
-                else
-                {
-                    tile.ModifyDefendBonus(_defendBonus_Adjacent);
-                }
-            }
+            ////mini-boost neighboring friendly tile's defenses
+            //foreach (var tile in _orderedNeighborTiles)
+            //{
+            //    if (tile == null || tile.FactionIndex != FactionIndex)
+            //    {
+            //        continue;
+            //    }
+            //    else
+            //    {
+            //        tile.ModifyDefendBonus(_defendBonus_Adjacent);
+            //    }
+            //}
 
             return true;
         }
@@ -287,20 +279,20 @@ public class TileHandler : MonoBehaviour
 
     public void UndefendTile()
     {
-        ModifyDefendBonus(-_defendBonus_Self);
+        ModifyDefendBonus(-_defendBonus_DefendAction);
 
-        //mini-boost neighboring friendly tile's defenses
-        foreach (var tile in _orderedNeighborTiles)
-        {
-            if (tile == null || tile.FactionIndex != FactionIndex)
-            {
-                continue;
-            }
-            else
-            {
-                tile.ModifyDefendBonus(-_defendBonus_Adjacent);
-            }
-        }
+        ////mini-boost neighboring friendly tile's defenses
+        //foreach (var tile in _orderedNeighborTiles)
+        //{
+        //    if (tile == null || tile.FactionIndex != FactionIndex)
+        //    {
+        //        continue;
+        //    }
+        //    else
+        //    {
+        //        tile.ModifyDefendBonus(-_defendBonus_Adjacent);
+        //    }
+        //}
     }
 
     public void ModifyDefendBonus(int amountToAdd)
@@ -329,9 +321,38 @@ public class TileHandler : MonoBehaviour
         }
     }
 
+    public int GetAttackBonus()
+    {
+        if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Undefined ||
+            TileActionHandler.AssignedAction == ActionController.ActionTypes.Attack)
+        {
+            return _attackBonus;
+        }
+        else return 0;
+    }
+
+    public int GetDefendBonus()
+    {
+        if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Undefined ||
+            TileActionHandler.AssignedAction == ActionController.ActionTypes.Attack)
+        {
+            return _defendBonus;
+        }
+        else if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Defend)
+        {
+            return _defendBonus_DefendAction;
+        }
+        else return 0;
+    }
+
+    public int GetResourceAmount()
+    {
+        return Mathf.FloorToInt(_currentNodeLevel);
+    }
+
     public int HarvestNode()
     {
-        int harvest = Mathf.FloorToInt(_currentNodeLevel);
+        int harvest = GetResourceAmount();
         _currentNodeLevel = 0;
         _nodeHandler.SetNodes(0, 0, 0);
         return harvest;

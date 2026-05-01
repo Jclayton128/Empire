@@ -79,6 +79,7 @@ public class ActionHandler : MonoBehaviour
             _actionFillBar.fillAmount = 0;
             _actionIcon.enabled = false;
             _countsUp = true;
+            TileController.Instance.PushChangesFromTileUnderCursorChanged();
         }
     }
 
@@ -112,6 +113,6 @@ public class ActionHandler : MonoBehaviour
                 break;
         }
 
-        TileController.Instance.PushChangesFromTileUnderCursorChanged();
+
     }
 }
