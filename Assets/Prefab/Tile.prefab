@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 24040363846363744}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.011, y: -0.217, z: 0}
+  m_LocalPosition: {x: 0, y: 0.17099999, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -73,15 +73,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 7
-  m_Sprite: {fileID: 21300000, guid: ebc6594011355034f822448ccf6c5005, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.16470589}
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &464828812062995529
@@ -147,7 +147,7 @@ Transform:
   m_GameObject: {fileID: 668345402966230540}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.174, y: 0.138, z: 0}
+  m_LocalPosition: {x: -0.1, y: -0.05, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -194,15 +194,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 7
-  m_Sprite: {fileID: 21300000, guid: 058295f94a9599b498f591e4ae9251a0, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.16470589}
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1733982776555952019
@@ -505,7 +505,7 @@ Transform:
   m_GameObject: {fileID: 4598614957804838577}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.209, y: 0.136, z: 0}
+  m_LocalPosition: {x: 0.1, y: -0.05, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -552,15 +552,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 7
-  m_Sprite: {fileID: 21300000, guid: f0bd7c0b7bd80cd4790b39edb5952bdb, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.16470589}
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 10, y: 10}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &5257294899163203231
@@ -823,10 +823,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 71951933f047503458ff4ae902522c85, type: 2}
   - {fileID: 11400000, guid: 16b54ae63bc08d345b945cfbba91101c, type: 2}
   - {fileID: 11400000, guid: fcf26a13c083dfe44a0d4c92e4422496, type: 2}
-  _defendBonus_Self: 3
-  _defendBonus_Adjacent: 1
-  _timeBetweenNodeGrowths: 5
-  _maxNodeLevel: 3
+  _defendBonus_DefendAction: 3
   _factionIndex: -1
   _orderedNeighborTiles: []
   _shuffledNeighborTiles: []
@@ -916,16 +913,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c79205c1f584144aa5839837dda2de1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _actionHandler: {fileID: 1976489322366524770}
   _nodes:
   - {fileID: 1968576469099507312}
   - {fileID: 7022849129860970263}
   - {fileID: 4904243548574001933}
-  _jitterRange: 0.1
   _nodeSprites:
-  - {fileID: 0}
-  - {fileID: 21300000, guid: f0bd7c0b7bd80cd4790b39edb5952bdb, type: 3}
-  - {fileID: 21300000, guid: 058295f94a9599b498f591e4ae9251a0, type: 3}
-  - {fileID: 21300000, guid: ebc6594011355034f822448ccf6c5005, type: 3}
+  - {fileID: 21300000, guid: 838046b916341854baaf3b26d7310846, type: 3}
+  - {fileID: 21300000, guid: 780fffafd63e06d459e34b03bf28770c, type: 3}
+  - {fileID: 21300000, guid: 7a5f137611c7f164980c446083e83e4b, type: 3}
+  - {fileID: 21300000, guid: 7c3df05531f31d24a8c04e6f51b3fabc, type: 3}
+  - {fileID: 21300000, guid: 957b304702984674c82945d7be9b974a, type: 3}
+  - {fileID: 21300000, guid: 1ae79e6555cd4da409ebd07fd6ea7393, type: 3}
+  _damagedNodeSprite: {fileID: 21300000, guid: 9375e2a4451a36e43916aacbd9beb8af, type: 3}
+  _unbuildableNodeSprite: {fileID: 0}
+  _timeBetweenNodeGrowths: 5
+  _node0_growth: 0
+  _node1_growth: 0
+  _node2_growth: 0
+  _harvestableNodes_Max: 3
+  _harvestableNodes_Damaged: 0
 --- !u!1 &7844155564144650129
 GameObject:
   m_ObjectHideFlags: 0

@@ -50,7 +50,7 @@ public class FactionController : MonoBehaviour
             _unusedPopulation.Add(_factionStartingSize);
         }
         _playerEmpireDriver.ShowProduction(_resources[_playerFaction]);
-        _playerEmpireDriver.ShowPopulation(_unusedPopulation[_playerFaction]);
+        //_playerEmpireDriver.ShowPopulation(_unusedPopulation[_playerFaction]);
     }
 
 

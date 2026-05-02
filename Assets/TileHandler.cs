@@ -30,10 +30,6 @@ public class TileHandler : MonoBehaviour
     [Header("Defend Action Parameters")]
     [SerializeField] int _defendBonus_DefendAction = 3;
 
-    [Header("Resource Parameters")]
-    [SerializeField] float _timeBetweenNodeGrowths = 5f;
-    [SerializeField] float _maxNodeLevel = 3;
-
     //state
     public ActionHandler TileActionHandler { get; private set; }
     [SerializeField] int _factionIndex = -1;
@@ -52,8 +48,7 @@ public class TileHandler : MonoBehaviour
 
     public int ResourceBonus => GetResourceAmount();
 
-    float _timeForNextNodeGrowth;
-    [SerializeField] float _currentNodeLevel = 0;
+
 
     [SerializeField] TileType _currentTileType;
     public TileType CurrentTileType => _currentTileType;
@@ -65,8 +60,7 @@ public class TileHandler : MonoBehaviour
 
     public void InitializeTile()
     {
-        _timeForNextNodeGrowth = Time.time + _timeBetweenNodeGrowths;
-        _nodeHandler.SetNodes(0, 0, 0);
+
 
         PreviousTile = null;
         Index = -1;
@@ -78,16 +72,27 @@ public class TileHandler : MonoBehaviour
 
             //_coll.enabled = false;
         }
-
-        //else if (ArbitraryNoiseValue > 0.7f)
-        //{
-        //    SetTileType(TileType.TileTypes.Mountain);
-        //}
-
         else
         {
             SetTileType(TileType.TileTypes.Plain);
+
+            if (ArbitraryNoiseValue < 0.5f)
+            {
+                _nodeHandler.SetMaxNodes(3);
+            }
+
+            else if (ArbitraryNoiseValue < 0.7f)
+            {
+                _nodeHandler.SetMaxNodes(2);
+            }
+
+            else if (ArbitraryNoiseValue >= 0.7f)
+            {
+                _nodeHandler.SetMaxNodes(1);
+            }
+
         }
+
 
         TileActionHandler = GetComponent<ActionHandler>();
     }
@@ -347,14 +352,13 @@ public class TileHandler : MonoBehaviour
 
     public int GetResourceAmount()
     {
-        return Mathf.FloorToInt(_currentNodeLevel);
+        return _nodeHandler.GetHarvestableNodeAmount();
     }
 
     public int HarvestNode()
     {
         int harvest = GetResourceAmount();
-        _currentNodeLevel = 0;
-        _nodeHandler.SetNodes(0, 0, 0);
+        _nodeHandler.ClearNodesUponHarvest();
         return harvest;
     }
 
@@ -374,67 +378,12 @@ public class TileHandler : MonoBehaviour
             //_fullFill.sprite = null;
             _factionIndex = -2;
             _fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
-            _maxNodeLevel = 0;
+            _nodeHandler.SetMaxNodes(0);
         }
 
         //_innerFill.color = Color.black;
         //_innerFill.sprite = _currentTileType.TileIcon;
     }
 
-    private void Update()
-    {
-        if (_currentNodeLevel < _maxNodeLevel)
-        {
-            if (Time.time > _timeForNextNodeGrowth)
-            {
-                _currentNodeLevel += 0.334f;
-                _timeForNextNodeGrowth = Time.time + _timeBetweenNodeGrowths;
-                
-                if (_currentNodeLevel >= 3f)
-                {
-                    _nodeHandler.SetNodes(3, 3, 3);
-                }
-                else if (_currentNodeLevel >= 2.6f)
-                {
-                    _nodeHandler.SetNodes(3, 3, 2);
-                }
-                else if (_currentNodeLevel >= 2.3f)
-                {
-                    _nodeHandler.SetNodes(3, 3, 1);
-                }
-                else if (_currentNodeLevel >= 2.0f)
-                {
-                    _nodeHandler.SetNodes(3, 3, 0);
-                }
-
-                else if (_currentNodeLevel >= 1.6f)
-                {
-                    _nodeHandler.SetNodes(3, 2, 0);
-                }
-
-                else if (_currentNodeLevel >= 1.3f)
-                {
-                    _nodeHandler.SetNodes(3, 1, 0);
-                }
-
-                else if (_currentNodeLevel >= 1.0f)
-                {
-                    _nodeHandler.SetNodes(3, 1, 0);
-                }
-
-                else if (_currentNodeLevel >= 0.6f)
-                {
-                    _nodeHandler.SetNodes(2, 0, 0);
-                }
-                else if (_currentNodeLevel >= 0.3f)
-                {
-                    _nodeHandler.SetNodes(1, 0, 0);
-                }
-                else
-                {
-                    _nodeHandler.SetNodes(0, 0, 0);
-                }
-            }
-        }
-    }
+    
 }

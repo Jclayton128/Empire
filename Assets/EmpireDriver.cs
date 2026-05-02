@@ -22,10 +22,7 @@ public class EmpireDriver : MonoBehaviour
         _playerProductionBankedTMP.text = $"{amount}";    
     }
 
-    public void ShowPopulation(int amount)
-    {
-        _playerPopulationBankedTMP.text = $"{amount}";
-    }
+
     
 }
 

@@ -27,10 +27,10 @@ public class TimeController : MonoBehaviour
 
     public void StartNewRun()
     {
-        _currentTurn = 0;
-        _timeDriver.SetTurn(CurrentTurn);
-        _isInTurn = true;   
-        StartNewTurn();
+        //_currentTurn = 0;
+        //_timeDriver.SetTurn(CurrentTurn);
+        //_isInTurn = true;   
+        //StartNewTurn();
     }
 
     public void StartNewTurn()
