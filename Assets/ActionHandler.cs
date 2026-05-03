@@ -14,6 +14,7 @@ public class ActionHandler : MonoBehaviour
 
     //state
     TileHandler _th;
+    NodeHandler _nh;
     [SerializeField] float _initialDuration = 0;
     [SerializeField] bool _countsUp = true;
     [SerializeField] float _timeBuildup = 0;
@@ -24,6 +25,7 @@ public class ActionHandler : MonoBehaviour
     private void Awake()
     {
         _th = GetComponent<TileHandler>();
+        _nh = GetComponent<NodeHandler>();
     }
 
     public void AssignAction(ActionController.ActionTypes action, float actionDuration, bool countsUp, Sprite actionIcon)
@@ -87,7 +89,7 @@ public class ActionHandler : MonoBehaviour
     {
         switch (_assignedAction)
         {
-            case ActionController.ActionTypes.Defend:
+            case ActionController.ActionTypes.Invest:
                 _th.AttemptDefendTile();
                 break;
         }
@@ -103,11 +105,12 @@ public class ActionHandler : MonoBehaviour
                 ActionController.Instance.ResolveAttackAttempt(_th);
                 break;
 
-            case ActionController.ActionTypes.Defend:
+            case ActionController.ActionTypes.Invest:
                 _th.UndefendTile();
+                _nh.HealAllDamagedNodes();
                 break;
 
-            case ActionController.ActionTypes.Mine:
+            case ActionController.ActionTypes.Extract:
                 int amount = _th.HarvestNode();
                 FactionController.Instance.AdjustResources(amount, FactionController.Instance.PlayerFaction);
                 break;

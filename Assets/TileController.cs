@@ -37,7 +37,8 @@ public class TileController : MonoBehaviour
     List<TileHandler> _tilesRaw = new List<TileHandler>();
     List<List<TileHandler>> _factionTiles = new List<List<TileHandler>>();
     List<bool> _isFactionGrowing = new List<bool>();
-    List<TextMeshPro> _barycenterIndicators = new List<TextMeshPro>();
+
+    [SerializeField] List<TextMeshPro> _barycenterIndicators = new List<TextMeshPro>();
 
     TileHandler _tileUnderCursor;
     public TileHandler TileUnderCursor => _tileUnderCursor;
@@ -533,6 +534,7 @@ public class TileController : MonoBehaviour
 
     public float GetDistanceFromPointToFactionBarycenter(Vector3 testPoint, int factionIndex)
     {
+     
         return (testPoint - _barycenterIndicators[factionIndex].transform.position).magnitude; ;
     }
 

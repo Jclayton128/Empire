@@ -9,7 +9,7 @@ public class ActionController : MonoBehaviour
 
 
     public static ActionController Instance {get; private set;}
-    public enum ActionTypes {Undefined, Attack, Defend, Research, Mine, Scout, Count}
+    public enum ActionTypes {Undefined, Attack, Invest, Research, Extract, Scout, Count}
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
@@ -106,7 +106,7 @@ public class ActionController : MonoBehaviour
             if (CheckIfMineIsPossibleAtTileUnderCursor() &&
                 FactionController.Instance.CheckIfAffordable(_cost_Mine, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Mine, _duration_Mine, false, _actionIcons_Mine);
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Extract, _duration_Mine, false, _actionIcons_Mine);
                 FactionController.Instance.AdjustResources(-_cost_Mine, FactionController.Instance.PlayerFaction);
             }
         }
@@ -134,7 +134,7 @@ public class ActionController : MonoBehaviour
             if (CheckIfDefendIsPossibleAtTileUnderCursor() &&
                 FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Defend, _duration_Defend, false, _actionIcons_Defend);
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Invest, _duration_Defend, false, _actionIcons_Defend);
                 FactionController.Instance.AdjustResources(-_cost_Defend, FactionController.Instance.PlayerFaction);
             }
         }

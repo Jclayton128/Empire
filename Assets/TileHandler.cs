@@ -356,7 +356,7 @@ public class TileHandler : MonoBehaviour
         {
             return _defendBonus;
         }
-        else if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Defend)
+        else if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Invest)
         {
             return _defendBonus_DefendAction;
         }
