@@ -16,7 +16,9 @@ public class NodeHandler : MonoBehaviour
     [SerializeField] Sprite _unbuildableNodeSprite = null;
 
     [Header("Resource Parameters")]
-    [SerializeField] float _timeBetweenNodeGrowths = 5f;
+    [SerializeField] float _timeBetweenNodeGrowths_nominal = 10f;
+    [SerializeField] float _timeBetweenNodeGrowths_randomAdd = 10f;
+    [SerializeField] float _timeBetweenNodeGrowths_actual = 10f;
     [SerializeField] float _node0_growth;
     [SerializeField] float _node1_growth;
     [SerializeField] float _node2_growth;
@@ -48,6 +50,8 @@ public class NodeHandler : MonoBehaviour
 
     public void SetMaxNodes(int maxNodes)
     {
+        _timeBetweenNodeGrowths_randomAdd = UnityEngine.Random.Range(0, 2f);
+
         if (maxNodes == 0)
         {
             //must be a water hex that'll never have usable nodes
@@ -148,7 +152,7 @@ public class NodeHandler : MonoBehaviour
     {
         int stage = 0;
 
-        float factor = (timeSpentGrowing / _timeBetweenNodeGrowths) * _nodeSprites.Length;
+        float factor = (timeSpentGrowing / _timeBetweenNodeGrowths_actual) * _nodeSprites.Length;
        //Debug.Log($"{timeSpentGrowing}/{_timeBetweenNodeGrowths} * {_nodeSprites.Length} = {factor}. F2I: {}")
         stage = Mathf.FloorToInt(factor);
         stage = Mathf.Clamp(stage, 0, _nodeSprites.Length-1);
@@ -158,18 +162,22 @@ public class NodeHandler : MonoBehaviour
 
     private void Update()
     {
+
         //no growth if an action is happening here.
         if (_actionHandler.AssignedAction != ActionController.ActionTypes.Undefined) return;
 
-        if (_node0_growth >= 0 && _node0_growth < _timeBetweenNodeGrowths)
+        UpdateNominalTimeBetweenGrowths();
+
+
+        if (_node0_growth >= 0 && _node0_growth < _timeBetweenNodeGrowths_actual)
         {
             _node0_growth += Time.deltaTime;
         }
-        else if (_node1_growth >= 0 && _node1_growth < _timeBetweenNodeGrowths)
+        else if (_node1_growth >= 0 && _node1_growth < _timeBetweenNodeGrowths_actual)
         {
             _node1_growth += Time.deltaTime;
         }
-        else if (_node2_growth >= 0 && _node2_growth < _timeBetweenNodeGrowths)
+        else if (_node2_growth >= 0 && _node2_growth < _timeBetweenNodeGrowths_actual)
         {
             _node2_growth += Time.deltaTime;
         }
@@ -178,4 +186,15 @@ public class NodeHandler : MonoBehaviour
 
     }
 
+    private void UpdateNominalTimeBetweenGrowths()
+    {
+        if (_tileHandler.FactionIndex > 0)
+        {
+            _timeBetweenNodeGrowths_actual =
+                _timeBetweenNodeGrowths_nominal +
+                (TileController.Instance.GetDistanceFromPointToFactionBarycenter(transform.position, _tileHandler.FactionIndex) / 3f);
+        }
+
+
+    }
 }

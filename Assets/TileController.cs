@@ -428,6 +428,7 @@ public class TileController : MonoBehaviour
     public Vector3 FindMoveBarycenter(int factionIndex)
     {
         if (factionIndex < 0) return Vector3.zero;
+        if (_factionTiles[factionIndex].Count == 0) return Vector3.zero;
 
         Vector3 barycenter = Vector3.zero;
 
@@ -528,6 +529,11 @@ public class TileController : MonoBehaviour
     public List<TileHandler> GetFactionTileList(int factionIndex)
     {
         return _factionTiles[factionIndex];
+    }
+
+    public float GetDistanceFromPointToFactionBarycenter(Vector3 testPoint, int factionIndex)
+    {
+        return (testPoint - _barycenterIndicators[factionIndex].transform.position).magnitude; ;
     }
 
     #endregion
