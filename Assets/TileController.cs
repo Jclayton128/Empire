@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -424,7 +425,7 @@ public class TileController : MonoBehaviour
     }
 
 
-    private Vector3 FindMoveBarycenter(int factionIndex)
+    public Vector3 FindMoveBarycenter(int factionIndex)
     {
         Vector3 barycenter = Vector3.zero;
 
@@ -437,7 +438,11 @@ public class TileController : MonoBehaviour
 
         barycenter /= tilesToAverage.Count;
 
-        _barycenterIndicators[factionIndex].transform.position = barycenter;
+        if (factionIndex < _barycenterIndicators.Count)
+        {
+            _barycenterIndicators[factionIndex].transform.position = barycenter;
+        }
+
 
         return barycenter;
     }

@@ -388,7 +388,7 @@ public class ActionController : MonoBehaviour
     {
         int lopside = Mathf.Abs(_offensiveHelp - _defensiveHelp) + 1;
         int damageRand = UnityEngine.Random.Range(0, lopside + 1);
-        Debug.Log($"rolled {damageRand} / {lopside}");
+        //Debug.Log($"rolled {damageRand} / {lopside}");
         if ( damageRand == 0)
         {
             //damage tile;
@@ -401,7 +401,7 @@ public class ActionController : MonoBehaviour
         if (rand > _defensiveHelp)
         {
             //attacks succeeds
-            Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
+            //Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
 
             int winningFaction = FactionController.Instance.PlayerFaction;
 
@@ -412,7 +412,7 @@ public class ActionController : MonoBehaviour
         else
         {
             //attack fails
-            Debug.Log($"Attack fails: {rand}/{totalOdds}");
+            //Debug.Log($"Attack fails: {rand}/{totalOdds}");
         }
 
         return true;
