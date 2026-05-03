@@ -427,6 +427,8 @@ public class TileController : MonoBehaviour
 
     public Vector3 FindMoveBarycenter(int factionIndex)
     {
+        if (factionIndex < 0) return Vector3.zero;
+
         Vector3 barycenter = Vector3.zero;
 
         List<TileHandler> tilesToAverage = new List<TileHandler>(_factionTiles[factionIndex]);

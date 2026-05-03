@@ -196,9 +196,11 @@ public class TileHandler : MonoBehaviour
             return;
         }
 
+        int previousFaction = _factionIndex;
         _factionIndex = factionIndex;
         _fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
         TileController.Instance.FindMoveBarycenter(factionIndex);
+        TileController.Instance.FindMoveBarycenter(previousFaction);
     }
 
     public void HighlightBorders()
