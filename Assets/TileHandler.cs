@@ -14,6 +14,7 @@ public class TileHandler : MonoBehaviour
     [SerializeField] SpriteRenderer _fullFill = null;
     [SerializeField] SpriteRenderer _outerRing = null;
     [SerializeField] SpriteRenderer _innerRing = null;
+    [SerializeField] SpriteRenderer _innerFill = null;
 
     [SerializeField] NodeHandler _nodeHandler = null;
 
@@ -76,19 +77,29 @@ public class TileHandler : MonoBehaviour
         {
             SetTileType(TileType.TileTypes.Plain);
 
-            if (ArbitraryNoiseValue < 0.5f)
+            if (ArbitraryNoiseValue < 0.45f)
             {
                 _nodeHandler.SetMaxNodes(3);
             }
 
-            else if (ArbitraryNoiseValue < 0.7f)
+            else if (ArbitraryNoiseValue < 0.6f)
             {
                 _nodeHandler.SetMaxNodes(2);
             }
 
-            else if (ArbitraryNoiseValue >= 0.7f)
+            else if (ArbitraryNoiseValue < 0.75f)
             {
                 _nodeHandler.SetMaxNodes(1);
+            }
+
+            else if (ArbitraryNoiseValue < 0.9f)
+            {
+                _nodeHandler.SetMaxNodes(0);
+            }
+
+            else
+            {
+                SetTileType(TileType.TileTypes.Mountain);
             }
 
         }
@@ -381,8 +392,18 @@ public class TileHandler : MonoBehaviour
             _nodeHandler.SetMaxNodes(0);
         }
 
-        //_innerFill.color = Color.black;
-        //_innerFill.sprite = _currentTileType.TileIcon;
+        if (tileType == TileType.TileTypes.Mountain)
+        {
+            _nodeHandler.SetMaxNodes(0);
+        }
+
+        if (tileType == TileType.TileTypes.Capitol)
+        {
+            _nodeHandler.SetMaxNodes(3);
+        }
+
+        _innerFill.color = Color.black;
+        _innerFill.sprite = _currentTileType.TileIcon;
     }
 
     

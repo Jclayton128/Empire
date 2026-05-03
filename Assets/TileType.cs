@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "TileType")]
 public class TileType : ScriptableObject
 {
-    public enum TileTypes { Plain, Water, Mountain, Fortified, Resourced}
+    public enum TileTypes { Plain, Water, Mountain, Capitol }
 
     [SerializeField] TileTypes _tileType = TileTypes.Plain;
     public TileTypes TType => _tileType;

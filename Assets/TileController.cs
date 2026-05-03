@@ -289,6 +289,8 @@ public class TileController : MonoBehaviour
             _isFactionGrowing.Add(true);
 
             newCapitol.AssignFactionToTile(i);
+            newCapitol.SetTileType(TileType.TileTypes.Capitol);
+            newCapitol.ModifyDefendBonus(3);
             Vector3 pos = newCapitol.transform.position;
             var barycenter = Instantiate(_barycenterIndicatorPrefab, pos, Quaternion.identity);
             _barycenterIndicators.Add(barycenter);  

@@ -6,6 +6,7 @@ using UnityEngine;
 public class NodeHandler : MonoBehaviour
 {
 
+    [SerializeField] TileHandler _tileHandler = null;
     [SerializeField] ActionHandler _actionHandler = null;
     [SerializeField] SpriteRenderer[] _nodes = null;
 
@@ -135,6 +136,12 @@ public class NodeHandler : MonoBehaviour
         if (_node0_growth >= 0) _nodes[0].sprite = ConvertGrowthIntoStage(_node0_growth);
         if (_node1_growth >= 0) _nodes[1].sprite = ConvertGrowthIntoStage(_node1_growth);
         if (_node2_growth >= 0) _nodes[2].sprite = ConvertGrowthIntoStage(_node2_growth);
+
+
+        foreach (var node in _nodes)
+        {
+            node.color = FactionController.Instance.GetFactionBorderColor(_tileHandler.FactionIndex);
+        }
     }
 
     private Sprite ConvertGrowthIntoStage(float timeSpentGrowing)
@@ -152,7 +159,7 @@ public class NodeHandler : MonoBehaviour
     private void Update()
     {
         //no growth if an action is happening here.
-        //if (_actionHandler.AssignedAction != ActionController.ActionTypes.Undefined) return;
+        if (_actionHandler.AssignedAction != ActionController.ActionTypes.Undefined) return;
 
         if (_node0_growth >= 0 && _node0_growth < _timeBetweenNodeGrowths)
         {

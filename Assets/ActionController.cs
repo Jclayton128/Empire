@@ -367,7 +367,7 @@ public class ActionController : MonoBehaviour
                 isAdjacent = true;
                 break;
             }
-        }
+        } 
 
 
         if (!isAdjacent)
@@ -386,7 +386,15 @@ public class ActionController : MonoBehaviour
 
     private bool AttemptLandAttack(TileHandler clickedTile)
     {
+        int lopside = Mathf.Abs(_offensiveHelp - _defensiveHelp) + 1;
+        int damageRand = UnityEngine.Random.Range(0, lopside + 1);
+        Debug.Log($"rolled {damageRand} / {lopside}");
+        if ( damageRand == 0)
+        {
+            //damage tile;
 
+            clickedTile.GetComponent<NodeHandler>().DamageNode();
+        }
 
         int totalOdds = _offensiveHelp + _defensiveHelp;
         int rand = UnityEngine.Random.Range(1, totalOdds + 1);
@@ -485,7 +493,8 @@ public class ActionController : MonoBehaviour
 
     private bool CheckIfMineIsPossibleAtTileUnderCursor()
     {
-        if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain &&
+        if ((TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain ||
+            TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Capitol) &&
             TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             return true;

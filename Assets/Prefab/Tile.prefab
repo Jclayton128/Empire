@@ -73,15 +73,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 7
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: d4f21ef2bb69cd242a9d3d3174a2f490, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10, y: 10}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &464828812062995529
@@ -194,15 +194,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 7
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: d4f21ef2bb69cd242a9d3d3174a2f490, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10, y: 10}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1733982776555952019
@@ -364,6 +364,90 @@ SpriteRenderer:
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 4b0c50dc3d7df684a9cd6cfb3dca6411, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 10, y: 10}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!1 &2616500689886563965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1269899918901873742}
+  - component: {fileID: 2813366266310493196}
+  m_Layer: 6
+  m_Name: InnerFill
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1269899918901873742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2616500689886563965}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2822994593696616222}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &2813366266310493196
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2616500689886563965}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: -681178769
+  m_SortingLayer: 1
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 5011559be25f0234783216d9a53f7e5d, type: 3}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -552,15 +636,15 @@ SpriteRenderer:
   m_SortingLayerID: -681178769
   m_SortingLayer: 1
   m_SortingOrder: 7
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: d4f21ef2bb69cd242a9d3d3174a2f490, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 10, y: 10}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &5257294899163203231
@@ -624,6 +708,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 783825401508493753}
+  - {fileID: 1269899918901873742}
   - {fileID: 2103676053952981234}
   - {fileID: 2127344805515509166}
   - {fileID: 4117018340049537579}
@@ -805,6 +890,7 @@ MonoBehaviour:
   _fullFill: {fileID: 7454909704836064103}
   _outerRing: {fileID: 6175662040102329201}
   _innerRing: {fileID: 1630420661307857019}
+  _innerFill: {fileID: 2813366266310493196}
   _nodeHandler: {fileID: 7203597030278734165}
   _coll: {fileID: 5734029230241487985}
   _borders:
@@ -913,6 +999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c79205c1f584144aa5839837dda2de1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _tileHandler: {fileID: 2653999975602381464}
   _actionHandler: {fileID: 1976489322366524770}
   _nodes:
   - {fileID: 1968576469099507312}
@@ -922,12 +1009,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 838046b916341854baaf3b26d7310846, type: 3}
   - {fileID: 21300000, guid: 780fffafd63e06d459e34b03bf28770c, type: 3}
   - {fileID: 21300000, guid: 7a5f137611c7f164980c446083e83e4b, type: 3}
-  - {fileID: 21300000, guid: 7c3df05531f31d24a8c04e6f51b3fabc, type: 3}
-  - {fileID: 21300000, guid: 957b304702984674c82945d7be9b974a, type: 3}
-  - {fileID: 21300000, guid: 1ae79e6555cd4da409ebd07fd6ea7393, type: 3}
+  - {fileID: 21300000, guid: 99635921a74957548bae64ed525bf345, type: 3}
+  - {fileID: 21300000, guid: f27e64b93e971eb4ba9fdaf7d1d36345, type: 3}
+  - {fileID: 21300000, guid: d4f21ef2bb69cd242a9d3d3174a2f490, type: 3}
   _damagedNodeSprite: {fileID: 21300000, guid: 9375e2a4451a36e43916aacbd9beb8af, type: 3}
   _unbuildableNodeSprite: {fileID: 0}
-  _timeBetweenNodeGrowths: 5
+  _timeBetweenNodeGrowths: 10
   _node0_growth: 0
   _node1_growth: 0
   _node2_growth: 0
@@ -1100,7 +1187,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: -681178769
-  m_SortingOrder: 5
+  m_SortingOrder: 9
   m_TargetDisplay: 0
 --- !u!114 &8973501098244814012
 MonoBehaviour:

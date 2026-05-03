@@ -19,6 +19,7 @@ public class FactionController : MonoBehaviour
     public int FactionCount => _factionCount;
     public int FactionStartingSize => _factionStartingSize;
 
+    [SerializeField] Color _neutralColor = Color.gray;
     [SerializeField] Color _oceanColor = Color.blue;
     [SerializeField] List<Color> _factionColors = new List<Color>();
 
@@ -60,7 +61,11 @@ public class FactionController : MonoBehaviour
         {
             return _factionColors[factionIndex];
         }
-        else
+        else if (factionIndex == -1)
+        {
+            return _neutralColor;
+        }
+        else 
         {
             //Debug.LogWarning("this faction doesn't exist");
 
@@ -81,9 +86,11 @@ public class FactionController : MonoBehaviour
         }
         else if (factionIndex == -1)
         {
-
-            //neutral or rebel faction fill
-            return Color.gray;
+            Color col = _neutralColor;
+            col.r *= 0.5f;
+            col.g *= 0.5f;
+            col.b *= 0.5f;
+            return col;
         }
         else if (factionIndex == -2)
         {

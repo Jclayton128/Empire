@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c89fd5145e64d348937fe07624e2d6a, type: 3}
-  m_Name: Fortified
+  m_Name: Capitol
   m_EditorClassIdentifier: 
   _tileType: 3
-  _typeDescription: Fortified spaces grant a defensive bonus to all of your adjacent
-    spaces.
-  _tileIcon: {fileID: 21300000, guid: 35e71eb56095d0c45a31d61a2dd814f2, type: 3}
+  _typeDescription: Capitols have a permanent defense boost.
+  _tileIcon: {fileID: 21300000, guid: 5011559be25f0234783216d9a53f7e5d, type: 3}
