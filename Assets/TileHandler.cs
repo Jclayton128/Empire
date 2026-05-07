@@ -11,12 +11,14 @@ public class TileHandler : MonoBehaviour
     //refs
 
     [SerializeField] List<Transform> _neighborChecks = new List<Transform>();
-    [SerializeField] SpriteRenderer _fullFill = null;
-    [SerializeField] SpriteRenderer _outerRing = null;
+    //[SerializeField] SpriteRenderer _fullFill = null;
+
     [SerializeField] SpriteRenderer _innerRing = null;
     [SerializeField] SpriteRenderer _innerFill = null;
+    [SerializeField] SpriteRenderer _centerCircle = null;
 
     [SerializeField] NodeHandler _nodeHandler = null;
+     public InfluenceHandler TileInfluenceHandler = null;
 
     [SerializeField] Collider2D _coll = null;
     [SerializeField] List<SpriteRenderer> _borders = null;
@@ -66,6 +68,7 @@ public class TileHandler : MonoBehaviour
         PreviousTile = null;
         Index = -1;
         ArbitraryNoiseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
+        TileInfluenceHandler.Initialize();
 
         if (ArbitraryNoiseValue < 0.30f)
         {
@@ -106,6 +109,7 @@ public class TileHandler : MonoBehaviour
 
 
         TileActionHandler = GetComponent<ActionHandler>();
+
     }
 
     public void CheckForNeighbors()
@@ -186,19 +190,30 @@ public class TileHandler : MonoBehaviour
         return friendlyNeighbors;
     }
 
-    public void AssignFactionToTile(int factionIndex)
+    public void AssignFactionToTile(int factionIndex, bool shouldGrantImmediateFullInfluence)
     {
         if (CurrentTileType.TType == TileType.TileTypes.Water)
         {
             Debug.Log("Cannot assign faction to water tiles");
             _factionIndex = -2;
-            _fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
+            //_centerCircle.color = FactionController.Instance.GetFactionFillColor(factionIndex);
+            //_influenceHandler.SetInfluenceTotal(factionIndex);
+            //_fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
             return;
         }
 
         int previousFaction = _factionIndex;
         _factionIndex = factionIndex;
-        _fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
+        _centerCircle.color = FactionController.Instance.GetFactionFillColor(factionIndex);
+        //_fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
+        //_fullFill.color = Color.clear;
+
+        if (shouldGrantImmediateFullInfluence)
+        {
+            TileInfluenceHandler.SetInfluenceTotal(factionIndex);
+        }
+
+
         TileController.Instance.FindMoveBarycenter(factionIndex);
         TileController.Instance.FindMoveBarycenter(previousFaction);
     }
@@ -390,7 +405,9 @@ public class TileHandler : MonoBehaviour
         {
             //_fullFill.sprite = null;
             _factionIndex = -2;
-            _fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
+            //_fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
+
+            TileInfluenceHandler.SetInfluenceTotal(_factionIndex);
             _nodeHandler.SetMaxNodes(0);
         }
 
@@ -403,7 +420,7 @@ public class TileHandler : MonoBehaviour
         {
             _nodeHandler.SetMaxNodes(3);
         }
-
+        _centerCircle.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
         _innerFill.color = Color.black;
         _innerFill.sprite = _currentTileType.TileIcon;
     }

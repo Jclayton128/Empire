@@ -290,7 +290,7 @@ public class TileController : MonoBehaviour
             _factionTiles[i].Add(newCapitol);
             _isFactionGrowing.Add(true);
 
-            newCapitol.AssignFactionToTile(i);
+            newCapitol.AssignFactionToTile(i, true);
             newCapitol.SetTileType(TileType.TileTypes.Capitol);
             newCapitol.ModifyDefendBonus(3);
             Vector3 pos = newCapitol.transform.position;
@@ -399,7 +399,7 @@ public class TileController : MonoBehaviour
 
                 if (tileToFaction != null)
                 {
-                    tileToFaction.AssignFactionToTile(bestTileToGrowFrom.FactionIndex);
+                    tileToFaction.AssignFactionToTile(bestTileToGrowFrom.FactionIndex, true);
                     tilesInThisFaction.Add(tileToFaction);
                 }
                 else

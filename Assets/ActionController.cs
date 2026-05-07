@@ -406,7 +406,8 @@ public class ActionController : MonoBehaviour
             int winningFaction = FactionController.Instance.PlayerFaction;
 
             TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
-            clickedTile.AssignFactionToTile(winningFaction);
+            clickedTile.AssignFactionToTile(winningFaction, false);
+            clickedTile.TileInfluenceHandler.SetInfluenceSingle(winningFaction);
             TileController.Instance.HighlightFaction(winningFaction);
         }
         else
@@ -443,14 +444,15 @@ public class ActionController : MonoBehaviour
             if (clickedTile.FactionIndex > 0)
             {
                 TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, -1);
-                clickedTile.AssignFactionToTile(-1);
+                clickedTile.AssignFactionToTile(-1, true);
                 clickedTile.DehighlightBorders();
                 TileController.Instance.HighlightFaction(oldFaction);
             }
             else if (clickedTile.FactionIndex == -1)
             {
                 TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
-                clickedTile.AssignFactionToTile(winningFaction);
+                clickedTile.AssignFactionToTile(winningFaction, false);
+                clickedTile.TileInfluenceHandler.SetInfluenceSingle(winningFaction);
                 TileController.Instance.HighlightFaction(winningFaction);
             }
 
@@ -477,7 +479,8 @@ public class ActionController : MonoBehaviour
         //    return false;
         //}
 
-        if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain &&
+        if ((TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain ||
+            TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Capitol) &&
             TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             return true;

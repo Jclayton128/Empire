@@ -70,7 +70,7 @@ public class FactionController : MonoBehaviour
             //Debug.LogWarning("this faction doesn't exist");
 
             //neutral or rebel factions don't have borders
-            return Color.clear;
+            return Color.white;
         }
     }
 
