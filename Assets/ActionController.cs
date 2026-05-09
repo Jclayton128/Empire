@@ -407,7 +407,7 @@ public class ActionController : MonoBehaviour
 
             TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
             clickedTile.AssignFactionToTile(winningFaction, false);
-            clickedTile.TileInfluenceHandler.SetInfluenceSingle(winningFaction);
+            clickedTile.TileInfluenceHandler.AddSingleInfluence(winningFaction);
             TileController.Instance.HighlightFaction(winningFaction);
         }
         else
@@ -452,7 +452,7 @@ public class ActionController : MonoBehaviour
             {
                 TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
                 clickedTile.AssignFactionToTile(winningFaction, false);
-                clickedTile.TileInfluenceHandler.SetInfluenceSingle(winningFaction);
+                clickedTile.TileInfluenceHandler.AddSingleInfluence(winningFaction);
                 TileController.Instance.HighlightFaction(winningFaction);
             }
 

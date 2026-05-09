@@ -1,35 +1,44 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class InfluenceHandler : MonoBehaviour
 {
     //refs
 
-    [SerializeField] List<SpriteRenderer> _segments = new List<SpriteRenderer>();
+    //[SerializeField] List<SpriteRenderer> _segments = new List<SpriteRenderer>();
+    [SerializeField] SpriteRenderer _ownerInfluence = null;
+    [SerializeField] SpriteRenderer _secondplaceInfluence = null;
     [SerializeField] TileHandler _tileHandler = null;
 
-    //state
+    //settings
+    int _influenceSlots_max = 10;
+    [SerializeField] float _minCircleScale = 1.12f;
+    [SerializeField] float _maxCircleScale = 2.4f;
 
-    [SerializeField] List<int> _currentFactionInfluences;
+
+    //state
+    [SerializeField] List<int> _influenceSlots;
+    [SerializeField] List<int> _influenceSlotsByFrequency;
 
     public void Initialize()
     {
-       
-        _currentFactionInfluences = new List<int>();
-        for (int i = 0; i < _segments.Count; i++)
+        _influenceSlots = new List<int>();
+        for (int i = 0; i < _influenceSlots_max; i++)
         {
-            _currentFactionInfluences.Add(i);
-            _currentFactionInfluences[i] = -1;
+            _influenceSlots.Add(-1);
         }
-        SetSegmentGraphics();
+
+        ShowInfluence();
     }
 
-    public int GetInfluenceScoreForFaction(int faction)
+    public int GetInfluenceForFaction(int faction)
     {
         int score = 0;
 
-        foreach (var testFaction in _currentFactionInfluences)
+        foreach (var testFaction in _influenceSlots)
         {
             if (testFaction == faction)
             {
@@ -41,120 +50,81 @@ public class InfluenceHandler : MonoBehaviour
 
     }
 
-    public void SetInfluenceTotal(int newFaction)
+    public void AddSingleInfluence(int newFaction)
     {
-        if (newFaction >= 0)
+        //trash the next one
+        _influenceSlots.RemoveAt(0);
+        _influenceSlots.Add(newFaction);
+
+        ShowInfluence();
+    }
+
+    public void AddInfluenceUntilCompletelyInfluenced(int newFaction)
+    {
+        for (int i = 0; i < _influenceSlots_max; i++)
         {
-            for (int i = 0; i < _segments.Count; i++)
+            AddSingleInfluence(newFaction);
+        }
+
+    }    
+
+
+   
+    private void ShowInfluence()
+    {
+        if (_tileHandler.FactionIndex < -1)
+        {
+            _ownerInfluence.color = Color.clear;
+            _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(-2);
+        }
+
+        int ownerInfluence = 0;
+
+        foreach (var slot in _influenceSlots)
+        {
+            if (slot == _tileHandler.FactionIndex)
             {
-                _currentFactionInfluences[i] = newFaction;
+                ownerInfluence++;
             }
-            SetSegmentGraphics();
+        }
+
+        if (ownerInfluence > 0)
+        {
+            float factor = (float)ownerInfluence / (float)_influenceSlots.Count;
+            float mult = Mathf.Lerp(_minCircleScale, _maxCircleScale, factor);
+            Vector3 scale = Vector3.one * mult;
+            _ownerInfluence.transform.localScale = scale;
+            _ownerInfluence.color = FactionController.Instance.GetFactionFillColor(_tileHandler.FactionIndex);
         }
         else
         {
-            for (int segment = 0; segment < _segments.Count; segment++)
-            {
-                _segments[segment].color = Color.clear;
-            }
+            Debug.Log("Owner has no influence!");
         }
 
-
+        int second = GetSecondMostInfluentialFaction();
+        _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(second);
 
     }
 
-    public void SpreadInfluenceExternalToFaction(int newFaction)
+    private int GetSecondMostInfluentialFaction()
     {
-        SetInfluenceSingle(newFaction);
+        _influenceSlotsByFrequency.Clear();
+        _influenceSlotsByFrequency = new List<int>(_influenceSlots);
 
-        bool hasOldInfluenceRemaining = false;
-        int oldFaction = _tileHandler.FactionIndex;
+        _influenceSlotsByFrequency.GroupBy(n => n).OrderByDescending(g => g.Count());
+        //.Skip(1)
+        //.Select(g => (int?)g.Key)
+        //.FirstOrDefault();
 
-        foreach (var faction in _currentFactionInfluences)
-        {
-            if (faction == oldFaction)
-            {
-                hasOldInfluenceRemaining = true;
-                break;
-            }
-        }
+        //if (secondMostFrequent != null)
+        //{
+        //    return (int)secondMostFrequent;
+        //}
+        //else
+        //{
+        //    return _tileHandler.FactionIndex;
+        //}
 
-        if (hasOldInfluenceRemaining == false)
-        {
-            TileController.Instance.ChangeTileFaction(_tileHandler, oldFaction, newFaction);
-            _tileHandler.AssignFactionToTile(newFaction, false);
-        }
-    }
-
-    public void SetInfluenceSingleToSpecificTile(TileHandler tileHandler, int newFaction)
-    {
-        int tileHandlerAsSegment = -1;
-
-        if (_tileHandler.OrderedNeighborTiles.Contains(tileHandler))
-        {
-            tileHandlerAsSegment = _tileHandler.OrderedNeighborTiles.IndexOf(tileHandler);
-        }
-
-        //_tileHandler.OrderedNeighborTiles[tileHandlerAsSegment].TileInfluenceHandler.SpreadInfluenceExternalToFaction(newFaction);
-        _currentFactionInfluences[tileHandlerAsSegment] = newFaction;
-        SetSegmentGraphics();
-    }
-
-    public void SetInfluenceSingle(int newFaction)
-    {
-        int segmentToBeat = -1;
-        int scoreToBeat = 0;
-
-        for (int i = 0; i < _tileHandler.OrderedNeighborTiles.Count; i++)
-        {
-
-            if (_currentFactionInfluences[i] != newFaction && 
-                _tileHandler.OrderedNeighborTiles[i].TileInfluenceHandler.GetInfluenceScoreForFaction(newFaction) > scoreToBeat)
-            {
-                scoreToBeat = _tileHandler.OrderedNeighborTiles[i].TileInfluenceHandler.GetInfluenceScoreForFaction(newFaction);
-                segmentToBeat = i;
-                //great, we found an adjacent influence segment taht matches the new owner.
-
-            }
-        }
-
-        if (segmentToBeat >= 0)
-        {
-            //_tileHandler.OrderedNeighborTiles[segmentToBeat].TileInfluenceHandler.SpreadInfluenceExternalToFaction(newFaction);
-            _tileHandler.OrderedNeighborTiles[segmentToBeat].TileInfluenceHandler.SetInfluenceSingleToSpecificTile(_tileHandler, newFaction);
-            _currentFactionInfluences[segmentToBeat] = newFaction;
-            SetSegmentGraphics();
-            return;
-        }
-        
-        List<int> nonconformingSegments = new List<int>();
-
-        for (int i = 0; i < _currentFactionInfluences.Count; i++)
-        {
-            if (_currentFactionInfluences[i] != newFaction)
-            {
-                nonconformingSegments.Add(i);
-            }
-        }
-
-        if (nonconformingSegments.Count == 0)
-        {
-            Debug.Log($"This faction is already fully influenced to {newFaction}");
-            return;
-        }
-
-
-        int rand = UnityEngine.Random.Range(0, nonconformingSegments.Count);
-        _currentFactionInfluences[rand] = newFaction;
-
-        SetSegmentGraphics();
-    }
-
-    private void SetSegmentGraphics()
-    {
-        for (int segment = 0; segment < _segments.Count; segment++)
-        {
-            _segments[segment].color = FactionController.Instance.GetFactionFillColor(_currentFactionInfluences[segment]);
-        }
+        return _influenceSlotsByFrequency[0];
     }
 }

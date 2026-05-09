@@ -15,7 +15,7 @@ public class TileHandler : MonoBehaviour
 
     [SerializeField] SpriteRenderer _innerRing = null;
     [SerializeField] SpriteRenderer _innerFill = null;
-    [SerializeField] SpriteRenderer _centerCircle = null;
+    //[SerializeField] SpriteRenderer _centerCircle = null;
 
     [SerializeField] NodeHandler _nodeHandler = null;
      public InfluenceHandler TileInfluenceHandler = null;
@@ -204,13 +204,13 @@ public class TileHandler : MonoBehaviour
 
         int previousFaction = _factionIndex;
         _factionIndex = factionIndex;
-        _centerCircle.color = FactionController.Instance.GetFactionFillColor(factionIndex);
+        //_centerCircle.color = FactionController.Instance.GetFactionFillColor(factionIndex);
         //_fullFill.color = FactionController.Instance.GetFactionFillColor(factionIndex);
         //_fullFill.color = Color.clear;
 
         if (shouldGrantImmediateFullInfluence)
         {
-            TileInfluenceHandler.SetInfluenceTotal(factionIndex);
+            TileInfluenceHandler.AddInfluenceUntilCompletelyInfluenced(factionIndex);
         }
 
 
@@ -407,7 +407,7 @@ public class TileHandler : MonoBehaviour
             _factionIndex = -2;
             //_fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
 
-            TileInfluenceHandler.SetInfluenceTotal(_factionIndex);
+            TileInfluenceHandler.AddInfluenceUntilCompletelyInfluenced(_factionIndex);
             _nodeHandler.SetMaxNodes(0);
         }
 
@@ -420,7 +420,7 @@ public class TileHandler : MonoBehaviour
         {
             _nodeHandler.SetMaxNodes(3);
         }
-        _centerCircle.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
+        //_centerCircle.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
         _innerFill.color = Color.black;
         _innerFill.sprite = _currentTileType.TileIcon;
     }
