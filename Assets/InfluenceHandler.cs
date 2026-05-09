@@ -25,9 +25,24 @@ public class InfluenceHandler : MonoBehaviour
         SetSegmentGraphics();
     }
 
+    public int GetInfluenceScoreForFaction(int faction)
+    {
+        int score = 0;
+
+        foreach (var testFaction in _currentFactionInfluences)
+        {
+            if (testFaction == faction)
+            {
+                score++;
+            }
+        }
+
+        return score;
+
+    }
+
     public void SetInfluenceTotal(int newFaction)
     {
-        Debug.Log("totlat influe");
         if (newFaction >= 0)
         {
             for (int i = 0; i < _segments.Count; i++)
@@ -50,20 +65,30 @@ public class InfluenceHandler : MonoBehaviour
 
     public void SetInfluenceSingle(int newFaction)
     {
+        int segmentToBeat = -1;
+        int scoreToBeat = 0;
+
         for (int i = 0; i < _tileHandler.OrderedNeighborTiles.Count; i++)
         {
-            if (_tileHandler.OrderedNeighborTiles[i].FactionIndex == newFaction)
+
+            if (_currentFactionInfluences[i] != newFaction && 
+                _tileHandler.OrderedNeighborTiles[i].TileInfluenceHandler.GetInfluenceScoreForFaction(newFaction) > scoreToBeat)
             {
+                scoreToBeat = _tileHandler.OrderedNeighborTiles[i].TileInfluenceHandler.GetInfluenceScoreForFaction(newFaction);
+                segmentToBeat = i;
                 //great, we found an adjacent influence segment taht matches the new owner.
-                _currentFactionInfluences[i] = newFaction;
-                SetSegmentGraphics();
-                return;
+
             }
         }
+
+        if (segmentToBeat >= 0)
+        {
+            _currentFactionInfluences[segmentToBeat] = newFaction;
+            SetSegmentGraphics();
+            return;
+        }
         
-
-
-            List<int> nonconformingSegments = new List<int>();
+        List<int> nonconformingSegments = new List<int>();
 
         for (int i = 0; i < _currentFactionInfluences.Count; i++)
         {

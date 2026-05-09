@@ -2792,6 +2792,7 @@ MonoBehaviour:
   _perlinZoom: 0.1
   _xOffset: 0
   _yOffset: 0
+  _barycenterIndicators: []
   ReferenceTile: {fileID: 0}
 --- !u!4 &962095110
 Transform:
@@ -2824,7 +2825,8 @@ MonoBehaviour:
   _playerEmpireDriver: {fileID: 1542906594}
   _factionCount: 8
   _factionStartingSize: 3
-  _oceanColor: {r: 0.16078432, g: 0.14117648, b: 0.32941177, a: 0.2784314}
+  _neutralColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  _oceanColor: {r: 0.16078432, g: 0.14117648, b: 0.32941177, a: 0}
   _factionColors:
   - {r: 0.7686275, g: 0.8117648, b: 0.6862745, a: 1}
   - {r: 0.31764707, g: 0.5254902, b: 0.4901961, a: 1}
