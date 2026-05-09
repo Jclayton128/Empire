@@ -63,6 +63,43 @@ public class InfluenceHandler : MonoBehaviour
 
     }
 
+    public void SpreadInfluenceExternalToFaction(int newFaction)
+    {
+        SetInfluenceSingle(newFaction);
+
+        bool hasOldInfluenceRemaining = false;
+        int oldFaction = _tileHandler.FactionIndex;
+
+        foreach (var faction in _currentFactionInfluences)
+        {
+            if (faction == oldFaction)
+            {
+                hasOldInfluenceRemaining = true;
+                break;
+            }
+        }
+
+        if (hasOldInfluenceRemaining == false)
+        {
+            TileController.Instance.ChangeTileFaction(_tileHandler, oldFaction, newFaction);
+            _tileHandler.AssignFactionToTile(newFaction, false);
+        }
+    }
+
+    public void SetInfluenceSingleToSpecificTile(TileHandler tileHandler, int newFaction)
+    {
+        int tileHandlerAsSegment = -1;
+
+        if (_tileHandler.OrderedNeighborTiles.Contains(tileHandler))
+        {
+            tileHandlerAsSegment = _tileHandler.OrderedNeighborTiles.IndexOf(tileHandler);
+        }
+
+        //_tileHandler.OrderedNeighborTiles[tileHandlerAsSegment].TileInfluenceHandler.SpreadInfluenceExternalToFaction(newFaction);
+        _currentFactionInfluences[tileHandlerAsSegment] = newFaction;
+        SetSegmentGraphics();
+    }
+
     public void SetInfluenceSingle(int newFaction)
     {
         int segmentToBeat = -1;
@@ -83,6 +120,8 @@ public class InfluenceHandler : MonoBehaviour
 
         if (segmentToBeat >= 0)
         {
+            //_tileHandler.OrderedNeighborTiles[segmentToBeat].TileInfluenceHandler.SpreadInfluenceExternalToFaction(newFaction);
+            _tileHandler.OrderedNeighborTiles[segmentToBeat].TileInfluenceHandler.SetInfluenceSingleToSpecificTile(_tileHandler, newFaction);
             _currentFactionInfluences[segmentToBeat] = newFaction;
             SetSegmentGraphics();
             return;
