@@ -181,6 +181,9 @@ public class NodeHandler : MonoBehaviour
        //Debug.Log($"{timeSpentGrowing}/{_timeBetweenNodeGrowths} * {_nodeSprites.Length} = {factor}. F2I: {}")
         stage = Mathf.FloorToInt(factor);
         stage = Mathf.Clamp(stage, 0, _nodeSprites.Length-1);
+
+
+
         return _nodeSprites[stage];
     }
 

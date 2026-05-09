@@ -1348,7 +1348,6 @@ MonoBehaviour:
   - {fileID: 6478836263749214173}
   _innerRing: {fileID: 1630420661307857019}
   _innerFill: {fileID: 2813366266310493196}
-  _centerCircle: {fileID: 3717280030266725299}
   _nodeHandler: {fileID: 7203597030278734165}
   TileInfluenceHandler: {fileID: 2524893289947584748}
   _coll: {fileID: 5734029230241487985}
@@ -1499,9 +1498,13 @@ MonoBehaviour:
   _ownerInfluence: {fileID: 3717280030266725299}
   _secondplaceInfluence: {fileID: 7454909704836064103}
   _tileHandler: {fileID: 2653999975602381464}
-  _minCircleScale: 0.4
+  _minCircleScale: 0.1
   _maxCircleScale: 1
-  _influenceSlotsAsList: 
+  _timeBetweenInfluenceGrowths_Nominal: 7
+  _timeBetweenInfluenceGrowths_Actual: 10
+  _timeGrowingNewInfluence: 0
+  _influenceSlots: 
+  _influenceSlotsByFrequency: 
 --- !u!1 &7844155564144650129
 GameObject:
   m_ObjectHideFlags: 0

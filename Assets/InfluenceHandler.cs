@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using DG.Tweening;
 
 public class InfluenceHandler : MonoBehaviour
 {
@@ -18,10 +19,14 @@ public class InfluenceHandler : MonoBehaviour
     [SerializeField] float _minCircleScale = 1.12f;
     [SerializeField] float _maxCircleScale = 2.4f;
 
+    [SerializeField] float _timeBetweenInfluenceGrowths_Nominal = 10f;
 
     //state
+    [SerializeField] float _timeBetweenInfluenceGrowths_Actual = 10f;
+    [SerializeField] float _timeGrowingNewInfluence = 0;
     [SerializeField] List<int> _influenceSlots;
     [SerializeField] List<int> _influenceSlotsByFrequency;
+    Tween _scaleTween;
 
     public void Initialize()
     {
@@ -93,7 +98,10 @@ public class InfluenceHandler : MonoBehaviour
             float factor = (float)ownerInfluence / (float)_influenceSlots.Count;
             float mult = Mathf.Lerp(_minCircleScale, _maxCircleScale, factor);
             Vector3 scale = Vector3.one * mult;
-            _ownerInfluence.transform.localScale = scale;
+
+            _scaleTween.Kill();
+            _scaleTween = _ownerInfluence.transform.DOScale(scale, 0.5f).SetEase(Ease.OutBack);
+
             _ownerInfluence.color = FactionController.Instance.GetFactionFillColor(_tileHandler.FactionIndex);
         }
         else
@@ -126,5 +134,32 @@ public class InfluenceHandler : MonoBehaviour
         //}
 
         return _influenceSlotsByFrequency[0];
+    }
+
+    private void Update()
+    {
+        if (_tileHandler)
+        UpdateTimeBetweenInfluenceGrowths();
+        UpdateInfluence();
+    }
+
+
+
+    private void UpdateTimeBetweenInfluenceGrowths()
+    {
+        _timeBetweenInfluenceGrowths_Actual = _timeBetweenInfluenceGrowths_Nominal +
+            (TileController.Instance.GetDistanceFromPointToFactionBarycenter(transform.position, _tileHandler.FactionIndex) / 2f) -
+            (_tileHandler.GetNeighborlyScore(_tileHandler.FactionIndex) / 2f); 
+
+    }
+
+    private void UpdateInfluence()
+    {
+        _timeGrowingNewInfluence += Time.deltaTime;
+        if (_timeGrowingNewInfluence >= _timeBetweenInfluenceGrowths_Actual)
+        {
+            AddSingleInfluence(_tileHandler.FactionIndex);
+            _timeGrowingNewInfluence = 0;
+        }
     }
 }

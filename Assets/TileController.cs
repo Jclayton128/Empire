@@ -534,8 +534,16 @@ public class TileController : MonoBehaviour
 
     public float GetDistanceFromPointToFactionBarycenter(Vector3 testPoint, int factionIndex)
     {
-     
-        return (testPoint - _barycenterIndicators[factionIndex].transform.position).magnitude; ;
+        if (factionIndex < 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return (testPoint - _barycenterIndicators[factionIndex].transform.position).magnitude;
+        }
+
+
     }
 
     #endregion
