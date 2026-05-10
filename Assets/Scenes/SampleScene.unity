@@ -2824,7 +2824,7 @@ MonoBehaviour:
   _factionDriver: {fileID: 1507831874}
   _playerEmpireDriver: {fileID: 1542906594}
   _factionCount: 8
-  _factionStartingSize: 3
+  _factionStartingSize: 4
   _neutralColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   _oceanColor: {r: 0.16078432, g: 0.14117648, b: 0.32941177, a: 0}
   _factionColors:

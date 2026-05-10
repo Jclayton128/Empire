@@ -848,6 +848,15 @@ public class TileController : MonoBehaviour
         TileUnderCursorChanged?.Invoke();
     }
 
+    public void RefreshBorderHighlights()
+    {
+        if (_tileUnderCursor)
+        {
+            HighlightFaction(TileUnderCursor.FactionIndex);
+        }
+
+    }
+
     public void HighlightFaction(int factionIndexToHighlight)
     {
         for (int factionIndex = 0; factionIndex < _factionTiles.Count; factionIndex++)

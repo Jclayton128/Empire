@@ -1498,13 +1498,12 @@ MonoBehaviour:
   _ownerInfluence: {fileID: 3717280030266725299}
   _secondplaceInfluence: {fileID: 7454909704836064103}
   _tileHandler: {fileID: 2653999975602381464}
-  _minCircleScale: 0.1
+  _minCircleScale: 0.01
   _maxCircleScale: 1
   _timeBetweenInfluenceGrowths_Nominal: 7
   _timeBetweenInfluenceGrowths_Actual: 10
   _timeGrowingNewInfluence: 0
   _influenceSlots: 
-  _influenceSlotsByFrequency: 
 --- !u!1 &7844155564144650129
 GameObject:
   m_ObjectHideFlags: 0

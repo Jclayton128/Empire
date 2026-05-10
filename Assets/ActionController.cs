@@ -408,7 +408,7 @@ public class ActionController : MonoBehaviour
 
             TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
             clickedTile.AssignFactionToTile(winningFaction, false);
-            clickedTile.TileInfluenceHandler.AddSingleInfluence(winningFaction);
+            clickedTile.TileInfluenceHandler.AddInfluence(winningFaction, 5);
             TileController.Instance.HighlightFaction(winningFaction);
         }
         else
@@ -453,7 +453,7 @@ public class ActionController : MonoBehaviour
             {
                 TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
                 clickedTile.AssignFactionToTile(winningFaction, false);
-                clickedTile.TileInfluenceHandler.AddSingleInfluence(winningFaction);
+                clickedTile.TileInfluenceHandler.AddInfluence(winningFaction, 5);
                 TileController.Instance.HighlightFaction(winningFaction);
             }
 
@@ -558,12 +558,9 @@ public class ActionController : MonoBehaviour
 
     public void ResolveAttemptAtTrade(TileHandler selectedTile)
     {
-        int rand = UnityEngine.Random.Range(1, 6);
+        int randomAmountOfInfluenceToAdd = UnityEngine.Random.Range(1, 6);
 
-        for (int i = 0; i < rand;  i++)
-        {
-            selectedTile.TileInfluenceHandler.AddSingleInfluence(FactionController.Instance.PlayerFaction);
-        }
+        selectedTile.TileInfluenceHandler.AddInfluence(FactionController.Instance.PlayerFaction, randomAmountOfInfluenceToAdd);
     }
 
     #endregion

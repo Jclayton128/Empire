@@ -54,52 +54,44 @@ public class InfluenceHandler : MonoBehaviour
 
     }
 
-    public void AddSingleInfluence(int newFaction)
+    public void AddInfluence(int newFaction, int influenceToAdd)
     {
         //trash the next one
-        for (int i = 0; i < _influenceSlots.Count; i++)
+
+        for (int times = 0; times < influenceToAdd; times++)
         {
-            if (_influenceSlots[i] != newFaction)
+            for (int i = 0; i < _influenceSlots.Count; i++)
             {
-                _influenceSlots[i] = newFaction;
-                break;
+                if (_influenceSlots[i] != newFaction)
+                {
+                    _influenceSlots[i] = newFaction;
+                    break;
+                }
             }
         }
 
-        //_influenceSlots.RemoveAt(0);
-        //_influenceSlots.Add(newFaction);
+        CheckForOwnershipSwapViaInfluence();
+        ShowInfluence();
+    }
+    public void AddInfluenceUntilCompletelyInfluenced(int newFaction)
+    {
+        AddInfluence(newFaction, _influenceSlots_max);
 
-        //if (_tileHandler.CurrentTileType.TType != TileType.TileTypes.Water)
-        //{
-        //    int testFaction = GetFirstMostFrequentFaction(_influenceSlots);
-        //    if (testFaction != _tileHandler.FactionIndex)
-        //    {
-        //        //swap ownership
-        //        TileController.Instance.ChangeTileFaction(_tileHandler, _tileHandler.FactionIndex, testFaction);
-        //        _tileHandler.AssignFactionToTile(testFaction, false);
-        //    }
-        //}
+    }
 
+    private void CheckForOwnershipSwapViaInfluence()
+    {
         int ownerInfluence = GetOwnerInfluence();
-        int mostInfluentialFaction = GetFirstMostFrequentFaction(_influenceSlots);
-        if (ownerInfluence == 0)
+        int mostInfluentialFaction = GetFactionRankings().x;
+        if (_tileHandler.FactionIndex != mostInfluentialFaction)
         {
             //swap ownership
             TileController.Instance.ChangeTileFaction(_tileHandler, _tileHandler.FactionIndex, mostInfluentialFaction);
             _tileHandler.AssignFactionToTile(mostInfluentialFaction, false);
+            TileController.Instance.RefreshBorderHighlights();
         }
-
-        ShowInfluence();
     }
 
-    public void AddInfluenceUntilCompletelyInfluenced(int newFaction)
-    {
-        for (int i = 0; i < _influenceSlots_max; i++)
-        {
-            AddSingleInfluence(newFaction);
-        }
-
-    }    
 
     private int GetOwnerInfluence()
     {
@@ -123,74 +115,33 @@ public class InfluenceHandler : MonoBehaviour
         {
             _ownerInfluence.color = Color.clear;
             _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(-2);
+            return;
         }
 
-        int ownerInfluence = GetOwnerInfluence();
-        if (ownerInfluence > 0)
-        {
-            float factor = (float)ownerInfluence / (float)_influenceSlots.Count;
-            float mult = Mathf.Lerp(_minCircleScale, _maxCircleScale, factor);
-            Vector3 scale = Vector3.one * mult;
+        Vector3Int influenceRanking = GetFactionRankings();
 
-            _scaleTween.Kill();
-            _scaleTween = _ownerInfluence.transform.DOScale(scale, 0.5f).SetEase(Ease.OutBack);
+        float factor = (float)influenceRanking.y / (float)_influenceSlots.Count;
+        float mult = Mathf.Lerp(_minCircleScale, _maxCircleScale, factor);
+        Vector3 scale = Vector3.one * mult;
 
-            _ownerInfluence.color = FactionController.Instance.GetFactionFillColor(_tileHandler.FactionIndex);
-        }
-        else
-        {
-            Debug.Log("Owner has no influence!");
-        }
+        _scaleTween.Kill();
+        _scaleTween = _ownerInfluence.transform.DOScale(scale, 0.5f).SetEase(Ease.OutBack);
 
-        int? second = GetSecondMostFrequent(_influenceSlots);
-
-        if (second != null)
-        {
-            _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor((int)second);
-        }
-        else
-        {
-            int first = GetFirstMostFrequentFaction(_influenceSlots);
-            _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(first);
-            //if (second == _tileHandler.FactionIndex)
-            //{
-            //    //show the firstplace person then
-            //    int first = GetFirstMostFrequentFaction(_influenceSlots);
-            //    _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(first);
-            //}
-            //else
-            //{
-            //    _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(_tileHandler.FactionIndex);
-            //}
-
-        }
+        _ownerInfluence.color = FactionController.Instance.GetFactionFillColor(influenceRanking.x);
+        _secondplaceInfluence.color = FactionController.Instance.GetFactionFillColor(influenceRanking.z);
 
     }
 
-    //private int GetSecondMostInfluentialFaction()
-    //{
-    //    _influenceSlotsByFrequency.Clear();
-    //    _influenceSlotsByFrequency = new List<int>(_influenceSlots);
-
-    //    int? secondMostFrequent = _influenceSlotsByFrequency.GroupBy(n => n).OrderByDescending(g => g.Count()).Skip(1).Select(g => (int?)g.Key).FirstOrDefault();
-
-    //    if (secondMostFrequent != null)
-    //    {
-    //        return (int)secondMostFrequent;
-    //    }
-    //    else
-    //    {
-    //        return _tileHandler.FactionIndex;
-    //    }
-
-    //    return _influenceSlotsByFrequency[0];
-    //}
+    
 
     private void Update()
     {
         if (_tileHandler)
-        UpdateTimeBetweenInfluenceGrowths();
-        UpdateInfluence();
+        {
+            UpdateTimeBetweenInfluenceGrowths();
+            UpdateInfluence();
+        }
+
     }
 
 
@@ -208,92 +159,85 @@ public class InfluenceHandler : MonoBehaviour
         _timeGrowingNewInfluence += Time.deltaTime;
         if (_timeGrowingNewInfluence >= _timeBetweenInfluenceGrowths_Actual)
         {
-            AddSingleInfluence(_tileHandler.FactionIndex);
+            AddInfluence(_tileHandler.FactionIndex, 1);
             _timeGrowingNewInfluence = 0;
         }
     }
 
-    private int GetFirstMostFrequentFaction(List<int> numbers)
+    private Vector3Int GetFactionRankings()
     {
-        if (numbers == null || numbers.Count < 2) return _tileHandler.FactionIndex;
+        //x: plurality faction index
+        //y: plurality faction influence count
+        //z: second faction index
+        Vector3Int output = Vector3Int.zero;
 
-        // 1. Count occurrences
-        Dictionary<int, int> counts = new Dictionary<int, int>();
-        foreach (int num in numbers)
+        //setup tracking
+        int independentInfluence = 0;
+        List<int> influencePerFaction = new List<int>();
+        for (int faction = 0; faction < FactionController.Instance.FactionCount; faction++)
         {
-            if (counts.ContainsKey(num))
-                counts[num]++;
+            influencePerFaction.Add(0);
+        }
+
+        //populate tracking with influence counts
+        for (int slot = 0; slot < _influenceSlots.Count; slot++)
+        {
+            int factionInSlot = _influenceSlots[slot];
+            if (factionInSlot == -1)
+            {
+                independentInfluence++;
+            }
+            else if (factionInSlot == -2)
+            {
+                //do nothing with ocean
+            }
             else
-                counts[num] = 1;
-        }
-
-        // 2. Identify top two frequencies
-        int maxFreq = 0;
-        int secondMaxFreq = 0;
-
-        foreach (int freq in counts.Values)
-        {
-            if (freq > maxFreq)
             {
-                secondMaxFreq = maxFreq;
-                maxFreq = freq;
+                influencePerFaction[factionInSlot]++;
             }
-            else if (freq > secondMaxFreq && freq < maxFreq)
-            {
-                secondMaxFreq = freq;
-            }
+            //Debug.Log($"fis: {factionInSlot}");
+
+            
         }
 
-        foreach (var pair in counts)
+        //review tracking to identify plurality and second factions
+
+
+        int firstPlaceFaction = -1;
+        int influenceOfFirstPlaceFaction = independentInfluence;
+        //determine first place stats
+        for (int faction = 0; faction <influencePerFaction.Count; faction++)
         {
-            if (pair.Value == maxFreq)
-                return pair.Key;
+            if (influencePerFaction[faction] > influenceOfFirstPlaceFaction)
+            {
+                firstPlaceFaction = faction;
+                influenceOfFirstPlaceFaction = influencePerFaction[firstPlaceFaction];
+            }
         }
 
-        return _tileHandler.FactionIndex;
+        //second pass to identify secondplace stats
+        int secondPlaceFaction = -1;
+        int influenceOfSecondPlaceFaction = 0;
+        for (int faction = 0; faction < influencePerFaction.Count; faction++)
+        {
+            if (faction != firstPlaceFaction && influencePerFaction[faction] > influenceOfSecondPlaceFaction)
+            {
+                secondPlaceFaction = faction;
+                influenceOfSecondPlaceFaction = influencePerFaction[secondPlaceFaction];
+            }
+        }
+
+        //TODO next: have this vec3int output get read. x: color/ownership of tile, y: relative hold/scale of owner, z: color of background.
+        //This will be a "plurality owns" model. Attacking needs to immediately grant a plurality of influence upon conquering.
+
+        output.x = firstPlaceFaction;
+        output.y = influenceOfFirstPlaceFaction;
+        output.z = secondPlaceFaction;
+        //Debug.Log($"{output}");
+
+        return output;
 
     }
 
-    public int? GetSecondMostFrequent(List<int> numbers)
-    {
-        if (numbers == null || numbers.Count < 2) return null;
-
-        // 1. Count occurrences
-        Dictionary<int, int> counts = new Dictionary<int, int>();
-        foreach (int num in numbers)
-        {
-            if (counts.ContainsKey(num))
-                counts[num]++;
-            else
-                counts[num] = 1;
-        }
-
-        // 2. Identify top two frequencies
-        int maxFreq = 0;
-        int secondMaxFreq = 0;
-
-        foreach (int freq in counts.Values)
-        {
-            if (freq > maxFreq)
-            {
-                secondMaxFreq = maxFreq;
-                maxFreq = freq;
-            }
-            else if (freq > secondMaxFreq && freq < maxFreq)
-            {
-                secondMaxFreq = freq;
-            }
-        }
-
-        // 3. Find the integer with the second highest frequency
-        if (secondMaxFreq == 0) return null;
-
-        foreach (var pair in counts)
-        {
-            if (pair.Value == secondMaxFreq)
-                return pair.Key;
-        }
-
-        return null;
-    }
+    
 }
