@@ -82,6 +82,7 @@ public class FactionController : MonoBehaviour
             col.r *= 0.5f;
             col.g *= 0.5f;
             col.b *= 0.5f;
+            col.a = 1;
             return col;
         }
         else if (factionIndex == -1)
