@@ -114,6 +114,10 @@ public class ActionHandler : MonoBehaviour
                 int amount = _th.HarvestNode();
                 FactionController.Instance.AdjustResources(amount, FactionController.Instance.PlayerFaction);
                 break;
+
+            case ActionController.ActionTypes.Trade:
+                ActionController.Instance.ResolveAttemptAtTrade(_th);
+                break;
         }
 
 

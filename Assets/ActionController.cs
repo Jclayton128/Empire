@@ -9,7 +9,7 @@ public class ActionController : MonoBehaviour
 
 
     public static ActionController Instance {get; private set;}
-    public enum ActionTypes {Undefined, Attack, Invest, Research, Extract, Scout, Count}
+    public enum ActionTypes {Undefined, Attack, Invest, Extract, Trade, Count}
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
@@ -142,10 +142,11 @@ public class ActionController : MonoBehaviour
         {
             //Diplomacy
 
-            //if (CheckIfAttackIsPossibleAtTileUnderCursor())
-            //{
-            //    clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
-            //}
+            if (CheckIfTradeIsPossibleAtTileUnderCursor())
+            {
+                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Trade,
+                    FindDurationForTradeActionAtTileUnderCursor(), true, _actionIcons_Trade);
+            }
         }
     }
 
@@ -401,7 +402,7 @@ public class ActionController : MonoBehaviour
         if (rand > _defensiveHelp)
         {
             //attacks succeeds
-            //Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
+            Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
 
             int winningFaction = FactionController.Instance.PlayerFaction;
 
@@ -506,7 +507,65 @@ public class ActionController : MonoBehaviour
     }
 
     #endregion
-
-
     
+    #region Diplomacy Action
+
+    private bool CheckIfTradeIsPossibleAtTileUnderCursor()
+    {
+        if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Water)
+        {
+            //cannot attack water
+            return false;
+        }
+
+        TileHandler selectedTile = TileController.Instance.TileUnderCursor;
+        if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
+        {
+            //No point in depicting a battle against yourself, right?
+
+            return false;
+        }
+
+        bool isAdjacent = false;
+        foreach (var tile in selectedTile.OrderedNeighborTiles)
+        {
+            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            {
+                isAdjacent = true;
+                return true;
+                //break;
+            }
+        }
+
+        return false;
+    }
+
+    private float FindDurationForTradeActionAtTileUnderCursor()
+    {
+        int alliedProductionAtSurroundingTiles = 0;
+
+        foreach (var tile in TileController.Instance.TileUnderCursor.OrderedNeighborTiles)
+        {
+            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            {
+                alliedProductionAtSurroundingTiles++;
+            }
+        }
+        float pFactor = alliedProductionAtSurroundingTiles / 18f;
+        float tradeMult = Mathf.Lerp(0.2f, 1f, pFactor);
+        return (_duration_Trade * tradeMult);
+    }
+
+    public void ResolveAttemptAtTrade(TileHandler selectedTile)
+    {
+        int rand = UnityEngine.Random.Range(1, 6);
+
+        for (int i = 0; i < rand;  i++)
+        {
+            selectedTile.TileInfluenceHandler.AddSingleInfluence(FactionController.Instance.PlayerFaction);
+        }
+    }
+
+    #endregion
+
 }

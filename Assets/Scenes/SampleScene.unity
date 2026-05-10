@@ -2881,8 +2881,8 @@ MonoBehaviour:
   _actionIcons_Mine: {fileID: 21300000, guid: 10f1fbd487948944abef296cf7e3d43d, type: 3}
   _duration_Mine: 4
   _cost_Mine: 0
-  _actionIcons_Trade: {fileID: 0}
-  _duration_Trade: 3
+  _actionIcons_Trade: {fileID: 21300000, guid: 6d923d0c789567746bf92bd510ebe545, type: 3}
+  _duration_Trade: 15
   _cost_Trade: 0
   _offensiveHelp: 0
   _defensiveHelp: 0
