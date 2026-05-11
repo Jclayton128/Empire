@@ -17,7 +17,7 @@ public class TileHandler : MonoBehaviour
     [SerializeField] SpriteRenderer _innerFill = null;
     //[SerializeField] SpriteRenderer _centerCircle = null;
 
-    [SerializeField] NodeHandler _nodeHandler = null;
+    public NodeHandler TileNodeHandler = null;
      public InfluenceHandler TileInfluenceHandler = null;
 
     [SerializeField] Collider2D _coll = null;
@@ -34,7 +34,6 @@ public class TileHandler : MonoBehaviour
     [SerializeField] int _defendBonus_DefendAction = 3;
 
     //state
-    public ActionHandler TileActionHandler { get; private set; }
     [SerializeField] int _factionIndex = -1;
     public int FactionIndex => _factionIndex;
 
@@ -82,22 +81,22 @@ public class TileHandler : MonoBehaviour
 
             if (ArbitraryNoiseValue < 0.45f)
             {
-                _nodeHandler.SetMaxNodes(3);
+                TileNodeHandler.SetMaxNodes(3);
             }
 
             else if (ArbitraryNoiseValue < 0.6f)
             {
-                _nodeHandler.SetMaxNodes(2);
+                TileNodeHandler.SetMaxNodes(2);
             }
 
             else if (ArbitraryNoiseValue < 0.75f)
             {
-                _nodeHandler.SetMaxNodes(1);
+                TileNodeHandler.SetMaxNodes(1);
             }
 
             else if (ArbitraryNoiseValue < 0.9f)
             {
-                _nodeHandler.SetMaxNodes(0);
+                TileNodeHandler.SetMaxNodes(0);
             }
 
             else
@@ -106,9 +105,6 @@ public class TileHandler : MonoBehaviour
             }
 
         }
-
-
-        TileActionHandler = GetComponent<ActionHandler>();
 
     }
 
@@ -360,38 +356,42 @@ public class TileHandler : MonoBehaviour
 
     public int GetAttackBonus()
     {
-        if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Undefined ||
-            TileActionHandler.AssignedAction == ActionController.ActionTypes.Attack)
-        {
-            return _attackBonus;
-        }
-        else return 0;
+        //if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Undefined ||
+        //    TileActionHandler.AssignedAction == ActionController.ActionTypes.Attack)
+        //{
+        //    return _attackBonus;
+        //}
+        //else return 0;
+
+        return _attackBonus;
     }
 
     public int GetDefendBonus()
     {
-        if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Undefined ||
-            TileActionHandler.AssignedAction == ActionController.ActionTypes.Attack)
-        {
-            return _defendBonus;
-        }
-        else if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Invest)
-        {
-            return _defendBonus_DefendAction;
-        }
-        else return 0;
+        //if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Undefined ||
+        //    TileActionHandler.AssignedAction == ActionController.ActionTypes.Attack)
+        //{
+        //    return _defendBonus;
+        //}
+        //else if (TileActionHandler.AssignedAction == ActionController.ActionTypes.Invest)
+        //{
+        //    return _defendBonus_DefendAction;
+        //}
+        //else return 0;
+
+        return _defendBonus;
     }
 
     public int GetResourceAmount()
     {
         //Debug.Log($"{_nodeHandler.GetHarvestableNodeAmount()}", this);
-        return _nodeHandler.GetHarvestableNodeAmount();
+        return TileNodeHandler.GetHarvestableNodeAmount();
     }
 
     public int HarvestNode()
     {
         int harvest = GetResourceAmount();
-        _nodeHandler.ClearNodesUponHarvest();
+        TileNodeHandler.ClearNodesUponHarvest();
         return harvest;
     }
 
@@ -413,17 +413,17 @@ public class TileHandler : MonoBehaviour
             //_fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
 
             TileInfluenceHandler.AddInfluenceUntilCompletelyInfluenced(_factionIndex);
-            _nodeHandler.SetMaxNodes(0);
+            TileNodeHandler.SetMaxNodes(0);
         }
 
         if (tileType == TileType.TileTypes.Mountain)
         {
-            _nodeHandler.SetMaxNodes(0);
+            TileNodeHandler.SetMaxNodes(0);
         }
 
         if (tileType == TileType.TileTypes.Capitol)
         {
-            _nodeHandler.SetMaxNodes(3);
+            TileNodeHandler.SetMaxNodes(3);
         }
         //_centerCircle.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
         _innerFill.color = Color.black;

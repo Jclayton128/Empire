@@ -2762,6 +2762,7 @@ GameObject:
   - component: {fileID: 962095114}
   - component: {fileID: 962095115}
   - component: {fileID: 962095116}
+  - component: {fileID: 962095117}
   m_Layer: 0
   m_Name: Controllers
   m_TagString: Untagged
@@ -2872,6 +2873,7 @@ MonoBehaviour:
   _bpd: {fileID: 1704965063}
   _actionDriver_left: {fileID: 1478009130}
   _actionDriver_right: {fileID: 1048575454}
+  _actionPrefab: {fileID: -7661055039051475323, guid: 2b85a0e012a45b44c85969b2239b5a2c, type: 3}
   _actionIcons_Attack: {fileID: 21300000, guid: d69d5d21dd60abf4c80b396d7e35c41b, type: 3}
   _duration_Attack: 3
   _cost_Attack: 2
@@ -2888,6 +2890,7 @@ MonoBehaviour:
   _defensiveHelp: 0
   _neutrals: 0
   _tileToAttackFromForWaterAttacks: {fileID: 0}
+  _actionsInPlay: []
 --- !u!114 &962095114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2931,6 +2934,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _timeDriver: {fileID: 841812024}
   _timePerTurn: 15
+--- !u!114 &962095117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962095108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 334c4a437f8b5b141a82fa1ec560c46b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _microPrefab: {fileID: 0}
+  _microsInAction: []
 --- !u!1 &989548510
 GameObject:
   m_ObjectHideFlags: 0

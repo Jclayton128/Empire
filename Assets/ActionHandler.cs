@@ -13,27 +13,31 @@ public class ActionHandler : MonoBehaviour
     [SerializeField] Image _actionIcon = null;
 
     //state
-    TileHandler _th;
-    NodeHandler _nh;
-    [SerializeField] float _initialDuration = 0;
-    [SerializeField] bool _countsUp = true;
-    [SerializeField] float _timeBuildup = 0;
+    TileHandler _targetTile;
+    public TileHandler TargetTile => _targetTile;
+    int _attemptingFaction;
+    public int AttemptingFaction => _attemptingFaction; 
+
+    float _initialDuration = 0;
+    bool _countsUp = true;
+    float _timeBuildup = 0;
 
     [SerializeField] ActionController.ActionTypes _assignedAction = ActionController.ActionTypes.Undefined;
     public ActionController.ActionTypes AssignedAction => _assignedAction;
 
-    private void Awake()
-    {
-        _th = GetComponent<TileHandler>();
-        _nh = GetComponent<NodeHandler>();
-    }
 
-    public void AssignAction(ActionController.ActionTypes action, float actionDuration, bool countsUp, Sprite actionIcon)
+    public void AssignAction(ActionController.ActionTypes action, TileHandler targetTile, int attemptingFaction,
+        float actionDuration, bool countsUp, Sprite actionIcon)
     {
         //can't have multiple actions in a hex, or overwrite existing actions.
         if (_assignedAction != ActionController.ActionTypes.Undefined) return;
 
         _assignedAction = action;
+        _targetTile = targetTile;
+        _attemptingFaction = attemptingFaction;
+
+        transform.position = _targetTile.transform.position;
+
         ResolveAssignedActionAtStart();
 
         _initialDuration = actionDuration;
@@ -82,6 +86,9 @@ public class ActionHandler : MonoBehaviour
             _actionIcon.enabled = false;
             _countsUp = true;
                     TileController.Instance.PushChangesFromTileUnderCursorChanged();
+
+            ActionController.Instance.CloseCompletedAction(this);
+            Destroy(this.gameObject);
         }
     }
 
@@ -89,10 +96,25 @@ public class ActionHandler : MonoBehaviour
     {
         switch (_assignedAction)
         {
-            case ActionController.ActionTypes.Invest:
-                _th.AttemptDefendTile();
-                _th.TileInfluenceHandler.AddInfluence(_th.FactionIndex, 3);
+            case ActionController.ActionTypes.Attack:
+                //var micro = MicroController.Instance.SpawnMicro();
+                //micro.StartMicro(ActionController.ActionTypes.Attack, )
                 break;
+
+            case ActionController.ActionTypes.Invest:
+                ActionController.Instance.ResolveInvestStart(_targetTile, _attemptingFaction);
+                //_th.AttemptDefendTile();
+                //_th.TileInfluenceHandler.AddInfluence(_th.FactionIndex, 3);
+                break;
+
+            case ActionController.ActionTypes.Extract:
+
+                break;
+
+            case ActionController.ActionTypes.Trade:
+
+                break;
+
         }
 
         TileController.Instance.PushChangesFromTileUnderCursorChanged();
@@ -103,23 +125,25 @@ public class ActionHandler : MonoBehaviour
         switch (_assignedAction)
         {
             case ActionController.ActionTypes.Attack:
-                ActionController.Instance.ResolveAttackAttempt(_th);
+                ActionController.Instance.ResolveAttackAttempt(_targetTile, _attemptingFaction);
                 break;
 
             case ActionController.ActionTypes.Invest:
-                _th.UndefendTile();
-                _nh.HealAllDamagedNodes();
+                ActionController.Instance.ResolveInvestCompletion(_targetTile, _attemptingFaction);
+                //_th.UndefendTile();
+                //_nh.HealAllDamagedNodes();
                 break;
 
             case ActionController.ActionTypes.Extract:
-                int amount = _th.HarvestNode();
-                FactionController.Instance.AdjustResources(amount, FactionController.Instance.PlayerFaction);
-                int randomUnrest = UnityEngine.Random.Range(0, 5);
-                _th.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
+                ActionController.Instance.ResolveExtractAttempt(_targetTile, _attemptingFaction);
+                //int amount = _th.HarvestNode();
+                //FactionController.Instance.AdjustResources(amount, FactionController.Instance.PlayerFaction);
+                //int randomUnrest = UnityEngine.Random.Range(0, 5);
+                //_th.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
                 break;
 
             case ActionController.ActionTypes.Trade:
-                ActionController.Instance.ResolveAttemptAtTrade(_th);
+                ActionController.Instance.ResolveAttemptAtTrade(_targetTile, _attemptingFaction);
                 break;
         }
 

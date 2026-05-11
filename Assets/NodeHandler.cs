@@ -8,7 +8,6 @@ public class NodeHandler : MonoBehaviour
     private enum NodeStatus { Unbuildable, Damaged, Healthy}
 
     [SerializeField] TileHandler _tileHandler = null;
-    [SerializeField] ActionHandler _actionHandler = null;
     [SerializeField] SpriteRenderer[] _nodes = null;
 
     //settings
@@ -191,8 +190,8 @@ public class NodeHandler : MonoBehaviour
     private void Update()
     {
 
-        //no growth if an action is happening here.
-        if (_actionHandler.AssignedAction != ActionController.ActionTypes.Undefined) return;
+        ////no growth if an action is happening here.
+        //if (_actionHandler.AssignedAction != ActionController.ActionTypes.Undefined) return;
 
         UpdateNominalTimeBetweenGrowths();
 

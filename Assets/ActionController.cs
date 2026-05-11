@@ -15,7 +15,7 @@ public class ActionController : MonoBehaviour
     [SerializeField] BattlePanelDriver _bpd = null;
     [SerializeField] ActionDriver _actionDriver_left = null;
     [SerializeField] ActionDriver _actionDriver_right = null;
-
+    [SerializeField] ActionHandler _actionPrefab = null;
     //settings
     [Header("Attack")]
     [SerializeField] Sprite _actionIcons_Attack = null;
@@ -44,6 +44,10 @@ public class ActionController : MonoBehaviour
     [SerializeField] int _defensiveHelp = 0;
     [SerializeField] int _neutrals = 0;
     [SerializeField] TileHandler _tileToAttackFromForWaterAttacks;
+
+
+    //state
+    [SerializeField] List<ActionHandler> _actionsInPlay = new List<ActionHandler>();
 
     private void Awake()
     {
@@ -79,8 +83,8 @@ public class ActionController : MonoBehaviour
             _actionDriver_right.SetName("Trade");
             _actionDriver_right.SetCost(_cost_Trade);
 
-            if (CheckIfAttackIsPossibleAtTileUnderCursor() ||
-                TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction == ActionTypes.Attack)
+            if (CheckIfAttackIsPossibleAtTileUnderCursor())
+                //||TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction == ActionTypes.Attack)
             {
                 DepictProspectiveAttack();
             }
@@ -91,9 +95,48 @@ public class ActionController : MonoBehaviour
         }        
     }
 
+    private ActionHandler CreateNewAction()
+    {
+        ActionHandler newAction = Instantiate(_actionPrefab);
+        _actionsInPlay.Add(newAction);
+        return newAction;
+    }
+
+    public void CloseCompletedAction(ActionHandler completedAction)
+    {
+        _actionsInPlay.Remove(completedAction);
+    }
+
+    public void ClearAllActions()
+    {
+        if (_actionsInPlay.Count > 0)
+        {
+            for (int i = _actionsInPlay.Count - 1; i >= 0; i--)
+            {
+                Destroy(_actionsInPlay[i].gameObject);
+            }
+            _actionsInPlay.Clear();
+        }
+    }
+
+    #region Player UI responses
+
+    public bool CheckIfFactionHasAlreadyAssignedActionToTile(TileHandler targetTile, int attemptingFaction)
+    {
+        foreach (var action in _actionsInPlay)
+        {
+            if (action.TargetTile == targetTile && action.AttemptingFaction == attemptingFaction)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void HandleLMBClickOnTile(TileHandler clickedTile)
     {
-        if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
+        if (CheckIfFactionHasAlreadyAssignedActionToTile(clickedTile, FactionController.Instance.PlayerFaction) == true)
         {
             //cannot assign any new action to a place already performing an action.
             return;
@@ -103,10 +146,13 @@ public class ActionController : MonoBehaviour
 
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            if (CheckIfMineIsPossibleAtTileUnderCursor() &&
+            if (CheckIfExtractIsPossibleAtTileUnderCursor() &&
                 FactionController.Instance.CheckIfAffordable(_cost_Mine, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Extract, _duration_Mine, false, _actionIcons_Mine);
+                ActionHandler ah = CreateNewAction();
+                ah.AssignAction(ActionTypes.Extract,
+                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                    _duration_Mine, false, _actionIcons_Mine);
                 FactionController.Instance.AdjustResources(-_cost_Mine, FactionController.Instance.PlayerFaction);
             }
         }
@@ -115,7 +161,10 @@ public class ActionController : MonoBehaviour
             if (CheckIfAttackIsPossibleAtTileUnderCursor() &&
                 FactionController.Instance.CheckIfAffordable(_cost_Attack, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Attack, _duration_Attack, true, _actionIcons_Attack);
+                ActionHandler ah = CreateNewAction();
+                ah.AssignAction(ActionTypes.Attack,
+                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction, 
+                    _duration_Attack, true, _actionIcons_Attack);
                 FactionController.Instance.AdjustResources(-_cost_Attack, FactionController.Instance.PlayerFaction);
             }
         }
@@ -123,7 +172,7 @@ public class ActionController : MonoBehaviour
 
     public void HandleRMBClickOnTile(TileHandler clickedTile)
     {
-        if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
+        if (CheckIfFactionHasAlreadyAssignedActionToTile(clickedTile, FactionController.Instance.PlayerFaction) == true)
         {
             //cannot assign any new action to a place already performing an action.
             return;
@@ -131,10 +180,13 @@ public class ActionController : MonoBehaviour
 
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            if (CheckIfDefendIsPossibleAtTileUnderCursor() &&
+            if (CheckIfInvestIsPossibleAtTileUnderCursor() &&
                 FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction))
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Invest, _duration_Defend, false, _actionIcons_Defend);
+                ActionHandler ah = CreateNewAction();
+                ah.AssignAction(ActionTypes.Invest,
+                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction, 
+                    _duration_Defend, false, _actionIcons_Defend);
                 FactionController.Instance.AdjustResources(-_cost_Defend, FactionController.Instance.PlayerFaction);
             }
         }
@@ -144,11 +196,15 @@ public class ActionController : MonoBehaviour
 
             if (CheckIfTradeIsPossibleAtTileUnderCursor())
             {
-                clickedTile.GetComponent<ActionHandler>().AssignAction(ActionTypes.Trade,
+                ActionHandler ah = CreateNewAction();
+                ah.AssignAction(ActionTypes.Trade,
+                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
                     FindDurationForTradeActionAtTileUnderCursor(), true, _actionIcons_Trade);
             }
         }
     }
+
+    #endregion
 
     #region Attack Action
 
@@ -346,24 +402,24 @@ public class ActionController : MonoBehaviour
         
     }
 
-    public bool ResolveAttackAttempt(TileHandler clickedTile)
+    public bool ResolveAttackAttempt(TileHandler targetTile, int attemptingFaction)
     {
-        if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
+        if (targetTile.FactionIndex == attemptingFaction)
         {
             //cannot attack ownself
             return false;
         }
-        if (clickedTile.CurrentTileType.TType == TileType.TileTypes.Water)
+        if (targetTile.CurrentTileType.TType == TileType.TileTypes.Water)
         {
             //cannot attack or own water tiles
             return false;
         }
 
         bool isAdjacent = false;
-        foreach (var tile in clickedTile.ShuffledNeighborTiles)
+        foreach (var tile in targetTile.ShuffledNeighborTiles)
         {
             if (tile == null) continue;
-            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            if (tile.FactionIndex == attemptingFaction)
             {
                 isAdjacent = true;
                 break;
@@ -373,12 +429,12 @@ public class ActionController : MonoBehaviour
 
         if (!isAdjacent)
         {
-            bool didAttackResolve = AttemptWaterAttack(clickedTile);
+            bool didAttackResolve = AttemptWaterAttack(targetTile);
             return didAttackResolve;
         }
         else
         {
-            bool didAttackResolve = AttemptLandAttack(clickedTile);
+            bool didAttackResolve = AttemptLandAttack(targetTile);
             return didAttackResolve;
         }
 
@@ -470,9 +526,9 @@ public class ActionController : MonoBehaviour
 
     #endregion
 
-    #region Defend Action
+    #region Invest Action
 
-    private bool CheckIfDefendIsPossibleAtTileUnderCursor()
+    private bool CheckIfInvestIsPossibleAtTileUnderCursor()
     {
         //if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
         //{
@@ -489,13 +545,23 @@ public class ActionController : MonoBehaviour
         else return false;
     }
 
+    public void ResolveInvestStart(TileHandler targetTile, int attemptingFaction)
+    {
+        targetTile.AttemptDefendTile();
+        targetTile.TileInfluenceHandler.AddInfluence(attemptingFaction, 3);
+    }
 
+    public void ResolveInvestCompletion(TileHandler targetTile, int attemptingFaction)
+    {
+        targetTile.UndefendTile();
+        targetTile.TileNodeHandler.HealAllDamagedNodes();
+    }
 
     #endregion
 
-    #region Mine Action
+    #region Extract Action
 
-    private bool CheckIfMineIsPossibleAtTileUnderCursor()
+    private bool CheckIfExtractIsPossibleAtTileUnderCursor()
     {
         if ((TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain ||
             TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Capitol) &&
@@ -504,6 +570,14 @@ public class ActionController : MonoBehaviour
             return true;
         }
         else return false;
+    }
+
+    public void ResolveExtractAttempt(TileHandler targetTile, int attemptingFaction)
+    {
+        int amount = targetTile.HarvestNode();
+        FactionController.Instance.AdjustResources(amount, attemptingFaction);
+        int randomUnrest = UnityEngine.Random.Range(0, 5);
+        targetTile.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
     }
 
     #endregion
@@ -558,11 +632,11 @@ public class ActionController : MonoBehaviour
         return (_duration_Trade * tradeMult);
     }
 
-    public void ResolveAttemptAtTrade(TileHandler selectedTile)
+    public void ResolveAttemptAtTrade(TileHandler targetTile, int attemptingFaction)
     {
         int randomAmountOfInfluenceToAdd = UnityEngine.Random.Range(1, 6);
 
-        selectedTile.TileInfluenceHandler.AddInfluence(FactionController.Instance.PlayerFaction, randomAmountOfInfluenceToAdd);
+        targetTile.TileInfluenceHandler.AddInfluence(attemptingFaction, randomAmountOfInfluenceToAdd);
     }
 
     #endregion

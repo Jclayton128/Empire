@@ -1299,7 +1299,6 @@ GameObject:
   - component: {fileID: 4979224521251495063}
   - component: {fileID: 2653999975602381464}
   - component: {fileID: 5734029230241487985}
-  - component: {fileID: 1976489322366524770}
   - component: {fileID: 7203597030278734165}
   - component: {fileID: 2524893289947584748}
   m_Layer: 6
@@ -1348,7 +1347,7 @@ MonoBehaviour:
   - {fileID: 6478836263749214173}
   _innerRing: {fileID: 1630420661307857019}
   _innerFill: {fileID: 2813366266310493196}
-  _nodeHandler: {fileID: 7203597030278734165}
+  TileNodeHandler: {fileID: 7203597030278734165}
   TileInfluenceHandler: {fileID: 2524893289947584748}
   _coll: {fileID: 5734029230241487985}
   _borders:
@@ -1427,24 +1426,6 @@ PolygonCollider2D:
       - {x: 0.50553083, y: 0}
       - {x: 0.25298846, y: 0.43882358}
   m_UseDelaunayMesh: 0
---- !u!114 &1976489322366524770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7451727800278815027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb550c4191a2c6408ca65b575e7bfa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _actionFillBar: {fileID: 2252448937162803077}
-  _actionIcon: {fileID: 720637348848259384}
-  _initialDuration: 0
-  _countsUp: 1
-  _timeBuildup: 0
-  _assignedAction: 0
 --- !u!114 &7203597030278734165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1458,7 +1439,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tileHandler: {fileID: 2653999975602381464}
-  _actionHandler: {fileID: 1976489322366524770}
+  _actionHandler: {fileID: 0}
   _nodes:
   - {fileID: 1968576469099507312}
   - {fileID: 7022849129860970263}
