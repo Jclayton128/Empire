@@ -1472,7 +1472,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d4f21ef2bb69cd242a9d3d3174a2f490, type: 3}
   _damagedNodeSprite: {fileID: 21300000, guid: 9375e2a4451a36e43916aacbd9beb8af, type: 3}
   _unbuildableNodeSprite: {fileID: 0}
-  _timeBetweenNodeGrowths_nominal: 10
+  _timeBetweenNodeGrowths_nominal: 7
   _timeBetweenNodeGrowths_randomAdd: 10
   _timeBetweenNodeGrowths_actual: 10
   _node0_growth: 0
@@ -1500,7 +1500,7 @@ MonoBehaviour:
   _tileHandler: {fileID: 2653999975602381464}
   _minCircleScale: 0.01
   _maxCircleScale: 1
-  _timeBetweenInfluenceGrowths_Nominal: 7
+  _timeBetweenInfluenceGrowths_Nominal: 12
   _timeBetweenInfluenceGrowths_Actual: 10
   _timeGrowingNewInfluence: 0
   _influenceSlots: 

@@ -854,11 +854,20 @@ public class TileController : MonoBehaviour
         {
             HighlightFaction(TileUnderCursor.FactionIndex);
         }
+        else
+        {
+            HighlightFaction(-9);
+        }
 
     }
 
     public void HighlightFaction(int factionIndexToHighlight)
     {
+        foreach (var tile in _tilesRaw)
+        {
+            tile.DehighlightBorders();
+        }
+
         for (int factionIndex = 0; factionIndex < _factionTiles.Count; factionIndex++)
         {
             if (factionIndex == factionIndexToHighlight)
@@ -868,13 +877,13 @@ public class TileController : MonoBehaviour
                     tile.HighlightBorders();
                 }
             }
-            else
-            {
-                foreach (var tile in _factionTiles[factionIndex])
-                {
-                    tile.DehighlightBorders();
-                }
-            }
+            //else
+            //{
+            //    foreach (var tile in _factionTiles[factionIndex])
+            //    {
+            //        tile.DehighlightBorders();
+            //    }
+            //}
         }
 
     }

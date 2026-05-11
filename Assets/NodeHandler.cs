@@ -36,9 +36,9 @@ public class NodeHandler : MonoBehaviour
     public int GetHarvestableNodeAmount()
     {
         int count = 0;
-        if (_node0_growth >= 1) count++;
-        if (_node1_growth >= 1) count++;
-        if (_node2_growth >= 1) count++;
+        if (_node0_growth >= _timeBetweenNodeGrowths_actual) count++;
+        if (_node1_growth >= _timeBetweenNodeGrowths_actual) count++;
+        if (_node2_growth >= _timeBetweenNodeGrowths_actual) count++;
 
         return count;
     }

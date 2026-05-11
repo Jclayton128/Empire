@@ -242,7 +242,11 @@ public class TileHandler : MonoBehaviour
     {
         for (int i = 0; i < _neighborChecks.Count; i++)
         {
-            if (_orderedNeighborTiles[i] == null)
+            if (_factionIndex < 0)
+            {
+                _borders[i].color = Color.clear;
+            }
+            else if (_orderedNeighborTiles[i] == null)
             {
                 _borders[i].color = FactionController.Instance.GetFactionBorderColor(_factionIndex);
             }
@@ -380,6 +384,7 @@ public class TileHandler : MonoBehaviour
 
     public int GetResourceAmount()
     {
+        //Debug.Log($"{_nodeHandler.GetHarvestableNodeAmount()}", this);
         return _nodeHandler.GetHarvestableNodeAmount();
     }
 

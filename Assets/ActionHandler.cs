@@ -91,6 +91,7 @@ public class ActionHandler : MonoBehaviour
         {
             case ActionController.ActionTypes.Invest:
                 _th.AttemptDefendTile();
+                _th.TileInfluenceHandler.AddInfluence(_th.FactionIndex, 3);
                 break;
         }
 
@@ -113,6 +114,8 @@ public class ActionHandler : MonoBehaviour
             case ActionController.ActionTypes.Extract:
                 int amount = _th.HarvestNode();
                 FactionController.Instance.AdjustResources(amount, FactionController.Instance.PlayerFaction);
+                int randomUnrest = UnityEngine.Random.Range(0, 5);
+                _th.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
                 break;
 
             case ActionController.ActionTypes.Trade:

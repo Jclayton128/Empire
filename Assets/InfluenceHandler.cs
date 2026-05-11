@@ -56,8 +56,6 @@ public class InfluenceHandler : MonoBehaviour
 
     public void AddInfluence(int newFaction, int influenceToAdd)
     {
-        //trash the next one
-
         for (int times = 0; times < influenceToAdd; times++)
         {
             for (int i = 0; i < _influenceSlots.Count; i++)
@@ -81,11 +79,14 @@ public class InfluenceHandler : MonoBehaviour
 
     private void CheckForOwnershipSwapViaInfluence()
     {
+        if (_tileHandler.FactionIndex == -2) return;
+
         int ownerInfluence = GetOwnerInfluence();
         int mostInfluentialFaction = GetFactionRankings().x;
         if (_tileHandler.FactionIndex != mostInfluentialFaction)
         {
             //swap ownership
+
             TileController.Instance.ChangeTileFaction(_tileHandler, _tileHandler.FactionIndex, mostInfluentialFaction);
             _tileHandler.AssignFactionToTile(mostInfluentialFaction, false);
             TileController.Instance.RefreshBorderHighlights();

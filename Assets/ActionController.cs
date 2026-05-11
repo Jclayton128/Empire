@@ -548,11 +548,13 @@ public class ActionController : MonoBehaviour
         {
             if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
             {
-                alliedProductionAtSurroundingTiles++;
+                alliedProductionAtSurroundingTiles += tile.ResourceBonus;
             }
         }
-        float pFactor = alliedProductionAtSurroundingTiles / 18f;
-        float tradeMult = Mathf.Lerp(0.2f, 1f, pFactor);
+
+        float pFactor = alliedProductionAtSurroundingTiles / 9f;
+        float tradeMult = Mathf.Lerp( 1f, 0.2f, pFactor);
+        //Debug.Log($"anp: {alliedProductionAtSurroundingTiles}, pfac: {pFactor}, trademult: {tradeMult}");
         return (_duration_Trade * tradeMult);
     }
 
