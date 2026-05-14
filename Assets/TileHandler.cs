@@ -49,6 +49,7 @@ public class TileHandler : MonoBehaviour
     public int AttackBonus => GetAttackBonus();
 
     public int ResourceBonus => GetResourceAmount();
+    public int MaxResource => TileNodeHandler.MaxNodes;
 
 
 
@@ -384,7 +385,7 @@ public class TileHandler : MonoBehaviour
 
     public int GetResourceAmount()
     {
-        //Debug.Log($"{_nodeHandler.GetHarvestableNodeAmount()}", this);
+        //Debug.Log($"{TileNodeHandler.GetHarvestableNodeAmount()}", this);
         return TileNodeHandler.GetHarvestableNodeAmount();
     }
 

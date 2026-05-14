@@ -2824,6 +2824,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _factionDriver: {fileID: 1507831874}
   _playerEmpireDriver: {fileID: 1542906594}
+  _factionBrainPrefab: {fileID: 0}
   _factionCount: 8
   _factionStartingSize: 4
   _neutralColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
@@ -2877,12 +2878,12 @@ MonoBehaviour:
   _actionIcons_Attack: {fileID: 21300000, guid: d69d5d21dd60abf4c80b396d7e35c41b, type: 3}
   _duration_Attack: 3
   _cost_Attack: 2
-  _actionIcons_Defend: {fileID: 21300000, guid: 35e71eb56095d0c45a31d61a2dd814f2, type: 3}
-  _duration_Defend: 12
-  _cost_Defend: 3
-  _actionIcons_Mine: {fileID: 21300000, guid: 10f1fbd487948944abef296cf7e3d43d, type: 3}
-  _duration_Mine: 5
-  _cost_Mine: 0
+  _actionIcons_Invest: {fileID: 0}
+  _duration_Invest: 12
+  _cost_Invest: 3
+  _actionIcons_Extract: {fileID: 0}
+  _duration_Extract: 5
+  _cost_Extract: 0
   _actionIcons_Trade: {fileID: 21300000, guid: 6d923d0c789567746bf92bd510ebe545, type: 3}
   _duration_Trade: 15
   _cost_Trade: 0
@@ -2890,7 +2891,7 @@ MonoBehaviour:
   _defensiveHelp: 0
   _neutrals: 0
   _tileToAttackFromForWaterAttacks: {fileID: 0}
-  _actionsInPlay: []
+  _actionsInPlayForPlayer: []
 --- !u!114 &962095114
 MonoBehaviour:
   m_ObjectHideFlags: 0

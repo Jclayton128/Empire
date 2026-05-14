@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
+public interface ActionCommander
+{
+    void CompleteAction(ActionHandler completedAction);
+}
 
 public class ActionHandler : MonoBehaviour
 {
@@ -24,13 +28,15 @@ public class ActionHandler : MonoBehaviour
 
     [SerializeField] ActionController.ActionTypes _assignedAction = ActionController.ActionTypes.Undefined;
     public ActionController.ActionTypes AssignedAction => _assignedAction;
-
+    ActionCommander _actionCommander;
 
     public void AssignAction(ActionController.ActionTypes action, TileHandler targetTile, int attemptingFaction,
-        float actionDuration, bool countsUp, Sprite actionIcon)
+        float actionDuration, bool countsUp, Sprite actionIcon, ActionCommander actionCommander)
     {
         //can't have multiple actions in a hex, or overwrite existing actions.
         if (_assignedAction != ActionController.ActionTypes.Undefined) return;
+
+        _actionCommander = actionCommander;
 
         _assignedAction = action;
         _targetTile = targetTile;
@@ -59,7 +65,28 @@ public class ActionHandler : MonoBehaviour
 
     private void Update()
     {
+
         if (_assignedAction == ActionController.ActionTypes.Undefined) return;
+
+        //Check to see if Invest is no longer relevant due to target tile changing ownership.
+        if ((_assignedAction == ActionController.ActionTypes.Invest)
+            && _targetTile.FactionIndex != _attemptingFaction)
+        {
+            ActionController.Instance.ResolveInvestCompletion(_targetTile, _attemptingFaction);
+            _actionCommander.CompleteAction(this);
+            Destroy(this.gameObject);
+            return;
+        }
+
+        //Check to see if Extract is no longer relevant due to target tile changing ownership.
+        if ((_assignedAction == ActionController.ActionTypes.Extract)
+            && _targetTile.FactionIndex != _attemptingFaction)
+        {    
+            _actionCommander.CompleteAction(this);
+            Destroy(this.gameObject);
+            return;
+        }
+
 
         if (_countsUp)
         {
@@ -85,9 +112,9 @@ public class ActionHandler : MonoBehaviour
             _actionFillBar.fillAmount = 0;
             _actionIcon.enabled = false;
             _countsUp = true;
-                    TileController.Instance.PushChangesFromTileUnderCursorChanged();
+            TileController.Instance.PushChangesFromTileUnderCursorChanged();
 
-            ActionController.Instance.CloseCompletedAction(this);
+            _actionCommander.CompleteAction(this);
             Destroy(this.gameObject);
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using System;
 
-public class ActionController : MonoBehaviour
+public class ActionController : MonoBehaviour, ActionCommander
 {
 
 
@@ -21,23 +21,29 @@ public class ActionController : MonoBehaviour
     [SerializeField] Sprite _actionIcons_Attack = null;
     [SerializeField] float _duration_Attack = 3f;
     [SerializeField] int _cost_Attack = 2;
+    public int Cost_Attack => _cost_Attack;
+    public float Duration_Attack => _duration_Attack;
 
-    [Header("Defend")]
-    [SerializeField] Sprite _actionIcons_Defend = null;
-    [SerializeField] float _duration_Defend = 10f;
-    [SerializeField] int _cost_Defend = 3;
+    [Header("Invest")]
+    [SerializeField] Sprite _actionIcons_Invest = null;
+    [SerializeField] float _duration_Invest = 12f;
+    [SerializeField] int _cost_Invest = 3;
+    public int Cost_Invest => _cost_Invest;
+    public float Duration_Invest => _duration_Invest;
 
-
-    [Header("Mine")]
-    [SerializeField] Sprite _actionIcons_Mine = null;
-    [SerializeField] float _duration_Mine = 3f;
-    [SerializeField] int _cost_Mine = 0;
+    [Header("Extract")]
+    [SerializeField] Sprite _actionIcons_Extract = null;
+    [SerializeField] float _duration_Extract = 5f;
+    [SerializeField] int _cost_Extract = 0;
+    public int Cost_Extract => _cost_Extract;
+    public float Duration_Extract => _duration_Extract;
 
     [Header("Trade")]
     [SerializeField] Sprite _actionIcons_Trade = null;
-    [SerializeField] float _duration_Trade = 3f;
-    [SerializeField] int _cost_Trade = 0;
-
+    [SerializeField] float _duration_Trade = 15f;
+    [SerializeField] int _cost_Trade = 4;
+    public int Cost_Trade => _cost_Trade;
+    public float Duration_Trade => _duration_Trade;
 
     [Header("Attack Values")]
     [SerializeField] int _offensiveHelp = 0;
@@ -47,7 +53,7 @@ public class ActionController : MonoBehaviour
 
 
     //state
-    [SerializeField] List<ActionHandler> _actionsInPlay = new List<ActionHandler>();
+    [SerializeField] List<ActionHandler> _actionsInPlayForPlayer = new List<ActionHandler>();
 
     private void Awake()
     {
@@ -70,9 +76,9 @@ public class ActionController : MonoBehaviour
         if (TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             _actionDriver_left.SetName("Mine");
-            _actionDriver_left.SetCost(_cost_Mine);
+            _actionDriver_left.SetCost(_cost_Extract);
             _actionDriver_right.SetName("Defend");
-            _actionDriver_right.SetCost(_cost_Defend);
+            _actionDriver_right.SetCost(_cost_Invest);
 
             _bpd.HideBattleDepiction();
         }
@@ -95,27 +101,33 @@ public class ActionController : MonoBehaviour
         }        
     }
 
-    private ActionHandler CreateNewAction()
+    private ActionHandler CreateNewPlayerAction()
     {
-        ActionHandler newAction = Instantiate(_actionPrefab);
-        _actionsInPlay.Add(newAction);
+        var newAction = CreateNewAction();
+        _actionsInPlayForPlayer.Add(newAction);
         return newAction;
     }
 
-    public void CloseCompletedAction(ActionHandler completedAction)
+    public ActionHandler CreateNewAction()
     {
-        _actionsInPlay.Remove(completedAction);
+        ActionHandler newAction = Instantiate(_actionPrefab);
+        return newAction;
+    }
+
+    public void CompleteAction(ActionHandler completedAction)
+    {
+        _actionsInPlayForPlayer.Remove(completedAction);
     }
 
     public void ClearAllActions()
     {
-        if (_actionsInPlay.Count > 0)
+        if (_actionsInPlayForPlayer.Count > 0)
         {
-            for (int i = _actionsInPlay.Count - 1; i >= 0; i--)
+            for (int i = _actionsInPlayForPlayer.Count - 1; i >= 0; i--)
             {
-                Destroy(_actionsInPlay[i].gameObject);
+                Destroy(_actionsInPlayForPlayer[i].gameObject);
             }
-            _actionsInPlay.Clear();
+            _actionsInPlayForPlayer.Clear();
         }
     }
 
@@ -123,7 +135,7 @@ public class ActionController : MonoBehaviour
 
     public bool CheckIfFactionHasAlreadyAssignedActionToTile(TileHandler targetTile, int attemptingFaction)
     {
-        foreach (var action in _actionsInPlay)
+        foreach (var action in _actionsInPlayForPlayer)
         {
             if (action.TargetTile == targetTile && action.AttemptingFaction == attemptingFaction)
             {
@@ -147,13 +159,13 @@ public class ActionController : MonoBehaviour
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             if (CheckIfExtractIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Mine, FactionController.Instance.PlayerFaction))
+                FactionController.Instance.CheckIfAffordable(_cost_Extract, FactionController.Instance.PlayerFaction))
             {
-                ActionHandler ah = CreateNewAction();
+                ActionHandler ah = CreateNewPlayerAction();
                 ah.AssignAction(ActionTypes.Extract,
                     TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
-                    _duration_Mine, false, _actionIcons_Mine);
-                FactionController.Instance.AdjustResources(-_cost_Mine, FactionController.Instance.PlayerFaction);
+                    _duration_Extract, false, _actionIcons_Extract, this);
+                FactionController.Instance.AdjustResources(-_cost_Extract, FactionController.Instance.PlayerFaction);
             }
         }
         else
@@ -161,10 +173,10 @@ public class ActionController : MonoBehaviour
             if (CheckIfAttackIsPossibleAtTileUnderCursor() &&
                 FactionController.Instance.CheckIfAffordable(_cost_Attack, FactionController.Instance.PlayerFaction))
             {
-                ActionHandler ah = CreateNewAction();
+                ActionHandler ah = CreateNewPlayerAction();
                 ah.AssignAction(ActionTypes.Attack,
                     TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction, 
-                    _duration_Attack, true, _actionIcons_Attack);
+                    _duration_Attack, true, _actionIcons_Attack, this);
                 FactionController.Instance.AdjustResources(-_cost_Attack, FactionController.Instance.PlayerFaction);
             }
         }
@@ -181,13 +193,13 @@ public class ActionController : MonoBehaviour
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             if (CheckIfInvestIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Defend, FactionController.Instance.PlayerFaction))
+                FactionController.Instance.CheckIfAffordable(_cost_Invest, FactionController.Instance.PlayerFaction))
             {
-                ActionHandler ah = CreateNewAction();
+                ActionHandler ah = CreateNewPlayerAction();
                 ah.AssignAction(ActionTypes.Invest,
                     TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction, 
-                    _duration_Defend, false, _actionIcons_Defend);
-                FactionController.Instance.AdjustResources(-_cost_Defend, FactionController.Instance.PlayerFaction);
+                    _duration_Invest, false, _actionIcons_Invest, this);
+                FactionController.Instance.AdjustResources(-_cost_Invest, FactionController.Instance.PlayerFaction);
             }
         }
         else
@@ -196,10 +208,10 @@ public class ActionController : MonoBehaviour
 
             if (CheckIfTradeIsPossibleAtTileUnderCursor())
             {
-                ActionHandler ah = CreateNewAction();
+                ActionHandler ah = CreateNewPlayerAction();
                 ah.AssignAction(ActionTypes.Trade,
                     TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
-                    FindDurationForTradeActionAtTileUnderCursor(), true, _actionIcons_Trade);
+                    FindDurationForTradeActionAtTileUnderCursor(), true, _actionIcons_Trade, this);
             }
         }
     }

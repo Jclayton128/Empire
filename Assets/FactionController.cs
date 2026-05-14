@@ -14,6 +14,7 @@ public class FactionController : MonoBehaviour
 
     //settings
 
+    [SerializeField] FactionBrain _factionBrainPrefab = null;
     [SerializeField] int _factionCount = 4;
     [SerializeField] int _factionStartingSize = 4;
     public int FactionCount => _factionCount;
@@ -49,6 +50,12 @@ public class FactionController : MonoBehaviour
         {
             _resources.Add(_factionStartingResources);
             _unusedPopulation.Add(_factionStartingSize);
+
+            if (i != 0)
+            {
+                var newFaction = Instantiate(_factionBrainPrefab);
+                newFaction.SetupFactionIndex(i);
+            }
         }
         _playerEmpireDriver.ShowProduction(_resources[_playerFaction]);
         //_playerEmpireDriver.ShowPopulation(_unusedPopulation[_playerFaction]);
@@ -128,6 +135,7 @@ public class FactionController : MonoBehaviour
 
 
     #region Production
+
 
     public bool CheckIfAffordable(int resourceCost,int faction)
     {

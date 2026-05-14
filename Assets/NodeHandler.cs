@@ -27,6 +27,7 @@ public class NodeHandler : MonoBehaviour
     [SerializeField] NodeStatus _node2_status;
 
     [SerializeField] int _harvestableNodes_Max = 3;
+    public int MaxNodes => _harvestableNodes_Max;
     [SerializeField] int _harvestableNodes_Damaged = 0;
 
 
@@ -177,7 +178,7 @@ public class NodeHandler : MonoBehaviour
         int stage = 0;
 
         float factor = (timeSpentGrowing / _timeBetweenNodeGrowths_actual) * _nodeSprites.Length;
-       //Debug.Log($"{timeSpentGrowing}/{_timeBetweenNodeGrowths} * {_nodeSprites.Length} = {factor}. F2I: {}")
+        //Debug.Log($"{timeSpentGrowing}/{_timeBetweenNodeGrowths_actual} * {_nodeSprites.Length} = {factor}. F2I: {Mathf.FloorToInt(factor)}", this);
         stage = Mathf.FloorToInt(factor);
         stage = Mathf.Clamp(stage, 0, _nodeSprites.Length-1);
 

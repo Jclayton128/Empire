@@ -53,6 +53,7 @@ public class InfluenceHandler : MonoBehaviour
         return score;
 
     }
+    
 
     public void AddInfluence(int newFaction, int influenceToAdd)
     {
