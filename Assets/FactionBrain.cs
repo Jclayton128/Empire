@@ -99,7 +99,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
                 if (CheckIfTargetTileAlreadyHasAnAction(tile)) return;
 
                 //do not consider extracting from tiles that could rebel
-                if (tile.TileInfluenceHandler.GetInfluenceForFaction(_factionIndex) < 8) return;
+                if (tile.TileInfluenceHandler.GetInfluenceForFaction(_factionIndex) < 9) return;
 
                 if (tile.ResourceBonus > 0)
                 {
@@ -149,7 +149,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
                 //do not consider extracting from tiles that could rebel
                 if (tile.TileInfluenceHandler.GetInfluenceForFaction(_factionIndex) < 9) return;
 
-                if (tile.ResourceBonus >= (tile.MaxResource - 1f))
+                if (tile.ResourceBonus > 0)
                 {
                     ActionHandler action = ActionController.Instance.CreateNewAction();
                     action.AssignAction(ActionController.ActionTypes.Extract, tile, _factionIndex, _extractDuration, false, null, this);

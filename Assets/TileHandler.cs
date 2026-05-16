@@ -17,7 +17,7 @@ public class TileHandler : MonoBehaviour
     [SerializeField] SpriteRenderer _innerFill = null;
     //[SerializeField] SpriteRenderer _centerCircle = null;
 
-    public NodeHandler TileNodeHandler = null;
+    public PopulationHandler TilePopulationHandler = null;
      public InfluenceHandler TileInfluenceHandler = null;
 
     [SerializeField] Collider2D _coll = null;
@@ -49,7 +49,6 @@ public class TileHandler : MonoBehaviour
     public int AttackBonus => GetAttackBonus();
 
     public int ResourceBonus => GetResourceAmount();
-    public int MaxResource => TileNodeHandler.MaxNodes;
 
 
 
@@ -69,11 +68,12 @@ public class TileHandler : MonoBehaviour
         Index = -1;
         ArbitraryNoiseValue = TileController.Instance.GetValueFactorAtPoint(transform.position);
         TileInfluenceHandler.Initialize();
+        TilePopulationHandler.Initialize();
 
         if (ArbitraryNoiseValue < 0.30f)
         {
             SetTileType(TileType.TileTypes.Water);
-
+            //TilePopulationHandler.SetFillableNodes(0);
             //_coll.enabled = false;
         }
         else
@@ -82,23 +82,23 @@ public class TileHandler : MonoBehaviour
 
             if (ArbitraryNoiseValue < 0.45f)
             {
-                TileNodeHandler.SetMaxNodes(3);
+                TilePopulationHandler.SetFillableNodes(3);
             }
 
             else if (ArbitraryNoiseValue < 0.6f)
             {
-                TileNodeHandler.SetMaxNodes(2);
-            }
-
-            else if (ArbitraryNoiseValue < 0.75f)
-            {
-                TileNodeHandler.SetMaxNodes(1);
+                TilePopulationHandler.SetFillableNodes(2);
             }
 
             else if (ArbitraryNoiseValue < 0.9f)
             {
-                TileNodeHandler.SetMaxNodes(0);
+                TilePopulationHandler.SetFillableNodes(1);
             }
+
+            //else if (ArbitraryNoiseValue < 0.9f)
+            //{
+            //    TileNodeHandler.SetFillableNodes(0);
+            //}
 
             else
             {
@@ -106,6 +106,7 @@ public class TileHandler : MonoBehaviour
             }
 
         }
+
 
     }
 
@@ -210,7 +211,7 @@ public class TileHandler : MonoBehaviour
             TileInfluenceHandler.AddInfluenceUntilCompletelyInfluenced(factionIndex);
         }
 
-
+        TilePopulationHandler.DepictNodes();
         TileController.Instance.FindMoveBarycenter(factionIndex);
         TileController.Instance.FindMoveBarycenter(previousFaction);
     }
@@ -386,13 +387,15 @@ public class TileHandler : MonoBehaviour
     public int GetResourceAmount()
     {
         //Debug.Log($"{TileNodeHandler.GetHarvestableNodeAmount()}", this);
-        return TileNodeHandler.GetHarvestableNodeAmount();
+        
+        //could multiply populations by tile type for extra bonuses
+        return TilePopulationHandler.GetHarvestableNodeAmount();
     }
 
     public int HarvestNode()
     {
         int harvest = GetResourceAmount();
-        TileNodeHandler.ClearNodesUponHarvest();
+        //TileNodeHandler.ClearNodesUponHarvest();
         return harvest;
     }
 
@@ -414,17 +417,17 @@ public class TileHandler : MonoBehaviour
             //_fullFill.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
 
             TileInfluenceHandler.AddInfluenceUntilCompletelyInfluenced(_factionIndex);
-            TileNodeHandler.SetMaxNodes(0);
+            TilePopulationHandler.SetFillableNodes(0);
         }
 
         if (tileType == TileType.TileTypes.Mountain)
         {
-            TileNodeHandler.SetMaxNodes(0);
+            TilePopulationHandler.SetFillableNodes(0);
         }
 
         if (tileType == TileType.TileTypes.Capitol)
         {
-            TileNodeHandler.SetMaxNodes(3);
+            TilePopulationHandler.SetFillableNodes(3);
         }
         //_centerCircle.color = FactionController.Instance.GetFactionFillColor(_factionIndex);
         _innerFill.color = Color.black;

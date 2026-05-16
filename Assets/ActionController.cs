@@ -462,7 +462,7 @@ public class ActionController : MonoBehaviour, ActionCommander
         {
             //damage tile;
 
-            clickedTile.GetComponent<NodeHandler>().DamageNode();
+            clickedTile.GetComponent<PopulationHandler>().DecrementFillableNode();
         }
 
         int totalOdds = _offensiveHelp + _defensiveHelp;
@@ -566,7 +566,7 @@ public class ActionController : MonoBehaviour, ActionCommander
     public void ResolveInvestCompletion(TileHandler targetTile, int attemptingFaction)
     {
         targetTile.UndefendTile();
-        targetTile.TileNodeHandler.HealAllDamagedNodes();
+        targetTile.TilePopulationHandler.IncrementFillableNode();
     }
 
     #endregion
@@ -588,7 +588,7 @@ public class ActionController : MonoBehaviour, ActionCommander
     {
         int amount = targetTile.HarvestNode();
         FactionController.Instance.AdjustResources(amount, attemptingFaction);
-        int randomUnrest = UnityEngine.Random.Range(0, 2);
+        int randomUnrest = UnityEngine.Random.Range(0, 4);
         targetTile.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
     }
 

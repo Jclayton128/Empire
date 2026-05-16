@@ -66,7 +66,9 @@ public class FactionController : MonoBehaviour
     {
         if (factionIndex >= 0 && factionIndex < _factionColors.Count)
         {
-            return _factionColors[factionIndex];
+            Color col = _factionColors[factionIndex];
+            col.a = 0.25f;
+            return col;
         }
         else if (factionIndex == -1)
         {
