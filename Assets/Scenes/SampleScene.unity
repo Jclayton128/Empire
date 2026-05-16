@@ -2824,7 +2824,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _factionDriver: {fileID: 1507831874}
   _playerEmpireDriver: {fileID: 1542906594}
-  _factionBrainPrefab: {fileID: 0}
+  _factionBrainPrefab: {fileID: 1520078919986039192, guid: da5649784137d6b43b8f0d022d5fc8de, type: 3}
   _factionCount: 8
   _factionStartingSize: 4
   _neutralColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}

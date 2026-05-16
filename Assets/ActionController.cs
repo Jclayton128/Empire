@@ -588,7 +588,7 @@ public class ActionController : MonoBehaviour, ActionCommander
     {
         int amount = targetTile.HarvestNode();
         FactionController.Instance.AdjustResources(amount, attemptingFaction);
-        int randomUnrest = UnityEngine.Random.Range(0, 5);
+        int randomUnrest = UnityEngine.Random.Range(0, 2);
         targetTile.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
     }
 

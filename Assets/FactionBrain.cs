@@ -109,7 +109,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
                 }
                 else
                 {
-                    Debug.Log("Not mining this one due to zero resources", tile);
+                    //Debug.Log("Not mining this one due to zero resources", tile);
                 }
 
             }
