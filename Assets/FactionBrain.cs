@@ -24,6 +24,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
     [SerializeField] List<TileHandler> _allTiles = new List<TileHandler>();
     [SerializeField] List<TileHandler> _frontierTiles = new List<TileHandler>();
     [SerializeField] List<TileHandler> _interiorTiles = new List<TileHandler>();
+    [SerializeField] List<TileHandler> _visibleUnownedOwnableTiles = new List<TileHandler>();
 
     [SerializeField] List<ActionHandler> _actionsInPlay = new List<ActionHandler>();
 
@@ -61,6 +62,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
     {
         _frontierTiles.Clear();
         _interiorTiles.Clear();
+        _visibleUnownedOwnableTiles.Clear();
 
         _allTiles = new List<TileHandler>(TileController.Instance.GetFactionTileList(_factionIndex));
 
@@ -69,7 +71,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
             bool tileIsFrontier = false;
             foreach (var nt in tile.OrderedNeighborTiles)
             {
-                if (nt.FactionIndex != _factionIndex)
+                if (nt.FactionIndex >= -1 &&  nt.FactionIndex != _factionIndex)
                 {
                     _frontierTiles.Add(tile);
                     tileIsFrontier = true;
@@ -78,69 +80,51 @@ public class FactionBrain : MonoBehaviour, ActionCommander
             }
             if (tileIsFrontier == false) _interiorTiles.Add(tile);
         }
+
+        foreach (var frontierTile in _frontierTiles)
+        {
+            foreach (var nt in frontierTile.OrderedNeighborTiles)
+            {
+                if (nt.FactionIndex >= -1 && nt.FactionIndex != _factionIndex && !_visibleUnownedOwnableTiles.Contains(nt))
+                {
+                    _visibleUnownedOwnableTiles.Add(nt);
+                }
+            }
+        }
+
     }
 
     private void UpdateAttack()
     {
+        TileHandler tileToAttack = null;
+        float attackOddsToBeat = 0;
 
+        foreach (var tile in _visibleUnownedOwnableTiles)
+        {
+            if (FactionController.Instance.CheckIfAffordable(_attackCost, _factionIndex))
+            {
+
+                ActionHandler action = ActionController.Instance.CreateNewAction();
+                action.AssignAction(ActionController.ActionTypes.Attack, tile, _factionIndex, _attackDuration, false, null, this);
+                FactionController.Instance.AdjustResources(-_attackCost, _factionIndex);
+                _actionsInPlay.Add(action);
+            }
+            else
+            {
+                break;
+            }
+
+        }
     }
 
     private void UpdateGenerateResources()
     {
         if (FactionController.Instance.CheckIfAffordable(_attackCost, _factionIndex))
         {
-            Debug.Log("extracting. Could attack.");
-
-            //mine rich, secure interiors only
-            //foreach (var tile in _interiorTiles)
-            foreach (var tile in _allTiles)
-            {
-                //do not consider a tile that already has an action
-                if (CheckIfTargetTileAlreadyHasAnAction(tile)) return;
-
-                //do not consider extracting from tiles that could rebel
-                if (tile.TileInfluenceHandler.GetInfluenceForFaction(_factionIndex) < 9) return;
-
-                if (tile.ResourceBonus > 0)
-                {
-                    ActionHandler action = ActionController.Instance.CreateNewAction();
-                    action.AssignAction(ActionController.ActionTypes.Extract, tile, _factionIndex, _extractDuration, false, null, this);
-                    _actionsInPlay.Add(action);
-                }
-                else
-                {
-                    //Debug.Log("Not mining this one due to zero resources", tile);
-                }
-
-            }
-
-            //if (tilesToExtract > 0)
-            //{
-            //    foreach (var tile in _frontierTiles)
-            //    {
-            //        //do not consider a tile that already has an action
-            //        if (CheckIfTargetTileAlreadyHasAnAction(tile)) return;
-
-            //        //do not consider extracting from tiles that could rebel
-            //        if (tile.TileInfluenceHandler.GetInfluenceForFaction(_factionIndex) < 9) return;
-
-            //        if (tile.ResourceBonus >= (tile.MaxResource - 1f))
-            //        {
-            //            ActionHandler action = ActionController.Instance.CreateNewAction();
-            //            action.AssignAction(ActionController.ActionTypes.Extract, tile, _factionIndex, _extractDuration, false, null, this);
-            //            _actionsInPlay.Add(action);
-            //            tilesToExtract--;
-            //        }
-
-            //        if (tilesToExtract <= 0) break;
-            //    }
-            //}
-
+            
         }
         else
         {
-            //mine secure frontiers and interiors
-            //mine rich, secure interiors only
             foreach (var tile in _allTiles)
             {
                 //do not consider a tile that already has an action

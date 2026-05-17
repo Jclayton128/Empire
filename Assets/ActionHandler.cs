@@ -31,7 +31,7 @@ public class ActionHandler : MonoBehaviour
     ActionCommander _actionCommander;
 
     public void AssignAction(ActionController.ActionTypes action, TileHandler targetTile, int attemptingFaction,
-        float actionDuration, bool countsUp, Sprite actionIcon, ActionCommander actionCommander)
+        float actionDuration, bool countsUp, Sprite actionSprite, ActionCommander actionCommander)
     {
         //can't have multiple actions in a hex, or overwrite existing actions.
         if (_assignedAction != ActionController.ActionTypes.Undefined) return;
@@ -48,19 +48,28 @@ public class ActionHandler : MonoBehaviour
 
         _initialDuration = actionDuration;
 
-        _actionIcon.sprite = actionIcon;
-        _actionIcon.enabled = true;
-        _countsUp = countsUp;
-        if (!countsUp)
+        if (actionSprite == null)
         {
-            _timeBuildup = actionDuration;
+            _actionIcon.enabled = false;
+            _actionFillBar.enabled = false;
         }
-        else if (countsUp)
+        else
         {
-            _timeBuildup = 0;
+            _actionIcon.sprite = actionSprite;
+            _actionIcon.enabled = true;
+            _countsUp = countsUp;
+            if (!countsUp)
+            {
+                _timeBuildup = actionDuration;
+            }
+            else if (countsUp)
+            {
+                _timeBuildup = 0;
+            }
+            SetFillBar();
         }
 
-        SetFillBar();
+
     }
 
     private void Update()

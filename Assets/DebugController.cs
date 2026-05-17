@@ -7,9 +7,8 @@ public class DebugController : MonoBehaviour
 {
     void Update()
     {
-        SelectCurrentTool();
         SelectPlayerFaction();
-
+        SelectTimeScale();
         if (Input.GetKeyDown(KeyCode.N))
         {
             GameController.Instance.StartNewGame();
@@ -17,29 +16,16 @@ public class DebugController : MonoBehaviour
 
     }
 
-    private void SelectCurrentTool()
+    private void SelectTimeScale()
     {
-        //if (Input.GetKeyDown(KeyCode.A))
-        //{
-        //    ActionController.Instance.SelectTool(ActionController.ActionTypes.Attack);
-        //}
-        //if (Input.GetKeyDown(KeyCode.D))
-        //{
-        //    ActionController.Instance.SelectTool(ActionController.ActionTypes.Defend);
-        //}
-        //if (Input.GetKeyDown(KeyCode.S))
-        //{
-        //    ActionController.Instance.SelectTool(ActionController.ActionTypes.Research);
-        //}
-
-        //if (Input.mouseScrollDelta.y > Mathf.Epsilon)
-        //{
-        //    ActionController.Instance.IncrementToolSelection();
-        //}
-        //else if (Input.mouseScrollDelta.y < -Mathf.Epsilon)
-        //{
-        //    ActionController.Instance.DecrementToolSelection();
-        //}
+        if (Input.GetKeyDown(KeyCode.Comma))
+        {
+            GameController.Instance.DecreaseTimeScale();
+        }
+        if (Input.GetKeyDown(KeyCode.Period))
+        {
+            GameController.Instance.IncreaseTimeScale();
+        }
     }
 
     private void SelectPlayerFaction()

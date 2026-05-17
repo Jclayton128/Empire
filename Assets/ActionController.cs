@@ -46,10 +46,10 @@ public class ActionController : MonoBehaviour, ActionCommander
     public float Duration_Trade => _duration_Trade;
 
     [Header("Attack Values")]
-    [SerializeField] int _offensiveHelp = 0;
-    [SerializeField] int _defensiveHelp = 0;
-    [SerializeField] int _neutrals = 0;
-    [SerializeField] TileHandler _tileToAttackFromForWaterAttacks;
+    //[SerializeField] int _offensiveHelp_player = 0;
+    //[SerializeField] int _defensiveHelp_player = 0;
+    //[SerializeField] int _neutrals_player = 0;
+    //[SerializeField] TileHandler _tileToAttackFromForWaterAttacks;
 
 
     //state
@@ -92,7 +92,7 @@ public class ActionController : MonoBehaviour, ActionCommander
             if (CheckIfAttackIsPossibleAtTileUnderCursor())
                 //||TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction == ActionTypes.Attack)
             {
-                DepictProspectiveAttack();
+                DepictProspectiveProspectivePlayerAttack();
             }
             else
             {
@@ -267,11 +267,11 @@ public class ActionController : MonoBehaviour, ActionCommander
                 }
             }
 
-            if (_tileToAttackFromForWaterAttacks == null)
-            {
-                //Debug.Log("No attack possible");
-                return false;
-            }
+            //if (_tileToAttackFromForWaterAttacks == null)
+            //{
+            //    //Debug.Log("No attack possible");
+            //    return false;
+            //}
         }
 
 
@@ -280,7 +280,115 @@ public class ActionController : MonoBehaviour, ActionCommander
 
     }
 
-    private void DepictProspectiveAttack()
+    /// <summary>
+    /// X: offensive help, Y: defensive help, Z: neutral
+    /// </summary>
+    /// <param name="clickedTile"></param>
+    /// <param name="attemptingFaction"></param>
+    /// <returns></returns>
+    private Vector3Int FindAttackOdds_Land(TileHandler clickedTile, int attemptingFaction,
+        out List<int> neighborValues, out List<int> neighborFactions)
+    {
+        neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
+        neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
+
+        int defensiveHelp = clickedTile.DefendBonus;
+        int offensiveHelp = 0;
+        int neutrals = 0;
+
+        for (int i = 0; i < clickedTile.OrderedNeighborTiles.Count; i++)
+        {
+            if (clickedTile.OrderedNeighborTiles[i] == null) continue;
+
+            if (clickedTile.OrderedNeighborTiles[i].FactionIndex == attemptingFaction)
+            {
+                offensiveHelp += clickedTile.OrderedNeighborTiles[i].AttackBonus;
+                neighborValues[i] = clickedTile.OrderedNeighborTiles[i].AttackBonus;
+                neighborFactions[i] = FactionController.Instance.ActiveFaction;
+            }
+            else if (clickedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
+                clickedTile.OrderedNeighborTiles[i].FactionIndex == clickedTile.FactionIndex)
+            {
+                defensiveHelp += clickedTile.OrderedNeighborTiles[i].DefendBonus;
+                neighborValues[i] = clickedTile.OrderedNeighborTiles[i].DefendBonus;
+                neighborFactions[i] = clickedTile.FactionIndex;
+            }
+            else
+            {
+                neutrals++;
+                neighborValues[i] = 0;
+                neighborFactions[i] = clickedTile.OrderedNeighborTiles[i].FactionIndex;
+            }
+        }
+
+        return new Vector3Int(offensiveHelp, defensiveHelp, neutrals);
+
+    }
+
+    public Vector3Int FindAttackOdds_Land(TileHandler clickedTile, int attemptingFaction)
+    {
+        return (FindAttackOdds_Land(clickedTile, attemptingFaction, out _, out _));
+    }
+
+    private Vector3Int FindAttackOdds_Water(TileHandler originTileForAttack, TileHandler targetTile, int attemptingFaction,
+        out List<int> neighborValues, out List<int> neighborFactions)
+    {
+        neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
+        neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
+
+        int defensiveHelp = targetTile.DefendBonus;
+        int offensiveHelp = 0; //water attacks are not buffed in same way as land.
+        int neutrals = 0;
+
+        for (int i = 0; i < targetTile.OrderedNeighborTiles.Count; i++)
+        {
+            if (targetTile.OrderedNeighborTiles[i] == null) continue;
+
+            if (targetTile.OrderedNeighborTiles[i].CurrentTileType.TType == TileType.TileTypes.Water)
+            {
+                int c = TileController.Instance.FindDistanceThroughWater(targetTile.OrderedNeighborTiles[i], originTileForAttack);
+                if (c > 0)
+                {
+                    //This set up means that water attacks improve against islands and peninsulas
+                    offensiveHelp += 1;
+                    neighborValues[i] = 1;
+                }
+                else
+                {
+                    offensiveHelp += 0;
+                    neighborValues[i] = 0;
+                }
+
+                neighborFactions[i] = targetTile.OrderedNeighborTiles[i].FactionIndex;
+            }
+            else if (targetTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
+                targetTile.OrderedNeighborTiles[i].FactionIndex == targetTile.FactionIndex)
+            {
+                defensiveHelp += targetTile.OrderedNeighborTiles[i].DefendBonus;
+                neighborValues[i] = targetTile.OrderedNeighborTiles[i].DefendBonus;
+                neighborFactions[i] = targetTile.FactionIndex;
+            }
+            else
+            {
+                neutrals++;
+                neighborValues[i] = 0;
+                neighborFactions[i] = targetTile.OrderedNeighborTiles[i].FactionIndex;
+            }
+        }
+
+
+
+        return new Vector3Int(offensiveHelp, defensiveHelp, neutrals);
+    }
+
+    public Vector3Int FindAttackOdds_Water(TileHandler originTileForAttack, TileHandler targetTile, int attemptingFaction)
+    {
+        return FindAttackOdds_Water(originTileForAttack, targetTile, attemptingFaction, out _, out _);
+    }
+
+ 
+
+    private void DepictProspectiveProspectivePlayerAttack()
     {
         //Debug.Log("depicting updated attack odds");
         TileHandler selectedTile = TileController.Instance.TileUnderCursor;
@@ -297,121 +405,82 @@ public class ActionController : MonoBehaviour, ActionCommander
 
         if (isAdjacent)
         {
-            //Set up a land battle
-            List<int> neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
-            List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
+            //Find Odds for land attack
+            List<int> neighborValues;
+            List<int> neighborFactions;
+            var oddsVec = FindAttackOdds_Land(selectedTile, FactionController.Instance.PlayerFaction, out neighborValues, out neighborFactions);
 
-            _defensiveHelp = selectedTile.DefendBonus;
-            _offensiveHelp = 0;
-            _neutrals = 0;
+            int offensiveHelp = oddsVec.x;
+            int defensiveHelp = oddsVec.y;
+            int neutrals = oddsVec.z;
 
-            for (int i = 0; i < selectedTile.OrderedNeighborTiles.Count; i++)
-            {
-                if (selectedTile.OrderedNeighborTiles[i] == null) continue;
-
-                if (selectedTile.OrderedNeighborTiles[i].FactionIndex == FactionController.Instance.ActiveFaction)
-                {
-                    _offensiveHelp += selectedTile.OrderedNeighborTiles[i].AttackBonus;
-                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].AttackBonus;
-                    neighborFactions[i] = FactionController.Instance.ActiveFaction;
-                }
-                else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
-                    selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
-                {
-                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus;
-                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus;
-                    neighborFactions[i] = selectedTile.FactionIndex;
-                }
-                else
-                {
-                    _neutrals++;
-                    neighborValues[i] = 0;
-                    neighborFactions[i] = selectedTile.OrderedNeighborTiles[i].FactionIndex;
-                }
-            }
-
-
-            float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
+            float odds = ((float)offensiveHelp) / ((float)defensiveHelp + (float)offensiveHelp);
             int oddsAsInt = Mathf.RoundToInt(odds * 100f);
 
             _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus, neighborValues, neighborFactions,
-                _offensiveHelp, _defensiveHelp, oddsAsInt);
+                offensiveHelp, defensiveHelp, oddsAsInt);
         }
         else
         {
             //detect if water attack is possible
-            int waterDist = 0;
-            List<TileHandler> attackerTiles = TileController.Instance.GetFactionTileList(FactionController.Instance.ActiveFaction);
-            _tileToAttackFromForWaterAttacks = null;
-            foreach (var tile in attackerTiles)
-            {
-                waterDist = TileController.Instance.FindDistanceThroughWater(tile, TileController.Instance.TileUnderCursor);
-                if (waterDist > 0)
-                {
-                    _tileToAttackFromForWaterAttacks = tile;
-                    break;
-                }
-            }
 
-            if (_tileToAttackFromForWaterAttacks == null)
+            TileHandler tileToAttackFromForWaterAttacks = FindClosestOriginTileForWaterAttack(selectedTile, FactionController.Instance.PlayerFaction);
+            //foreach (var tile in attackerTiles)
+            //{
+            //    waterDist = TileController.Instance.FindDistanceThroughWater(tile, TileController.Instance.TileUnderCursor);
+            //    if (waterDist > 0)
+            //    {
+            //        tileToAttackFromForWaterAttacks = tile;
+            //        //a water pathway was found. Stop looking.
+            //        break;
+            //    }
+            //}
+
+            if (tileToAttackFromForWaterAttacks == null)
             {
                 Debug.Log("No attack possible");
                 return;
             }
 
-            List<int> neighborValues = new List<int> { -1, -1, -1, -1, -1, -1 };
-            List<int> neighborFactions = new List<int> { -1, -1, -1, -1, -1, -1 };
+            List<int> neighborValues;
+            List<int> neighborFactions;
 
-            _defensiveHelp = selectedTile.DefendBonus;
-            _offensiveHelp = 0; //water attacks are not buffed in same way as land.
-            _neutrals = 0;
+            Vector3Int oddsVec = FindAttackOdds_Water(tileToAttackFromForWaterAttacks, selectedTile, FactionController.Instance.PlayerFaction, out neighborValues, out neighborFactions);
 
-            for (int i = 0; i < selectedTile.OrderedNeighborTiles.Count; i++)
-            {
-                if (selectedTile.OrderedNeighborTiles[i] == null) continue;
-
-                if (selectedTile.OrderedNeighborTiles[i].CurrentTileType.TType == TileType.TileTypes.Water)
-                {
-                    int c = TileController.Instance.FindDistanceThroughWater(selectedTile.OrderedNeighborTiles[i], _tileToAttackFromForWaterAttacks);
-                    if (c > 0)
-                    {
-                        //This set up means that water attacks improve against islands and peninsulas
-                        _offensiveHelp += 1;
-                        neighborValues[i] = 1;
-                    }
-                    else
-                    {
-                        _offensiveHelp += 0;
-                        neighborValues[i] = 0;
-                    }
-
-                    neighborFactions[i] = selectedTile.OrderedNeighborTiles[i].FactionIndex;
-                }
-                else if (selectedTile.OrderedNeighborTiles[i].FactionIndex != -1 &&
-                    selectedTile.OrderedNeighborTiles[i].FactionIndex == selectedTile.FactionIndex)
-                {
-                    _defensiveHelp += selectedTile.OrderedNeighborTiles[i].DefendBonus;
-                    neighborValues[i] = selectedTile.OrderedNeighborTiles[i].DefendBonus;
-                    neighborFactions[i] = selectedTile.FactionIndex;
-                }
-                else
-                {
-                    _neutrals++;
-                    neighborValues[i] = 0;
-                    neighborFactions[i] = selectedTile.OrderedNeighborTiles[i].FactionIndex;
-                }
-            }
+            int offensiveHelp = oddsVec.x;
+            int defensiveHelp = oddsVec.y;
+            int neutrals = oddsVec.z;
+            
 
 
-            float odds = ((float)_offensiveHelp) / ((float)_defensiveHelp + (float)_offensiveHelp);
+            float odds = ((float)offensiveHelp) / ((float)defensiveHelp + (float)offensiveHelp);
             int oddsAsInt = Mathf.RoundToInt(odds * 100f);
            
             _bpd.DepictBattle(selectedTile.FactionIndex, selectedTile.DefendBonus, neighborValues, neighborFactions,
-                _offensiveHelp, _defensiveHelp, oddsAsInt);
+                offensiveHelp, defensiveHelp, oddsAsInt);
 
         }
 
         
+    }
+
+    private TileHandler FindClosestOriginTileForWaterAttack(TileHandler targetTile, int attemptingFaction)
+    {
+        TileHandler tileToAttackFromForWaterAttacks = null;
+        int waterDist = 0;
+        List<TileHandler> attackerTiles = TileController.Instance.GetFactionTileList(attemptingFaction);
+        foreach (var tile in attackerTiles)
+        {
+            waterDist = TileController.Instance.FindDistanceThroughWater(tile, TileController.Instance.TileUnderCursor);
+            if (waterDist > 0)
+            {
+                tileToAttackFromForWaterAttacks = tile;
+                //a water pathway was found. Stop looking.
+                break;
+            }
+        }
+
+        return tileToAttackFromForWaterAttacks;
     }
 
     public bool ResolveAttackAttempt(TileHandler targetTile, int attemptingFaction)
@@ -441,21 +510,31 @@ public class ActionController : MonoBehaviour, ActionCommander
 
         if (!isAdjacent)
         {
-            bool didAttackResolve = AttemptWaterAttack(targetTile);
+            TileHandler originTile = FindClosestOriginTileForWaterAttack(targetTile, attemptingFaction);
+
+            bool didAttackResolve = AttemptWaterAttack(originTile, targetTile, attemptingFaction);
             return didAttackResolve;
         }
         else
         {
-            bool didAttackResolve = AttemptLandAttack(targetTile);
+            bool didAttackResolve = AttemptLandAttack(targetTile, attemptingFaction);
             return didAttackResolve;
         }
 
 
     }
 
-    private bool AttemptLandAttack(TileHandler clickedTile)
+    private bool AttemptLandAttack(TileHandler clickedTile, int attemptingFaction)
     {
-        int lopside = Mathf.Abs(_offensiveHelp - _defensiveHelp) + 1;
+        var odds = FindAttackOdds_Land(clickedTile, attemptingFaction);
+
+
+        int offensiveHelp = odds.x;
+        int defensiveHelp = odds.y;
+        int neutrals = odds.z;
+
+
+        int lopside = Mathf.Abs(offensiveHelp - defensiveHelp) + 1;
         int damageRand = UnityEngine.Random.Range(0, lopside + 1);
         //Debug.Log($"rolled {damageRand} / {lopside}");
         if ( damageRand == 0)
@@ -465,19 +544,19 @@ public class ActionController : MonoBehaviour, ActionCommander
             clickedTile.GetComponent<PopulationHandler>().DecrementFillableNode();
         }
 
-        int totalOdds = _offensiveHelp + _defensiveHelp;
+        int totalOdds = offensiveHelp + defensiveHelp;
         int rand = UnityEngine.Random.Range(1, totalOdds + 1);
-        if (rand > _defensiveHelp)
+        if (rand > defensiveHelp)
         {
             //attacks succeeds
-            Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
+            //Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
 
-            int winningFaction = FactionController.Instance.PlayerFaction;
+            int winningFaction = attemptingFaction;
 
             TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
             clickedTile.AssignFactionToTile(winningFaction, false);
             clickedTile.TileInfluenceHandler.AddInfluence(winningFaction, 5);
-            TileController.Instance.HighlightFaction(winningFaction);
+            //TileController.Instance.HighlightFaction(winningFaction);
         }
         else
         {
@@ -488,10 +567,10 @@ public class ActionController : MonoBehaviour, ActionCommander
         return true;
     }
 
-    private bool AttemptWaterAttack(TileHandler clickedTile)
+    private bool AttemptWaterAttack(TileHandler originTileForAttack, TileHandler clickedTile, int attemptingFaction)
     {
 
-        int c = TileController.Instance.FindDistanceThroughWater(_tileToAttackFromForWaterAttacks, clickedTile);
+        int c = TileController.Instance.FindDistanceThroughWater(originTileForAttack, clickedTile);
         if (c <= 0)
         {
 
@@ -499,15 +578,21 @@ public class ActionController : MonoBehaviour, ActionCommander
             return false;
         }
 
+        var odds = FindAttackOdds_Water(originTileForAttack, clickedTile, attemptingFaction);
 
-        int totalOdds = _offensiveHelp + _defensiveHelp;
+        int offensiveHelp = odds.x;
+        int defensiveHelp = odds.y;
+        int neutrals = odds.z;
+
+
+        int totalOdds = offensiveHelp + defensiveHelp;
         int rand = UnityEngine.Random.Range(1, totalOdds + 1);
-        if (rand > _defensiveHelp)
+        if (rand > defensiveHelp)
         {
             //attacks succeeds
-            Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
+            //Debug.Log($"Attack succeeds: {rand}/{totalOdds}");
 
-            int winningFaction = FactionController.Instance.PlayerFaction;
+            int winningFaction = attemptingFaction;
             int oldFaction = clickedTile.FactionIndex;
 
             if (clickedTile.FactionIndex > 0)
@@ -515,21 +600,23 @@ public class ActionController : MonoBehaviour, ActionCommander
                 TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, -1);
                 clickedTile.AssignFactionToTile(-1, true);
                 clickedTile.DehighlightBorders();
-                TileController.Instance.HighlightFaction(oldFaction);
+                TileController.Instance.RefreshBorderHighlights();
+                //TileController.Instance.HighlightFaction(oldFaction);
             }
             else if (clickedTile.FactionIndex == -1)
             {
                 TileController.Instance.ChangeTileFaction(clickedTile, clickedTile.FactionIndex, winningFaction);
                 clickedTile.AssignFactionToTile(winningFaction, false);
                 clickedTile.TileInfluenceHandler.AddInfluence(winningFaction, 5);
-                TileController.Instance.HighlightFaction(winningFaction);
+                TileController.Instance.RefreshBorderHighlights();
+                //TileController.Instance.HighlightFaction(winningFaction);
             }
 
         }
         else
         {
             //attack fails
-            Debug.Log($"Attack fails: {rand}/{totalOdds}");
+            //Debug.Log($"Attack fails: {rand}/{totalOdds}");
         }
 
         return true;
@@ -588,7 +675,7 @@ public class ActionController : MonoBehaviour, ActionCommander
     {
         int amount = targetTile.HarvestNode();
         FactionController.Instance.AdjustResources(amount, attemptingFaction);
-        int randomUnrest = UnityEngine.Random.Range(0, 4);
+        int randomUnrest = UnityEngine.Random.Range(0, 3);
         targetTile.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
     }
 
