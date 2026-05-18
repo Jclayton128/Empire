@@ -9,13 +9,15 @@ public class ActionController : MonoBehaviour, ActionCommander
 
 
     public static ActionController Instance {get; private set;}
-    public enum ActionTypes {Undefined, Attack, Invest, Extract, Trade, Count}
+    public enum ActionTypes {Undefined, Attack, Invest, Extract, Trade, Emigrate, Spy, Entreaty, Defend, Count}
 
     //refs
     [SerializeField] BattlePanelDriver _bpd = null;
     [SerializeField] ActionDriver _actionDriver_left = null;
     [SerializeField] ActionDriver _actionDriver_right = null;
     [SerializeField] ActionHandler _actionPrefab = null;
+    
+    
     //settings
     [Header("Attack")]
     [SerializeField] Sprite _actionIcons_Attack = null;
@@ -45,11 +47,33 @@ public class ActionController : MonoBehaviour, ActionCommander
     public int Cost_Trade => _cost_Trade;
     public float Duration_Trade => _duration_Trade;
 
-    [Header("Attack Values")]
-    //[SerializeField] int _offensiveHelp_player = 0;
-    //[SerializeField] int _defensiveHelp_player = 0;
-    //[SerializeField] int _neutrals_player = 0;
-    //[SerializeField] TileHandler _tileToAttackFromForWaterAttacks;
+    [Header("Emigrate")]
+    [SerializeField] Sprite _actionIcons_Emigrate = null;
+    [SerializeField] float _duration_Emigrate = 15f;
+    [SerializeField] int _cost_Emigrate = 4;
+    public int Cost_Emigrate => _cost_Emigrate;
+    public float Duration_Emigrate => _duration_Emigrate;
+
+    [Header("Spy")]
+    [SerializeField] Sprite _actionIcons_Spy = null;
+    [SerializeField] float _duration_Spy = 15f;
+    [SerializeField] int _cost_Spy = 4;
+    public int Cost_Spy => _cost_Spy;
+    public float Duration_Spy => _duration_Spy;
+
+    [Header("Defend")]
+    [SerializeField] Sprite _actionIcons_Defend = null;
+    [SerializeField] float _duration_Defend = 15f;
+    [SerializeField] int _cost_Defend = 4;
+    public int Cost_Defend => _cost_Defend;
+    public float Duration_Defend => _duration_Defend;
+
+    [Header("Entreaty")]
+    [SerializeField] Sprite _actionIcons_Entreaty = null;
+    [SerializeField] float _duration_Entreaty = 15f;
+    [SerializeField] int _cost_Entreaty = 4;
+    public int Cost_Entreaty => _cost_Entreaty;
+    public float Duration_Entreaty => _duration_Entreaty;
 
 
     //state
@@ -75,27 +99,70 @@ public class ActionController : MonoBehaviour, ActionCommander
 
         if (TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            _actionDriver_left.SetName("Mine");
-            _actionDriver_left.SetCost(_cost_Extract);
-            _actionDriver_right.SetName("Defend");
-            _actionDriver_right.SetCost(_cost_Invest);
-
-            _bpd.HideBattleDepiction();
-        }
-        else
-        {
-            _actionDriver_left.SetName("Attack");
-            _actionDriver_left.SetCost(_cost_Attack);
-            _actionDriver_right.SetName("Trade");
-            _actionDriver_right.SetCost(_cost_Trade);
-
-            if (CheckIfAttackIsPossibleAtTileUnderCursor())
-                //||TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction == ActionTypes.Attack)
+            if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
             {
-                DepictProspectiveProspectivePlayerAttack();
+                _actionDriver_left.SetName(ActionTypes.Defend.ToString());
+                _actionDriver_left.SetCost(_cost_Defend);
+                _actionDriver_right.SetName(ActionTypes.Trade.ToString());
+                _actionDriver_right.SetCost(Cost_Trade);
+
+                _bpd.HideBattleDepiction();
+            }
+            else if (TileController.Instance.CheckIfTileIsInterior(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
+            {
+                _actionDriver_left.SetName(ActionTypes.Extract.ToString());
+                _actionDriver_left.SetCost(_cost_Extract);
+                _actionDriver_right.SetName(ActionTypes.Invest.ToString());
+                _actionDriver_right.SetCost(_cost_Invest);
+
+                _bpd.HideBattleDepiction();
             }
             else
             {
+
+                _actionDriver_left.SetName(" ");
+                _actionDriver_left.SetCost(0);
+                _actionDriver_right.SetName(" ");
+                _actionDriver_right.SetCost(0);
+
+                _bpd.HideBattleDepiction();
+            }
+        }
+        else //Must be a foreign
+        {
+            if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, TileController.Instance.TileUnderCursor.FactionIndex))
+            {
+                if (CheckIfAttackIsPossibleAtTileUnderCursor())
+                {
+                    _actionDriver_left.SetName(ActionTypes.Attack.ToString());
+                    _actionDriver_left.SetCost(_cost_Attack);
+                    DepictProspectiveProspectivePlayerAttack();
+                }
+                else
+                {
+                    _actionDriver_left.SetName(" ");
+                    _actionDriver_left.SetCost(0);
+                    _bpd.HideBattleDepiction();
+                }
+
+                if (CheckIfEmigrateIsPossibleAtTileUnderCursor())
+                {
+                    _actionDriver_right.SetName(ActionTypes.Emigrate.ToString());
+                    _actionDriver_right.SetCost(_cost_Emigrate);
+                }
+                else
+                {
+                    _actionDriver_right.SetName(" ");
+                    _actionDriver_right.SetCost(0);
+                }                
+            }
+            else if (TileController.Instance.CheckIfTileIsInterior(TileController.Instance.TileUnderCursor, TileController.Instance.TileUnderCursor.FactionIndex))
+            {
+                _actionDriver_left.SetName(ActionTypes.Spy.ToString());
+                _actionDriver_left.SetCost(_cost_Spy);
+                _actionDriver_right.SetName(ActionTypes.Entreaty.ToString());
+                _actionDriver_right.SetCost(_cost_Entreaty);
+
                 _bpd.HideBattleDepiction();
             }
         }        
@@ -158,26 +225,48 @@ public class ActionController : MonoBehaviour, ActionCommander
 
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            if (CheckIfExtractIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Extract, FactionController.Instance.PlayerFaction))
+            //homeland
+
+            if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
             {
-                ActionHandler ah = CreateNewPlayerAction();
-                ah.AssignAction(ActionTypes.Extract,
-                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
-                    _duration_Extract, false, _actionIcons_Extract, this);
-                FactionController.Instance.AdjustResources(-_cost_Extract, FactionController.Instance.PlayerFaction);
+                //Defend
+
+            }
+            else if (TileController.Instance.CheckIfTileIsInterior(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
+            {
+                //Extract
+                if (CheckIfExtractIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Extract, FactionController.Instance.PlayerFaction))
+                {
+                    ActionHandler ah = CreateNewPlayerAction();
+                    ah.AssignAction(ActionTypes.Extract,
+                        TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                        _duration_Extract, false, _actionIcons_Extract, this);
+                    FactionController.Instance.AdjustResources(-_cost_Extract, FactionController.Instance.PlayerFaction);
+                }
             }
         }
         else
         {
-            if (CheckIfAttackIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Attack, FactionController.Instance.PlayerFaction))
+            //foreign
+
+            if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, TileController.Instance.TileUnderCursor.FactionIndex))
             {
-                ActionHandler ah = CreateNewPlayerAction();
-                ah.AssignAction(ActionTypes.Attack,
-                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction, 
-                    _duration_Attack, true, _actionIcons_Attack, this);
-                FactionController.Instance.AdjustResources(-_cost_Attack, FactionController.Instance.PlayerFaction);
+                //attack
+                if (CheckIfAttackIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Attack, FactionController.Instance.PlayerFaction))
+                {
+                    ActionHandler ah = CreateNewPlayerAction();
+                    ah.AssignAction(ActionTypes.Attack,
+                        TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                        _duration_Attack, true, _actionIcons_Attack, this);
+                    FactionController.Instance.AdjustResources(-_cost_Attack, FactionController.Instance.PlayerFaction);
+                }
+            }
+            else if (TileController.Instance.CheckIfTileIsInterior(TileController.Instance.TileUnderCursor, TileController.Instance.TileUnderCursor.FactionIndex))
+            {
+                //Spy
+
             }
         }
     }
@@ -192,31 +281,68 @@ public class ActionController : MonoBehaviour, ActionCommander
 
         if (clickedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
-            if (CheckIfInvestIsPossibleAtTileUnderCursor() &&
-                FactionController.Instance.CheckIfAffordable(_cost_Invest, FactionController.Instance.PlayerFaction))
+            if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
             {
-                ActionHandler ah = CreateNewPlayerAction();
-                ah.AssignAction(ActionTypes.Invest,
-                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction, 
-                    _duration_Invest, false, _actionIcons_Invest, this);
-                FactionController.Instance.AdjustResources(-_cost_Invest, FactionController.Instance.PlayerFaction);
+                //Trade
+                if (CheckIfTradeIsPossibleAtTileUnderCursor() &&
+                    FactionController.Instance.CheckIfAffordable(_cost_Trade, FactionController.Instance.PlayerFaction))
+                {
+                    ActionHandler ah = CreateNewPlayerAction();
+                    ah.AssignAction(ActionTypes.Trade,
+                        TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                        _duration_Trade, false, _actionIcons_Trade, this);
+                    FactionController.Instance.AdjustResources(-_cost_Trade, FactionController.Instance.PlayerFaction);
+                }
+
+            }
+            if (TileController.Instance.CheckIfTileIsInterior(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
+            {
+                //Invest
+                if (CheckIfInvestIsPossibleAtTileUnderCursor() &&
+                FactionController.Instance.CheckIfAffordable(_cost_Invest, FactionController.Instance.PlayerFaction))
+                {
+                    ActionHandler ah = CreateNewPlayerAction();
+                    ah.AssignAction(ActionTypes.Invest,
+                        TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                        _duration_Invest, false, _actionIcons_Invest, this);
+                    FactionController.Instance.AdjustResources(-_cost_Invest, FactionController.Instance.PlayerFaction);
+                }
             }
         }
         else
         {
-            //Diplomacy
-
-            if (CheckIfTradeIsPossibleAtTileUnderCursor())
+            if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, TileController.Instance.TileUnderCursor.FactionIndex))
             {
-                ActionHandler ah = CreateNewPlayerAction();
-                ah.AssignAction(ActionTypes.Trade,
-                    TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
-                    FindDurationForTradeActionAtTileUnderCursor(), true, _actionIcons_Trade, this);
+                //Emigrate
+                if (CheckIfEmigrateIsPossibleAtTileUnderCursor() &&
+                    FactionController.Instance.CheckIfAffordable(_cost_Emigrate, FactionController.Instance.PlayerFaction))
+                {
+                    ActionHandler ah = CreateNewPlayerAction();
+                    ah.AssignAction(ActionTypes.Emigrate,
+                        TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                        _duration_Emigrate, false, _actionIcons_Emigrate, this);
+                    FactionController.Instance.AdjustResources(-_cost_Emigrate, FactionController.Instance.PlayerFaction);
+                }
+               
+
+            }
+            else if (TileController.Instance.CheckIfTileIsInterior(TileController.Instance.TileUnderCursor, TileController.Instance.TileUnderCursor.FactionIndex))
+            {
+                //Entreaty
+                if (CheckIfEntreatyIsPossibleAtTileUnderCursor())
+                {
+                    ActionHandler ah = CreateNewPlayerAction();
+                    ah.AssignAction(ActionTypes.Trade,
+                        TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction,
+                        _duration_Entreaty, true, _actionIcons_Entreaty, this);
+                }
             }
         }
     }
 
     #endregion
+
+
 
     #region Attack Action
 
@@ -228,30 +354,16 @@ public class ActionController : MonoBehaviour, ActionCommander
             return false;
         }
 
-        //if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
-        //{
-        //    //cannot attack a place already being attacked.
-        //    return false;
-        //}
 
         TileHandler selectedTile = TileController.Instance.TileUnderCursor;
         if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
         {
             //No point in depicting a battle against yourself, right?
-
             return false;
         }
 
-        bool isAdjacent = false;
-        foreach (var tile in selectedTile.OrderedNeighborTiles)
-        {
-            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
-            {
-                isAdjacent = true;
-                return true;
-                //break;
-            }
-        }
+        bool isAdjacent = TileController.Instance.CheckIfTileIsAdjacentToFaction(TileController.Instance.TileUnderCursor,
+            FactionController.Instance.PlayerFaction);
 
         if (!isAdjacent)
         {
@@ -266,18 +378,13 @@ public class ActionController : MonoBehaviour, ActionCommander
                     return true;
                 }
             }
-
-            //if (_tileToAttackFromForWaterAttacks == null)
-            //{
-            //    //Debug.Log("No attack possible");
-            //    return false;
-            //}
+        }
+        else
+        {
+            return true;
         }
 
-
         return false;
-
-
     }
 
     /// <summary>
@@ -625,15 +732,64 @@ public class ActionController : MonoBehaviour, ActionCommander
 
     #endregion
 
+    #region Emigrate Action
+
+    public bool CheckIfEmigrateIsPossibleAtTileUnderCursor()
+    {
+        if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor,
+            TileController.Instance.TileUnderCursor.FactionIndex) &&
+            TileController.Instance.CheckIfTileIsAdjacentToFaction(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public int ResolveEmigrateStart(TileHandler targetTile, int attemptingFaction)
+    {
+        List<TileHandler> adjacentOwnedTiles = new List<TileHandler>();
+        foreach (var tile in targetTile.ShuffledNeighborTiles)
+        {
+            if (tile.FactionIndex == attemptingFaction)
+            {
+                adjacentOwnedTiles.Add(tile);
+            }
+        }
+
+        int influenceToDistributeToNewTile = 0;
+
+        int breaker = 20;
+        while (influenceToDistributeToNewTile < 5)
+        {
+            breaker--;
+            if (breaker <= 0) break;
+
+            foreach (var tile in adjacentOwnedTiles)
+            {
+                int currentInfluenceAtTile = tile.TileInfluenceHandler.GetInfluenceForFaction(attemptingFaction);
+                int surplus = currentInfluenceAtTile - 5;
+                if (surplus > 0)
+                {
+                    influenceToDistributeToNewTile += 1;
+                    tile.TileInfluenceHandler.AddInfluence(-1, 1);
+                }
+            }
+        }
+
+        return influenceToDistributeToNewTile;
+    }
+
+    public void ResolveEmigrateComplete(TileHandler targetTile, int attemptingFaction, int influenceToDistributeToTargetTile)
+    {
+        targetTile.TileInfluenceHandler.AddInfluence(attemptingFaction, influenceToDistributeToTargetTile);
+    }
+
+    #endregion
+
     #region Invest Action
 
     private bool CheckIfInvestIsPossibleAtTileUnderCursor()
     {
-        //if (TileController.Instance.TileUnderCursor.TileActionHandler.AssignedAction != ActionTypes.Undefined)
-        //{
-        //    //cannot defend a place already being attacked.
-        //    return false;
-        //}
 
         if ((TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Plain ||
             TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Capitol) &&
@@ -681,61 +837,93 @@ public class ActionController : MonoBehaviour, ActionCommander
 
     #endregion
     
-    #region Diplomacy Action
+    #region Entreaty Action
 
-    private bool CheckIfTradeIsPossibleAtTileUnderCursor()
+    private bool CheckIfEntreatyIsPossibleAtTileUnderCursor()
     {
         if (TileController.Instance.TileUnderCursor.CurrentTileType.TType == TileType.TileTypes.Water)
         {
             //cannot attack water
             return false;
         }
+        else return true;
 
-        TileHandler selectedTile = TileController.Instance.TileUnderCursor;
-        if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
-        {
-            //No point in depicting a battle against yourself, right?
+        //TileHandler selectedTile = TileController.Instance.TileUnderCursor;
+        //if (selectedTile.FactionIndex == FactionController.Instance.PlayerFaction)
+        //{
+        //    //No point in depicting a battle against yourself, right?
 
-            return false;
-        }
-
-        bool isAdjacent = false;
-        foreach (var tile in selectedTile.OrderedNeighborTiles)
-        {
-            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
-            {
-                isAdjacent = true;
-                return true;
-                //break;
-            }
-        }
-
-        return false;
+        //    return false;
+        //}        
     }
 
     private float FindDurationForTradeActionAtTileUnderCursor()
     {
-        int alliedProductionAtSurroundingTiles = 0;
+        return 3;
+        //int alliedProductionAtSurroundingTiles = 0;
 
-        foreach (var tile in TileController.Instance.TileUnderCursor.OrderedNeighborTiles)
+        //foreach (var tile in TileController.Instance.TileUnderCursor.OrderedNeighborTiles)
+        //{
+        //    if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+        //    {
+        //        alliedProductionAtSurroundingTiles += tile.ResourceBonus;
+        //    }
+        //}
+
+        //float pFactor = alliedProductionAtSurroundingTiles / 9f;
+        //float tradeMult = Mathf.Lerp( 1f, 0.2f, pFactor);
+        ////Debug.Log($"anp: {alliedProductionAtSurroundingTiles}, pfac: {pFactor}, trademult: {tradeMult}");
+        //return (_duration_Trade * tradeMult);
+    }
+
+    public void ResolveAttemptAtEntreaty(TileHandler targetTile, int attemptingFaction)
+    {
+        int randomAmountOfInfluenceToAdd = UnityEngine.Random.Range(1, 6);
+        targetTile.TileInfluenceHandler.AddInfluence(attemptingFaction, randomAmountOfInfluenceToAdd);
+
+        foreach (var nt in targetTile.OrderedNeighborTiles)
         {
-            if (tile.FactionIndex == FactionController.Instance.PlayerFaction)
+            if (nt.FactionIndex >= 0)
             {
-                alliedProductionAtSurroundingTiles += tile.ResourceBonus;
+                randomAmountOfInfluenceToAdd = UnityEngine.Random.Range(0, 4);
+                targetTile.TileInfluenceHandler.AddInfluence(attemptingFaction, randomAmountOfInfluenceToAdd);
             }
         }
 
-        float pFactor = alliedProductionAtSurroundingTiles / 9f;
-        float tradeMult = Mathf.Lerp( 1f, 0.2f, pFactor);
-        //Debug.Log($"anp: {alliedProductionAtSurroundingTiles}, pfac: {pFactor}, trademult: {tradeMult}");
-        return (_duration_Trade * tradeMult);
     }
 
-    public void ResolveAttemptAtTrade(TileHandler targetTile, int attemptingFaction)
-    {
-        int randomAmountOfInfluenceToAdd = UnityEngine.Random.Range(1, 6);
+    #endregion
 
-        targetTile.TileInfluenceHandler.AddInfluence(attemptingFaction, randomAmountOfInfluenceToAdd);
+    #region Trade
+
+    public bool CheckIfTradeIsPossibleAtTileUnderCursor()
+    {
+        if (TileController.Instance.CheckIfTileIsFrontier(TileController.Instance.TileUnderCursor, FactionController.Instance.PlayerFaction) &&
+            TileController.Instance.TileUnderCursor.FactionIndex == FactionController.Instance.PlayerFaction)
+        {
+            return true;
+        }
+
+        else return false;
+    }
+
+    public void ResolveTradeComplete(TileHandler targetTile, int attemptingFaction)
+    {
+        //Trade gets you resources = to adjacent, foreign-owned, non-indepedent hexes, but guaranteed to be at least 1 resource
+        int adjacentForeignTiles = 0;
+
+        foreach (var nt in targetTile.OrderedNeighborTiles)
+        {
+            if (nt == null) continue;
+
+            if (nt.FactionIndex >= 0 && nt.FactionIndex != attemptingFaction)
+            {
+                adjacentForeignTiles++;
+            }
+        }
+
+        adjacentForeignTiles = Mathf.Clamp(adjacentForeignTiles, 1, 6);
+        FactionController.Instance.AdjustResources(adjacentForeignTiles, attemptingFaction);
     }
 
     #endregion

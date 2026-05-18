@@ -11,6 +11,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
 
     //state
 
+    [SerializeField] bool _isActive = true;
     [SerializeField] bool _isExtant;
     [SerializeField] int _factionIndex;
     int _attackCost;
@@ -44,6 +45,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
 
     private void Update()
     {
+        if (!_isActive) return;
         if (!_isExtant) return;
 
         _timeToNextThink -= Time.deltaTime;
@@ -64,22 +66,7 @@ public class FactionBrain : MonoBehaviour, ActionCommander
         _interiorTiles.Clear();
         _visibleUnownedOwnableTiles.Clear();
 
-        _allTiles = new List<TileHandler>(TileController.Instance.GetFactionTileList(_factionIndex));
-
-        foreach (var tile in _allTiles)
-        {
-            bool tileIsFrontier = false;
-            foreach (var nt in tile.OrderedNeighborTiles)
-            {
-                if (nt.FactionIndex >= -1 &&  nt.FactionIndex != _factionIndex)
-                {
-                    _frontierTiles.Add(tile);
-                    tileIsFrontier = true;
-                    break;
-                }
-            }
-            if (tileIsFrontier == false) _interiorTiles.Add(tile);
-        }
+        _allTiles = new List<TileHandler>(TileController.Instance.GetFactionTileList(_factionIndex, out _frontierTiles, out _interiorTiles));
 
         foreach (var frontierTile in _frontierTiles)
         {
@@ -91,7 +78,6 @@ public class FactionBrain : MonoBehaviour, ActionCommander
                 }
             }
         }
-
     }
 
     private void UpdateAttack()
@@ -113,7 +99,6 @@ public class FactionBrain : MonoBehaviour, ActionCommander
             {
                 break;
             }
-
         }
     }
 

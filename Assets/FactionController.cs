@@ -124,7 +124,7 @@ public class FactionController : MonoBehaviour
     {
         if (faction >= 0 && faction < _factionCount)
         {
-            int territory = TileController.Instance.GetFactionTerritory(faction);
+            int territory = TileController.Instance.GetFactionTerritoryCount(faction);
             float production = TileController.Instance.GetFactionProduction(faction);
             _factionDriver.SetFaction(faction, territory, production, 0);
         }

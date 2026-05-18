@@ -510,7 +510,7 @@ public class TileController : MonoBehaviour
         return Mathf.PerlinNoise((point.x + _xOffset) * scale, (point.y + _yOffset) * scale);
     }
 
-    public int GetFactionTerritory(int factionIndex)
+    public int GetFactionTerritoryCount(int factionIndex)
     {
         return _factionTiles[factionIndex].Count;
     }
@@ -527,9 +527,74 @@ public class TileController : MonoBehaviour
         return production;
     }
 
+    public List<TileHandler> GetFactionTileList(int factionIndex, out List<TileHandler> frontierTiles, out List<TileHandler> interiorTiles)
+    {
+        List<TileHandler> allTiles = _factionTiles[factionIndex];
+        frontierTiles = new List<TileHandler>();
+        interiorTiles = new List<TileHandler>();
+
+        foreach (var tile in allTiles)
+        {
+            bool tileIsFrontier = false;
+            foreach (var nt in tile.OrderedNeighborTiles)
+            {
+                //Do I want sea tiles to contribute to being a frontier tile or an interior tile
+                if (nt.FactionIndex >= -2 && nt.FactionIndex != factionIndex)
+                {
+                    frontierTiles.Add(tile);
+                    tileIsFrontier = true;
+                    break;
+                }
+            }
+            if (tileIsFrontier == false) interiorTiles.Add(tile);
+        }
+
+
+        return _factionTiles[factionIndex];
+    }
+
     public List<TileHandler> GetFactionTileList(int factionIndex)
     {
-        return _factionTiles[factionIndex];
+        return GetFactionTileList(factionIndex, out _, out _);
+    }
+
+    public bool CheckIfTileIsFrontier(TileHandler targetTile, int factionIndex)
+    {
+        //non-owned hexes are always frontier
+        if (targetTile.FactionIndex < 0) return true;
+
+        List<TileHandler> frontierTiles;
+        GetFactionTileList(factionIndex, out frontierTiles, out _);
+
+        if (frontierTiles.Contains(targetTile)) return true;
+        else return false;
+    }
+
+    public bool CheckIfTileIsInterior(TileHandler targetTile, int factionIndex)
+    {
+        //non-owned hexes are never interior
+        if (targetTile.FactionIndex < 0) return false;
+
+        List<TileHandler> interiorTiles;
+        GetFactionTileList(factionIndex, out _, out interiorTiles);
+
+        if (interiorTiles.Contains(targetTile)) return true;
+        else return false;
+    }
+
+    public bool CheckIfTileIsAdjacentToFaction(TileHandler targetTile, int factionIndex)
+    {
+        if (targetTile == null) return false;
+        foreach (var tile in targetTile.OrderedNeighborTiles)
+        {
+            if (tile == null) continue;
+            if (tile.FactionIndex == factionIndex)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public float GetDistanceFromPointToFactionBarycenter(Vector3 testPoint, int factionIndex)
@@ -545,6 +610,8 @@ public class TileController : MonoBehaviour
 
 
     }
+
+
 
     #endregion
 

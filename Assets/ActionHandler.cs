@@ -29,6 +29,9 @@ public class ActionHandler : MonoBehaviour
     [SerializeField] ActionController.ActionTypes _assignedAction = ActionController.ActionTypes.Undefined;
     public ActionController.ActionTypes AssignedAction => _assignedAction;
     ActionCommander _actionCommander;
+    int _payload = 0;
+
+
 
     public void AssignAction(ActionController.ActionTypes action, TileHandler targetTile, int attemptingFaction,
         float actionDuration, bool countsUp, Sprite actionSprite, ActionCommander actionCommander)
@@ -144,7 +147,15 @@ public class ActionHandler : MonoBehaviour
                 break;
 
             case ActionController.ActionTypes.Extract:
+               
+                break;
 
+            case ActionController.ActionTypes.Entreaty:
+
+                break;
+
+            case ActionController.ActionTypes.Emigrate:
+                _payload = ActionController.Instance.ResolveEmigrateStart(_targetTile, _attemptingFaction);
                 break;
 
             case ActionController.ActionTypes.Trade:
@@ -178,8 +189,17 @@ public class ActionHandler : MonoBehaviour
                 //_th.TileInfluenceHandler.AddInfluence(-1, randomUnrest);
                 break;
 
+            case ActionController.ActionTypes.Entreaty:
+                ActionController.Instance.ResolveAttemptAtEntreaty(_targetTile, _attemptingFaction);
+                break;
+
+
+            case ActionController.ActionTypes.Emigrate:
+                ActionController.Instance.ResolveEmigrateComplete(_targetTile, _attemptingFaction, _payload);
+                break;
+
             case ActionController.ActionTypes.Trade:
-                ActionController.Instance.ResolveAttemptAtTrade(_targetTile, _attemptingFaction);
+                ActionController.Instance.ResolveTradeComplete(_targetTile, _attemptingFaction);
                 break;
         }
 

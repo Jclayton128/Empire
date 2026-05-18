@@ -44,3 +44,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea94bd88388fc3040a83ac1f8d2b2aaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _timeBetweenThinks: 2.1
+  _isActive: 0
+  _isExtant: 0
+  _factionIndex: 0
+  _timeToNextThink: 0
+  _allTiles: []
+  _frontierTiles: []
+  _interiorTiles: []
+  _visibleUnownedOwnableTiles: []
+  _actionsInPlay: []
